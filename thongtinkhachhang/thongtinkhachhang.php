@@ -11,7 +11,7 @@
       <div class="sidebar">
         <div class="profile">
           <div class="profile-pic">DT</div>
-          <p>thuanthong675@gmail.com</p>
+          <p>hungtho01</p>
         </div>
         <nav>
           <div class="nav-item active">
