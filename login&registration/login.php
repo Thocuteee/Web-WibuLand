@@ -4,25 +4,56 @@ include '../components/connect.php';
 
 if (isset($_POST['submit'])) { // Kiểm tra xem form đăng nhập đã được gửi chưa
 
-    $email = $_POST['email']; // Lấy dữ liệu email từ form
-    $password =        $_POST['password']; // Lấy dữ liệu mật khẩu từ form 
-    // Thực hiện câu truy vấn để kiểm tra người dùng với email và mật khẩu đã nhập
-    $select_user = mysqli_query($conn, "SELECT * FROM `users` WHERE EmailUser = '$email' AND PasswordUser = '$password'");
+    // Lấy dữ liệu và loại bỏ các ký tự không cần thiết (trim, strip_tags)
+    // Mặc dù Prepared Statements giúp ngăn SQL Injection, việc làm sạch dữ liệu vẫn là một thói quen tốt.
+    $email = trim(strip_tags($_POST['email']));
+    $password = $_POST['password']; 
+    
+    // BƯỚC 1: SỬ DỤNG PREPARED STATEMENT ĐỂ TRUY VẤN NGƯỜI DÙNG CHỈ BẰNG EMAIL (CHỐNG SQL INJECTION)
+    $select_query = "SELECT * FROM `users` WHERE EmailUser = ?";
+    
+    // Chuẩn bị truy vấn
+    $stmt = mysqli_prepare($conn, $select_query);
+    
+    // Gắn tham số email vào truy vấn
+    // "s" là kiểu string (chuỗi)
+    mysqli_stmt_bind_param($stmt, "s", $email);
+    
+    // Thực thi truy vấn
+    mysqli_stmt_execute($stmt);
+    
+    // Lấy kết quả
+    $result = mysqli_stmt_get_result($stmt);
 
-    if (mysqli_num_rows($select_user) > 0) { // Kiểm tra nếu có bản ghi nào khớp với thông tin đăng nhập
-        $row = mysqli_fetch_array($select_user); // Lấy dữ liệu của bản ghi tìm được
+    if (mysqli_num_rows($result) > 0) { // Kiểm tra nếu tìm thấy email người dùng
+        $row = mysqli_fetch_array($result); // Lấy dữ liệu của bản ghi tìm được
+        $hashed_password = $row["PasswordUser"]; // Lấy mật khẩu đã băm từ DB
 
-        $_SESSION["user_id"] = $row["IdUser"]; // Lưu ID người dùng vào session để sử dụng cho các thao tác sau
+        // BƯỚC 2: DÙNG PHP ĐỂ KIỂM TRA MẬT KHẨU
+        if (password_verify($password, $hashed_password)) {
+            // Mật khẩu khớp -> Đăng nhập thành công
+            $_SESSION["user_id"] = $row["IdUser"]; // Lưu ID người dùng vào session
 
-        if ($row["role"] == "0") {
-            header ("Location: ../admin/admin.php");
-        } else if ($row["role"] == "1") {
-            header("Location: ../Home/index.php"); // Chuyển hướng đến trang chủ nếu đăng nhập thành công
+            if ($row["role"] == "0") {
+                header ("Location: ../admin/admin.php");
+            } else if ($row["role"] == "1") {
+                header("Location: ../Home/index.php"); // Chuyển hướng đến trang chủ
+            }
+            // Giải phóng statement
+            mysqli_stmt_close($stmt); 
+            exit(); // Quan trọng: Kết thúc script sau khi chuyển hướng
+        } else {
+            // Mật khẩu KHÔNG khớp
+            $message[] = "Email đăng nhập hoặc mật khẩu không chính xác!";
         }
     } else {
-        // Nếu thông tin đăng nhập không chính xác, thêm thông báo lỗi vào mảng `$message`
+        // Không tìm thấy email
         $message[] = "Email đăng nhập hoặc mật khẩu không chính xác!";
-
+    }
+    
+    // Đóng statement nếu nó vẫn đang mở
+    if (isset($stmt) && $stmt) {
+        mysqli_stmt_close($stmt);
     }
 }
 ?>

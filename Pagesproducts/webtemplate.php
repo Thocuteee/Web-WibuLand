@@ -26,7 +26,7 @@ function generateHTMLPagesProducts($sanpham, $name_category) {
         <title><?php echo $name_category; ?></title>
     </head>
     <body>
-         <?php include '../../components/header.php'; ?>
+        <?php include '../../components/header.php'; ?>
         <main>
             <?php include '../../components/sidebar.php'; ?>
             <div class="home-content">
@@ -42,10 +42,17 @@ function generateHTMLPagesProducts($sanpham, $name_category) {
                                     <div class="product-list">';
                     
                                 while ($row = $result->fetch_assoc()) {
+                                    $detail_url = "product_detail.php".$row['ID'] . "&category" .$sanpham;
                                     echo '<div class="product">';
+
+                                    echo '<a href="' . $detail_url . '">';
                                     echo '<img src="/admin/' . $row['Img1'] . '">';
+                                    echo '</a>';
                                     
+                                    echo '<a href="' . $detail_url . '">';
                                     echo '<div class="name">' . $row['Name'] . '</div>';
+                                    echo '</a>';
+                                    
                                     if ($row['SoLuongDaBan'] == $row['SoLuongTonKho']) {
                                         echo '<div class="sold-out" style ="background: orange">Hết hàng</div>';
                                         
@@ -56,7 +63,7 @@ function generateHTMLPagesProducts($sanpham, $name_category) {
                                             //Tính giá giảm không sợ lỗ
                                             $Giacu = number_format(($row['Gia'] / (1-$row['Sale'] / 100)));
                                         }
-                                       
+                                    
                                         echo '<div class="price">' . number_format($row['Gia']) . '₫</div>';
                                         if (isset($Giacu)) {    
                                             echo '<div class="old-price">' . $Giacu . '₫</div>';
@@ -79,7 +86,7 @@ function generateHTMLPagesProducts($sanpham, $name_category) {
 
         <script src="/components/js/global.js" defer></script>
 
-       
+    
     </body>
     </html>
     <?php

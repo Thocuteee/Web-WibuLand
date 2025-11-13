@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="../components/css/header_sidebar_footer.css">
     <link rel="stylesheet" href="css/home.css">
     <link rel="stylesheet" href="../Pagesproducts/css/listproducts.css">
-          
 
         
     <title>Wibu Dreamland</title>
@@ -19,12 +18,12 @@
     
     <!-- MAIN_WEBSITE -->
     <main>
-          <!-- Include Sidebar -->
-          <?php include '../components/sidebar.php'; ?>
-          
-          <!-- HOME-CONTENT -->
-          <div class="home-content">
-              <div class="content">
+        <!-- Include Sidebar -->
+        <?php include '../components/sidebar.php'; ?>
+        
+        <!-- HOME-CONTENT -->
+        <div class="home-content">
+            <div class="content">
 
                 <!-- SLIDE-SHOW -->
                 <div class="slide-show">

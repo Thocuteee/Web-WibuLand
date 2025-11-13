@@ -1,32 +1,38 @@
-<!-- <?php
-      include '../components/connect.php';
+<?php
+    include '../components/connect.php';
 
 
-      if (isset($_POST['submit'])) {
-        $username = $_POST['name'];
-        $email = $_POST['email'];
-        $password = $_POST['password'];
-        $phone = $_POST['phone'];
+    if (isset($_POST['submit'])) {
+      $username = $_POST['name'];
+      $email = $_POST['email'];
+      $password = $_POST['password'];
+      $phone = $_POST['phone'];
 
-        $select_user = mysqli_query($conn, "SELECT * FROM `users` WHERE SDT = '$phone' OR EmailUser = '$email'");
+      $select_user = mysqli_query($conn, "SELECT * FROM `users` WHERE SDT = '$phone' OR EmailUser = '$email'");
 
-        if (mysqli_num_rows($select_user) > 0) {
-          $message[] = "Tài khoản đã tồn tại! ";
+      if (mysqli_num_rows($select_user) > 0) {
+        $message[] = "Tài khoản đã tồn tại! ";
           
-        } else {
-          $add_user = mysqli_query($conn, "INSERT INTO `users` (SDT,NameUser,EmailUser,PasswordUser) VALUES('$phone','$username','$email', '$password')");
+      } else {
+          // BƯỚC MÃ HÓA MẬT KHẨU
+          // Sử dụng hàm password_hash để băm mật khẩu
+        $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
-          $id_user = mysqli_insert_id($conn);
+          // CHÈN MẬT KHẨU ĐÃ BĂM VÀO DATABASE
+          // SỬ DỤNG $hashed_password thay vì $password
+        $add_user = mysqli_query($conn, "INSERT INTO `users` (SDT,NameUser,EmailUser,PasswordUser) VALUES('$phone','$username','$email', '$hashed_password')");
 
-          $add_user_exp = mysqli_query($conn, "INSERT INTO `expuser` (IdUser) VALUES('$id_user')");
+        $id_user = mysqli_insert_id($conn);
+
+        $add_user_exp = mysqli_query($conn, "INSERT INTO `expuser` (IdUser) VALUES('$id_user')");
 
 
-          $_SESSION["user_id"] = $id_user;
-          header("Location: ../Home/index.php");
-          exit();
-        }
+        $_SESSION["user_id"] = $id_user;
+        header("Location: ../Home/index.php");
+        exit();
       }
-      ?> -->
+    }
+?>
 <!DOCTYPE html>
 <html lang="en">
 
