@@ -1,0 +1,253 @@
+* {
+    font-family: "Noto Sans", sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    outline: none;
+    border: none;
+    text-decoration: none;
+    text-transform: none;
+    transition: all 0.2s linear;
+  }
+  
+  :root {
+    --bg_color: #f0f0f0;
+    --header_color: #fcb3b3;
+    --yellow-color: #f9a01b;
+    --box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.1);
+    --white-dark: #f0f0f0;
+    --menu-color: white;
+    --focus-hover-color: rgb(192, 192, 192, 0.5);
+  }
+  html {
+    font-size: 9.5px;
+  }
+  
+  body {
+    background: #fce7f7;
+  }
+  
+  .main-login {
+    top: 0;
+    right: 0;
+    display: flex;
+    min-height: 100vh;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .main-login .wrapper {
+    position: relative;
+    width: 55rem;
+    min-height: 40rem;
+    border-radius: 3%;
+    padding: 4rem;
+    box-shadow: 0 0 4rem rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+    background: white;
+  }
+  
+  .main-login .wrapper .login-box h2 {
+    font-size: 4rem;
+    text-align: center;
+  }
+  
+  .main-login .wrapper .login-box .input-box {
+    position: relative;
+    width: 40rem;
+    height: 5rem;
+    margin: 2rem 4rem;
+    display: flex;
+    align-items: center;
+  
+    background: transparent;
+    border: 2px solid black;
+    border-radius: 1rem;
+  }
+  
+  .main-login .wrapper .login-box .input-box .input {
+    width: 100%;
+    height: 5rem;
+    padding: 2rem 6rem 2rem 4rem;
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+  }
+  .main-login .wrapper .login-box .input-box .input input{
+    width: 26rem;
+  }
+  .main-login .wrapper .login-box .input-box i {
+    position: absolute;
+    font-size: 2rem;
+    left: 1rem;
+  }
+  /*NTT*/
+  /* Cấu trúc chính cho khung nhập */
+  .input-box {
+    display: flex;
+    align-items: center;
+    border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 5px;
+    width: 300px; /* Độ rộng mong muốn */
+  }
+  
+  /* Icon khóa */
+  .input-box i {
+    margin-right: 10px;
+  }
+  
+  /* Ô nhập mật khẩu */
+  .input-box input[type="text"],
+  .input-box input[type="password"] {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: 1rem;
+    width: 100%; /* Đảm bảo ô nhập luôn chiếm toàn bộ chiều rộng */
+    padding: 5px; /* Giữ padding cố định */
+    box-sizing: border-box; /* Đảm bảo kích thước không thay đổi */
+  }
+  
+  /* Container của checkbox */
+  .checkbox-container {
+    position: relative;
+    width: 50px;
+    height: 25px;
+    margin-left: 10px; /* Khoảng cách bên trái nếu cần */
+  }
+  
+  /* Ẩn checkbox gốc */
+  .checkbox-container input[type="checkbox"] {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  
+  /* Tạo nền cho checkbox tùy chỉnh */
+  .checkbox-container .checkbox-label {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #ccc;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  /* Phần tròn di chuyển khi chọn */
+  .checkbox-container .checkbox-label:before {
+    content: "";
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 18px;
+    height: 18px;
+    background-color: white;
+    border-radius: 50%;
+    transition: transform 0.3s ease;
+  }
+  
+  /* Khi checkbox được chọn, thay đổi màu nền và di chuyển phần tròn */
+  .checkbox-container input[type="checkbox"]:checked + .checkbox-label {
+    background-color: #fce7f7;
+  }
+  
+  .checkbox-container input[type="checkbox"]:checked + .checkbox-label:before {
+    transform: translateX(25px);
+  }
+  /*NTT*/
+  .main-login .wrapper .login-box .forgot-pass {
+    margin-left: 4rem;
+    margin-bottom: 2rem;
+  }
+  
+  .main-login .wrapper .login-box .forgot-pass a {
+    text-decoration: none;
+    color: black;
+    font-size: 1.5rem;
+  }
+  
+  .main-login .wrapper .login-box .forgot-pass:hover {
+    text-decoration: underline;
+  }
+  
+  .main-login .wrapper .login-box .button {
+    margin-left: 3.5rem;
+    margin-right: 3rem;
+  }
+  .main-login .wrapper .login-box button {
+    width: 100%;
+    background-color: black;
+    color: rgb(255, 255, 255);
+    margin-bottom: 1rem;
+    height: 4rem;
+  }
+  
+  .main-login .wrapper .login-box .sign-link {
+    margin-left: 3.5rem;
+    font-size: 1.7rem;
+  }
+  
+  .main-login .wrapper .login-box .sign-link a {
+    color: black;
+    font-weight: 600;
+  }
+  
+  .main-login .wrapper .login-box .sign-link a:hover {
+    text-decoration: underline;
+  }
+  
+  .alert {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    top: 0%;
+    left: 50%;
+    transform: translate(-50%, 50%);
+    font-size: 2rem;
+    background-color: #fcb3b3;
+    border-radius: 1rem;
+    box-shadow: var(--box-shadow);
+    padding: 1rem;
+
+    animation: hidden-alert 4s forwards;
+    z-index: 1;
+  }
+   @keyframes hidden-alert {
+    0% {
+      opacity: 1;
+      visibility: visible;
+    }
+    70% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+      visibility: hidden;
+    }
+  } 
+  /*NTT*/
+  
+  .main-login .wrapper .login-box .input-box {
+    /* display: grid; */
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 10px;
+  
+  }
+  
+ 
+  
+  .main-login .wrapper .login-box .input-box .NoticeText {
+    font-weight: bold;
+    color: red;
+  }
+  
+  /*NTT*/
+  
+ 
+  
