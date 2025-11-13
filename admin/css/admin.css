@@ -1,0 +1,184 @@
+html {
+    font-size: 10px;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    padding: 2rem;
+    font-size: 1.4rem;
+}
+
+.container {
+    max-width: 120rem;
+    margin: 0 auto;
+}
+
+.actions {
+    margin: 2rem 0;
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+select, button , input {
+    padding: 0.8rem 1.2rem;
+    border: 0.1rem solid #ddd;
+    border-radius: 0.4rem;
+    font-size: 1.4rem;
+}
+
+.btn-func {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 5px;
+    text-align: center;
+    margin-right: 5px;
+    transition: background-color 0.3s;
+}
+.btn-func:hover {
+    background-color:#45a049;
+    color: #fff;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+    background-color: white;
+    width: 80%;
+    max-width: 60rem;
+    margin: 3rem auto;
+    padding: 2rem;
+    border-radius: 0.8rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.form-group input, .form-group textarea {
+    width: 100%;
+    padding: 0.8rem;
+    font-size: 1.4rem;
+}
+
+.search-container {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 2rem;
+    background-color: #fff;
+}
+
+th, td {
+    padding: 1.2rem;
+    text-align: left;
+    border: 0.1rem solid #ddd;
+}
+
+th {
+    background-color: #f4f4f4;
+}
+
+.product-image {
+    max-width: 10rem;
+    height: auto;
+}
+
+.close {
+    float: right;
+    cursor: pointer;
+    font-size: 2.4rem;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.action-buttons button {
+    padding: 0.5rem 1rem;
+}
+
+
+.button-group {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.delete-btn {
+    background-color: #ff4444;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    margin-right: 10px;
+    cursor: pointer;
+}
+
+
+.delete-btn:hover {
+    background-color: #cc0000;
+}
+
+
+
+
+
+.alert {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    top: 0%;
+    left: 50%;
+    transform: translate(-50%, 50%);
+    font-size: 2rem;
+    background-color: #fcb3b3;
+    border-radius: 1rem;
+    box-shadow: var(--box-shadow);
+    padding: 1rem;
+
+    animation: hidden-alert 4s forwards;
+    z-index: 1;
+  }
+   @keyframes hidden-alert {
+    0% {
+      opacity: 1;
+      visibility: visible;
+    }
+    70% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+      visibility: hidden;
+    }
+  } 
