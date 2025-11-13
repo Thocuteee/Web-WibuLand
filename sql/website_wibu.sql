@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: 127.0.0.1
--- Thời gian đã tạo: Th10 16, 2024 lúc 03:29 AM
+-- Thời gian đã tạo: Th10 13, 2025 lúc 08:35 AM
 -- Phiên bản máy phục vụ: 10.4.32-MariaDB
 -- Phiên bản PHP: 8.2.12
 
@@ -70,8 +70,8 @@ CREATE TABLE `expuser` (
 --
 
 INSERT INTO `expuser` (`IdUser`, `exp`, `max_exp`, `lv_user`) VALUES
-(3, 0, 100, 0),
-(1, 20, 100, 20);
+(1, 20, 100, 20),
+(7, 0, 100, 0);
 
 -- --------------------------------------------------------
 
@@ -186,9 +186,8 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`IdUser`, `SDT`, `NameUser`, `EmailUser`, `PasswordUser`, `role`) VALUES
-(1, '0917610804', 'Dương Thuận Thông', 'thuanthong675@gmail.com', '123456789', 0),
-(2, '123456789', 'Dương Thuận Buồm', 'traolongngonqu@gmail.com', '123456789', 1),
-(3, '987654321', 'Dương Văn', 'duongvan@gmail.com', '123456789', 1);
+(1, '0902846205', 'Chềnh Hưng Thọ', 'chenhhung', '123456789', 0),
+(7, '0123456789', 'Đặng Anh Duy', 'chungtabanguoi@gmail.com', '123456AcB', 1);
 
 --
 -- Chỉ mục cho các bảng đã đổ
@@ -286,7 +285,7 @@ ALTER TABLE `theloai_sanpham`
 -- AUTO_INCREMENT cho bảng `users`
 --
 ALTER TABLE `users`
-  MODIFY `IdUser` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `IdUser` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- Các ràng buộc cho các bảng đã đổ
