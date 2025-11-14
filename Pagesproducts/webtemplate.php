@@ -1,15 +1,27 @@
 <?php
-    function getMoreProduct($sanpham, $conn){
-        $product = "SELECT * FROM `$sanpham` ORDER BY ID DESC LIMIT 20";
-        $result = $conn->query($product);
-        return $result;
+// BƯỚC 1: SỬ DỤNG require_once VỚI ĐƯỜNG DẪN TƯƠNG ĐỐI CHÍNH XÁC (2 CẤP)
+// Từ /Pagesproducts/Mohinh/mohinh.php -> /components/connect.php
+require_once '../../components/connect.php'; 
+
+/**
+ * Hàm lấy danh sách sản phẩm theo Category
+ */
+function getMoreProduct($sanpham) {
+    global $conn; // Đọc biến $conn từ phạm vi toàn cầu
+    
+    // Kiểm tra $conn để tránh lỗi query() on null
+    if (!$conn) {
+        return (object)['num_rows' => 0, 'fetch_assoc' => function(){ return null; }];
     }
 
-?>
+    $product = "SELECT * FROM `$sanpham` ORDER BY ID DESC LIMIT 20";
+    $result = $conn->query($product);
+    return $result;
+}
 
-
-
-<?php
+/**
+ * Hàm tạo cấu trúc HTML cho các trang danh sách sản phẩm
+ */
 function generateHTMLPagesProducts($sanpham, $name_category) {
 
     // HTML code
@@ -26,14 +38,17 @@ function generateHTMLPagesProducts($sanpham, $name_category) {
         <title><?php echo $name_category; ?></title>
     </head>
     <body>
-        <?php include '../../components/header.php'; ?>
+        <?php 
+            // Đường dẫn này cũng phải là 2 cấp để Mohinh/mohinh.php có thể include
+            include '../../components/header.php'; 
+        ?>
         <main>
             <?php include '../../components/sidebar.php'; ?>
             <div class="home-content">
                 <div class="content">
                     <div class="container">
                         <?php
-                            $result = getMoreProduct($sanpham, $conn);
+                            $result = getMoreProduct($sanpham); 
                             if ($result->num_rows > 0) {
                                 echo '<div class="section">
                                     <h2>
@@ -42,7 +57,24 @@ function generateHTMLPagesProducts($sanpham, $name_category) {
                                     <div class="product-list">';
                     
                                 while ($row = $result->fetch_assoc()) {
-                                    $detail_url = "product_detail.php?id=" . $row['ID'] . "&category=" . $sanpham;
+                                    // Liên kết trang chi tiết (chỉ cần 1 cấp ..)
+                                    $detail_url = "../product_detail.php?id=" . $row['ID'] . "&category=" . $sanpham;
+                                    
+                                    // === LOGIC KIỂM TRA YÊU THÍCH VÀ TẠO LINK ===
+                                    $wishlist_key = $sanpham . '_' . $row['ID'];
+                                    $is_in_wishlist = isset($_SESSION['wishlist']) && array_key_exists($wishlist_key, $_SESSION['wishlist']);
+
+                                    if ($is_in_wishlist) {
+                                        $heart_class = 'fa-solid fa-heart'; 
+                                        // Đường dẫn đến cart_handler.php (2 cấp ..)
+                                        $wishlist_action_url = '../../components/cart_handler.php?action=remove_wishlist&key=' . $wishlist_key;
+                                    } else {
+                                        $heart_class = 'fa-regular fa-heart'; 
+                                        // Đường dẫn đến cart_handler.php (2 cấp ..)
+                                        $wishlist_action_url = '../../components/cart_handler.php?action=add_wishlist&product_id=' . $row['ID'] . '&category=' . $sanpham;
+                                    }
+                                    // ===========================================
+                                    
                                     echo '<div class="product">';
 
                                     echo '<a href="' . $detail_url . '">';
@@ -68,7 +100,15 @@ function generateHTMLPagesProducts($sanpham, $name_category) {
                                         if (isset($Giacu)) {    
                                             echo '<div class="old-price">' . $Giacu . '₫</div>';
                                         }
-                                        echo '<div class="heart-icon"><i class="fa-regular fa-heart" style="color: #f70202;"></i></div>'; 
+                                        
+                                        // Nút Yêu thích động
+                                        echo '<div class="heart-icon">';
+                                        // Link trỏ đến #, gọi hàm JS
+                                        echo '<a href="#" onclick="toggleWishlist(event, ' . $row['ID'] . ', \'' . $sanpham . '\', ' . ($is_in_wishlist ? 'true' : 'false') . ')">';
+                                        // Đặt ID cho icon để JS có thể tìm và thay đổi trạng thái
+                                        echo '<i id="wishlist_' . $wishlist_key . '" class="' . $heart_class . '" style="color: #f70202;"></i>'; 
+                                        echo '</a>';
+                                        echo '</div>';
                                     }
                                     echo '</div>';
                                 }
@@ -85,9 +125,10 @@ function generateHTMLPagesProducts($sanpham, $name_category) {
         <?php include "../../components/footer.php"?>
 
         <script src="/components/js/global.js" defer></script>
-
+        <script src="/components/js/wishlist.js" defer></script>                   
     
     </body>
     </html>
     <?php
 }
+?>
