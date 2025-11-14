@@ -1,0 +1,121 @@
+.home-content h1 {
+    font-size: 3rem;
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.giohang-container {
+    display: flex;
+    justify-content: space-between;
+    gap: 3rem;
+    margin-bottom: 5rem;
+}
+
+.giohang-list {
+    flex: 2;
+    background-color: white;
+    border-radius: 1rem;
+    box-shadow: 0 0.2rem 0.5rem rgba(0,0,0,0.1);
+    padding: 2rem;
+}
+
+.giohang-header, .giohang-item-full {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr 0.5fr;
+    align-items: center;
+    padding: 1rem 0;
+    border-bottom: 1px solid #eee;
+    font-size: 1.6rem;
+}
+
+.giohang-header {
+    font-weight: bold;
+    color: #333;
+    border-bottom: 2px solid #ccc;
+    margin-bottom: 1rem;
+}
+
+.giohang-item-full {
+    padding: 1.5rem 0;
+}
+
+.giohang-item-full img {
+    width: 6rem;
+    height: 6rem;
+    object-fit: cover;
+    border-radius: 0.5rem;
+    margin-right: 1rem;
+}
+
+.giohang-item-full .col-product {
+    display: flex;
+    align-items: center;
+}
+
+.giohang-item-full .col-product a {
+    color: black;
+    text-decoration: none;
+    font-size: 1.5rem;
+    line-height: 1.2;
+}
+
+.giohang-item-full .col-quantity input {
+    width: 6rem;
+    padding: 0.5rem;
+    text-align: center;
+    border: 1px solid #ccc;
+    border-radius: 0.5rem;
+    font-size: 1.4rem;
+}
+
+.giohang-item-full .col-action a {
+    color: red;
+    font-size: 1.8rem;
+    transition: 0.3s;
+}
+
+.giohang-summary-full {
+    flex: 1;
+    background-color: #f8f8f8;
+    border-radius: 1rem;
+    padding: 2rem;
+    box-shadow: 0 0.2rem 0.5rem rgba(0,0,0,0.1);
+    height: fit-content;
+}
+
+.giohang-summary-full h2 {
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+}
+
+.giohang-summary-full p, .giohang-summary-full h3 {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    font-size: 1.6rem;
+}
+
+.giohang-summary-full h3 {
+    font-size: 2rem;
+    color: #d9534f;
+    border-top: 1px solid #eee;
+    padding-top: 1rem;
+    margin-top: 1rem;
+}
+
+.giohang-summary-full button {
+    width: 100%;
+    padding: 1.2rem;
+    background-color: #f9a01b;
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    font-size: 1.8rem;
+    cursor: pointer;
+    margin-top: 2rem;
+    transition: background-color 0.3s;
+}
+
+.giohang-summary-full button:hover {
+    background-color: #e18b00;
+}

@@ -1,6 +1,7 @@
 <?php
     include ("connect.php");
     
+    // --- Lấy thông tin User ---
     if (isset($_SESSION['user_id'])){
         $user_id = $_SESSION['user_id'];
 
@@ -35,13 +36,10 @@ function get_product_details_by_id_and_category($conn, $product_id, $category) {
         return null;
     }
     
-    // Thêm TheLoai để đồng bộ với bảng giohang_chitiet
     $select_query = "SELECT Name, Img1, Gia, Sale, TheLoai FROM `$category` WHERE ID = ?";
     $stmt = mysqli_prepare($conn, $select_query);
     
-    if (!$stmt) {
-        return null;
-    }
+    if (!$stmt) return null;
 
     mysqli_stmt_bind_param($stmt, "i", $product_id);
     mysqli_stmt_execute($stmt);
@@ -51,7 +49,6 @@ function get_product_details_by_id_and_category($conn, $product_id, $category) {
         $product = mysqli_fetch_assoc($result);
         mysqli_stmt_close($stmt);
         
-        // Tính giá cuối cùng (giá đã giảm)
         $price = $product['Gia'];
         if ($product['Sale'] > 0) {
             $final_price = $price * (1 - $product['Sale'] / 100);
@@ -59,13 +56,34 @@ function get_product_details_by_id_and_category($conn, $product_id, $category) {
             $final_price = $price;
         }
         $product['final_price'] = $final_price;
+        $product['TheLoaiId'] = $product['TheLoai'];
         return $product;
     }
     
-    if ($stmt) {
-        mysqli_stmt_close($stmt);
-    }
+    if ($stmt) mysqli_stmt_close($stmt);
     return null;
+}
+
+
+/**
+ * Hàm lấy ID Giỏ hàng (Tạo mới nếu chưa có)
+ */
+function get_or_create_cart_id($conn, $user_id) {
+    $query = "SELECT IDGioHang FROM `giohang` WHERE IdUser = ?";
+    $stmt = mysqli_prepare($conn, $query);
+    mysqli_stmt_bind_param($stmt, "i", $user_id);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+
+    if (mysqli_num_rows($result) > 0) {
+        $row = mysqli_fetch_assoc($result);
+        mysqli_stmt_close($stmt);
+        return $row['IDGioHang'];
+    } else {
+        mysqli_stmt_close($stmt);
+        // Ở đây ta không tạo, việc tạo sẽ được thực hiện trong cart_handler khi thêm sản phẩm.
+        return false;
+    }
 }
 ?>
   
@@ -121,10 +139,10 @@ function get_product_details_by_id_and_category($conn, $product_id, $category) {
                 <span>Sản phẩm yêu thích</span>
             </a>
 
-            <div class = 'cart-shop' onclick="toggleCartPopup()">
-                <i class="fa-solid fa-cart-shopping"></i>
+            <a href="../GioHang/giohang.php" class="cart-shop"> 
+                <i class="fa-solid fa-cart-shopping" onclick="event.preventDefault(); toggleCartPopup();"></i>
                 <span>Giỏ hàng</span>
-            </div>
+            </a>
 
             <div id="cart-popup" class="cart-popup">
                     <div class="cart-popup-content">
@@ -134,26 +152,86 @@ function get_product_details_by_id_and_category($conn, $product_id, $category) {
                         <div class="cart-items">
                             <?php 
                                 $cart_total = 0;
-                                // Kiểm tra nếu giỏ hàng tồn tại và không rỗng
-                                if (isset($_SESSION['cart']) && !empty($_SESSION['cart'])):
-                                    foreach ($_SESSION['cart'] as $item_key => $item):
-                                        // Lấy chi tiết sản phẩm từ DB
+                                $items_to_display = [];
+                                $is_logged_in = $user_id !== null;
+
+                                // Lấy dữ liệu Giỏ hàng từ DB (nếu đã đăng nhập)
+                                if ($is_logged_in) {
+                                    $cart_id = get_or_create_cart_id($conn, $user_id);
+                                    if ($cart_id) {
+                                        $select_cart_query = "SELECT IdGioHangChiTiet, IdSanPham, LoaiSanPham as category, SoLuong as quantity, Gia as item_price FROM `giohang_chitiet` WHERE IdGioHang = ?";
+                                        $stmt_cart = mysqli_prepare($conn, $select_cart_query);
+                                        if($stmt_cart) {
+                                            mysqli_stmt_bind_param($stmt_cart, "i", $cart_id);
+                                            mysqli_stmt_execute($stmt_cart);
+                                            $result_cart = mysqli_stmt_get_result($stmt_cart);
+                                            
+                                            while ($row = mysqli_fetch_assoc($result_cart)) {
+                                                $items_to_display[] = $row;
+                                            }
+                                            mysqli_stmt_close($stmt_cart);
+                                        }
+                                        // Lấy tổng tiền từ bảng giohang (đã được tính toán sẵn)
+                                        $get_total_query = "SELECT TongGiaTien FROM `giohang` WHERE IDGioHang = ?";
+                                        $stmt_total = mysqli_prepare($conn, $get_total_query);
+                                        mysqli_stmt_bind_param($stmt_total, "i", $cart_id);
+                                        mysqli_stmt_execute($stmt_total);
+                                        $row_total = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt_total));
+                                        $cart_total = $row_total['TongGiaTien'];
+                                        mysqli_stmt_close($stmt_total);
+                                    }
+                                } else if (isset($_SESSION['cart'])) {
+                                    // Lấy từ Session (fallback nếu chưa đăng nhập)
+                                    $items_to_display = $_SESSION['cart'];
+                                }
+                                // Tính toán tổng tiền cho Session Cart (nếu có)
+                                if (!$is_logged_in && !empty($items_to_display)) {
+                                    $cart_total = 0;
+                                    foreach ($items_to_display as $item_key => &$item) {
                                         $product_data = get_product_details_by_id_and_category($conn, $item['id'], $item['category']);
-                                        
-                                        if ($product_data):
-                                            $item_subtotal = $product_data['final_price'] * $item['quantity'];
+                                        if ($product_data) {
+                                            $item_price = $product_data['final_price'];
+                                            $item_subtotal = $item_price * $item['quantity'];
                                             $cart_total += $item_subtotal;
+                                            // Gán ID/Key cho mục đích xóa/cập nhật
+                                            $item['IdGioHangChiTiet'] = $item_key; 
+                                            $item['item_price'] = $item_price;
+                                        }
+                                    }
+                                    unset($item);
+                                }
+
+
+                                if (!empty($items_to_display)):
+                                    foreach ($items_to_display as $item):
+                                        $product_id = $item['IdSanPham'] ?? $item['id'];
+                                        $category = $item['LoaiSanPham'] ?? $item['category'];
+                                        $quantity = $item['SoLuong'] ?? $item['quantity'];
+                                        // ID Chi Tiết (DB) hoặc key (Session)
+                                        $item_key_or_id = $item['IdGioHangChiTiet'] ?? $category . '_' . $product_id; 
+                                        
+                                        // Lấy chi tiết sản phẩm để hiển thị tên và ảnh
+                                        $product_data = get_product_details_by_id_and_category($conn, $product_id, $category);
+                                        $item_price = $item['item_price'] ?? $product_data['final_price'];
                             ?>
                                 <div class="cart-item">
                                     <img src="/admin/<?php echo $product_data['Img1']; ?>" alt="<?php echo $product_data['Name']; ?>">
                                     <div class="item-details">
                                         <h2><?php echo $product_data['Name']; ?></h2>
-                                        <p><?php echo number_format($product_data['final_price']); ?>₫ x <?php echo $item['quantity']; ?></p>
+                                        <p>
+                                            <?php echo number_format($item_price); ?>₫ x 
+                                            <input type="number" 
+                                                   value="<?php echo $quantity; ?>" 
+                                                   min="1" 
+                                                   data-item-id="<?php echo $item_key_or_id; ?>" 
+                                                   onchange="updateCartQuantity(this, <?php echo $is_logged_in ? 'true' : 'false'; ?>)"
+                                                   class="item-quantity-input">
+                                        </p>
                                     </div>
-                                    <a href="../components/cart_handler.php?action=remove&key=<?php echo $item_key; ?>" class="remove-btn">Xóa</a>
+                                    <a href="../components/cart_handler.php?action=remove&key=<?php echo $item_key_or_id; ?>" class="remove-btn">Xóa</a>
                                 </div>
                                 <?php 
-                                        endif;
+                                        
                                     endforeach; 
                                 else:
                             ?>
@@ -163,11 +241,72 @@ function get_product_details_by_id_and_category($conn, $product_id, $category) {
 
                         <div class="cart-summary">
                             <h2>Tổng tiền: <span id="total-price"><?php echo number_format($cart_total); ?> VNĐ</span></h2>
-                            <button class="checkout-btn" >
-                                <a href="../thanhtoan/thanhtoan.php">Thanh toán</a>
+                            <button class="checkout-btn" onclick="window.location.href='../thanhtoan/thanhtoan.php'">
+                                Thanh toán
                             </button>
                         </div>
                     </div>
                 </div>
         </div>
     </header>
+
+    <script>
+    // Hàm JavaScript để gửi yêu cầu AJAX cập nhật số lượng
+    function updateCartQuantity(inputElement, is_logged_in) {
+        const newQuantity = parseInt(inputElement.value);
+        const itemDetailId = inputElement.getAttribute('data-item-id');
+        const cartItem = inputElement.closest('.cart-item');
+        
+        if (newQuantity < 1) {
+            if (!confirm("Bạn có chắc chắn muốn xóa sản phẩm này khỏi giỏ hàng?")) {
+                inputElement.value = 1; 
+                return;
+            }
+            // Nếu đồng ý xóa, chuyển hướng sang link xóa
+            const removeLink = cartItem.querySelector('.remove-btn');
+            if (removeLink) {
+                 window.location.href = removeLink.href;
+                 return;
+            }
+        }
+        
+        if (is_logged_in) {
+            // Xử lý AJAX cho người dùng đã đăng nhập (sử dụng DB)
+            fetch('../components/cart_handler.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `action=update_quantity&item_detail_id=${itemDetailId}&quantity=${newQuantity}&ajax=1`
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Lỗi phản hồi HTTP: ' + response.status);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.status === 'success') {
+                    document.getElementById('total-price').textContent = data.data.total_price + ' VNĐ';
+                    
+                    if (newQuantity < 1) {
+                         cartItem.remove();
+                    }
+                } else {
+                    alert('Lỗi cập nhật giỏ hàng: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Lỗi AJAX:', error);
+                alert('Lỗi kết nối server khi cập nhật số lượng: ' + error.message);
+            });
+        } else {
+            // Xử lý giỏ hàng Session (chuyển hướng tải lại trang để PHP xử lý session)
+            window.location.href = `../components/cart_handler.php?action=update_session_quantity&key=${itemDetailId}&quantity=${newQuantity}`;
+        }
+    }
+    </script>
+
+
+
+    
