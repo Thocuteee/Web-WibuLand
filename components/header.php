@@ -68,9 +68,11 @@ function get_product_details_by_id_and_category($conn, $product_id, $category) {
     return null;
 }
 ?>
-  
-  
-  <header>
+
+<script src="https://kit.fontawesome.com/eff669a9ab.js" crossorigin="anonymous"></script>
+
+<header>
+
         <div class='logo'>
             <img src="/Home/img/logo_1.png" alt=""  onclick = 'window.location.href="/Home/index.php"'>
         </div>

@@ -9,17 +9,18 @@ function toggleWishlist(event, product_id, category, is_in_wishlist) {
     const action = is_in_wishlist ? 'remove_wishlist' : 'add_wishlist';
     const iconElement = document.getElementById(`wishlist_${item_key}`);
 
-    // Đã sửa: Chuyển sang đường dẫn tuyệt đối để tránh lỗi đường dẫn tương đối
-    const url = `/components/cart_handler.php?action=${action}&product_id=${product_id}&category=${category}&key=${item_key}&ajax=1`;
+    // Đã sửa: Gửi product_id và category rõ ràng.
+    const url = `/components/cart_handler.php?action=${action}&product_id=${product_id}&category=${category}&ajax=1`;
+    // Lưu ý: Cần thêm key=${item_key} cho phiên bản cũ nếu bạn muốn giữ lại, 
+    // nhưng trong logic PHP mới, chúng ta chỉ cần product_id và category.
 
     fetch(url)
         .then(response => {
             // Kiểm tra HTTP status code
             if (!response.ok) {
-                // Nếu lỗi 404, 500, etc.
                 throw new Error(`Lỗi HTTP: ${response.status} - Không thể kết nối đến server.`);
             }
-            return response.json();
+            return response.json(); // Phân tích phản hồi JSON
         })
         .then(data => {
             if (data.status === 'success') {
@@ -38,6 +39,7 @@ function toggleWishlist(event, product_id, category, is_in_wishlist) {
                 }
             } else {
                 console.error('Lỗi từ server:', data.message);
+                // Hiển thị thông báo lỗi (ví dụ: "Cần đăng nhập...")
                 alert(`Lỗi xử lý yêu thích: ${data.message}`);
             }
         })
