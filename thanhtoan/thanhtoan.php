@@ -1,3 +1,65 @@
+<?php
+    include '../components/connect.php'; // Kết nối DB và bắt đầu session
+
+    function get_product_details_by_id_and_category($conn, $product_id, $category) {
+        if (empty($category) || $product_id <= 0) {
+            return null;
+        }
+        
+        // Sử dụng Prepared Statement để an toàn
+        $select_query = "SELECT Name, Img1, Gia, Sale FROM `$category` WHERE ID = ?";
+        $stmt = mysqli_prepare($conn, $select_query);
+        
+        if (!$stmt) {
+            return null;
+        }
+
+        mysqli_stmt_bind_param($stmt, "i", $product_id);
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
+
+        if (mysqli_num_rows($result) > 0) {
+            $product = mysqli_fetch_assoc($result);
+            mysqli_stmt_close($stmt);
+            
+            // Tính giá cuối cùng (giá đã giảm)
+            $price = $product['Gia'];
+            if ($product['Sale'] > 0) {
+                $final_price = $price * (1 - $product['Sale'] / 100);
+            } else {
+                $final_price = $price;
+            }
+            $product['final_price'] = $final_price;
+            return $product;
+        }
+        
+        if ($stmt) {
+            mysqli_stmt_close($stmt);
+        }
+        return null;
+    }
+    
+    // Khởi tạo các biến tổng
+    $product_total = 0;
+    $shipping_fee = 50000; // Phí vận chuyển cố định
+    $discount_amount = 0; // Giảm giá mặc định
+
+    // Tính toán tổng tiền
+    if (isset($_SESSION['cart']) && !empty($_SESSION['cart'])) {
+        foreach ($_SESSION['cart'] as $item_key => $item) {
+            $product_data = get_product_details_by_id_and_category($conn, $item['id'], $item['category']);
+            if ($product_data) {
+                $product_total += $product_data['final_price'] * $item['quantity'];
+            }
+        }
+    }
+    
+    // Tính tổng cộng cuối cùng
+    $grand_total = $product_total + $shipping_fee - $discount_amount;
+?>
+
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,7 +69,7 @@
     <link rel="stylesheet" href="../components/css/global.css">
     <link rel="stylesheet" href="../components/css/header_sidebar_footer.css">
     <link rel="stylesheet" href="css/thanhtoan.css">
-          
+        
 
         
     <title>Wibu Dreamland</title>
@@ -18,7 +80,7 @@
                         <div id="pay-header-1">
                             <div class="pay">
                                 <div class="main-pay">
-                                    <a href="/index.html" class="left-link"><i>Trở về Home</i></a>
+                                    <a href="../Home/index.html" class="left-link"><i>Trở về Home</i></a>
                                     <a href="#" class="right-link"><i>Trở về giỏ hàng</i></a>
                                 </div>
                             </div>

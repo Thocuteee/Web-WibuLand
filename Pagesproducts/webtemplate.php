@@ -42,7 +42,7 @@ function generateHTMLPagesProducts($sanpham, $name_category) {
                                     <div class="product-list">';
                     
                                 while ($row = $result->fetch_assoc()) {
-                                    $detail_url = "product_detail.php".$row['ID'] . "&category" .$sanpham;
+                                    $detail_url = "product_detail.php?id=" . $row['ID'] . "&category=" . $sanpham;
                                     echo '<div class="product">';
 
                                     echo '<a href="' . $detail_url . '">';
@@ -52,7 +52,7 @@ function generateHTMLPagesProducts($sanpham, $name_category) {
                                     echo '<a href="' . $detail_url . '">';
                                     echo '<div class="name">' . $row['Name'] . '</div>';
                                     echo '</a>';
-                                    
+
                                     if ($row['SoLuongDaBan'] == $row['SoLuongTonKho']) {
                                         echo '<div class="sold-out" style ="background: orange">Hết hàng</div>';
                                         

@@ -101,7 +101,7 @@ if ($product['Sale'] > 0) {
                         </div>
 
                         <?php if ($product['SoLuongTonKho'] > $product['SoLuongDaBan']): ?>
-                            <form action="/components/cart_handler.php" method="POST" class="add-to-cart-form">
+                            <form action="../components/cart_handler.php" method="POST" class="add-to-cart-form">
                                 <input type="hidden" name="product_id" value="<?php echo $product_id; ?>">
                                 <input type="hidden" name="category" value="<?php echo $category; ?>">
                                 <input type="hidden" name="action" value="add">
