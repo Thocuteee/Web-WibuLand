@@ -295,8 +295,8 @@
             mysqli_stmt_bind_param($stmt, "iii", $new_quantity, $item_detail_id, $cart_id);
             
             if (!mysqli_stmt_execute($stmt)) {
-                $status = 'error';
-                $message = 'Lỗi DB: Không thể cập nhật số lượng.';
+                 $status = 'error';
+                 $message = 'Lỗi DB: Không thể cập nhật số lượng.';
             }
             mysqli_stmt_close($stmt);
         }
@@ -337,14 +337,14 @@
         $stmt = mysqli_prepare($conn, $insert_query);
         
         if (!$stmt) {
-            send_json_response('error', 'Lỗi truy vấn (Prepare): ' . mysqli_error($conn));
+             send_json_response('error', 'Lỗi truy vấn (Prepare): ' . mysqli_error($conn));
         }
             
         mysqli_stmt_bind_param($stmt, "iis", $user_id, $product_id, $category);
         
         if (!mysqli_stmt_execute($stmt)) {
             if (mysqli_errno($conn) == 1062) {
-                $message = 'Sản phẩm đã có trong danh sách yêu thích.';
+                 $message = 'Sản phẩm đã có trong danh sách yêu thích.';
             } else {
                 $message = 'Lỗi DB: Không thể thêm sản phẩm. Mã lỗi: ' . mysqli_errno($conn);
                 $status = 'error';
@@ -370,7 +370,7 @@
         $stmt = mysqli_prepare($conn, $delete_query);
         
         if (!$stmt) {
-            send_json_response('error', 'Lỗi truy vấn (Prepare): ' . mysqli_error($conn));
+             send_json_response('error', 'Lỗi truy vấn (Prepare): ' . mysqli_error($conn));
         }
         
         mysqli_stmt_bind_param($stmt, "iis", $user_id, $product_id, $category);
@@ -390,7 +390,7 @@
     }
     
     if (!$action) {
-        header("Location: ../Home/index.php");
-        exit();
+         header("Location: ../Home/index.php");
+         exit();
     }
 ?>

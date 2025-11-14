@@ -15,6 +15,7 @@
         $exp = $user_lv['exp'];
         $max_exp = $user_lv['max_exp'];
     }else{
+        $user_id = null; // Khởi tạo user_id là null nếu chưa đăng nhập
         $lv = 0;
         $user_name = 'Đăng kí/ Đăng nhập';
         $exp = 0;
@@ -28,15 +29,14 @@
 <?php
 /**
  * Lấy chi tiết sản phẩm từ database dựa trên ID và Category.
- * (Được đặt trong header vì nó được include trên mọi trang)
  */
 function get_product_details_by_id_and_category($conn, $product_id, $category) {
     if (empty($category) || $product_id <= 0) {
         return null;
     }
     
-    // Sử dụng Prepared Statement để an toàn
-    $select_query = "SELECT Name, Img1, Gia, Sale FROM `$category` WHERE ID = ?";
+    // Thêm TheLoai để đồng bộ với bảng giohang_chitiet
+    $select_query = "SELECT Name, Img1, Gia, Sale, TheLoai FROM `$category` WHERE ID = ?";
     $stmt = mysqli_prepare($conn, $select_query);
     
     if (!$stmt) {
@@ -68,11 +68,10 @@ function get_product_details_by_id_and_category($conn, $product_id, $category) {
     return null;
 }
 ?>
+  
+  <script src="https://kit.fontawesome.com/eff669a9ab.js" crossorigin="anonymous"></script>
 
-<script src="https://kit.fontawesome.com/eff669a9ab.js" crossorigin="anonymous"></script>
-
-<header>
-
+  <header>
         <div class='logo'>
             <img src="/Home/img/logo_1.png" alt=""  onclick = 'window.location.href="/Home/index.php"'>
         </div>
@@ -117,7 +116,7 @@ function get_product_details_by_id_and_category($conn, $product_id, $category) {
 
             </div>
             
-            <a href="/YeuThich/yeuthich.php" class = "favorite-heart">
+            <a href="/YeuThich/yeuthich.php" class="favorite-heart">
                 <i class="fa-regular fa-heart"></i>
                 <span>Sản phẩm yêu thích</span>
             </a>
