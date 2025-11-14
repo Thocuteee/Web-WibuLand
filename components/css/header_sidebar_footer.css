@@ -685,7 +685,7 @@ main .home-content .content {
     padding: 20px;
     border: 1px solid #888;
     width: 80%; /* Chiều rộng của pop-up */
-    max-width: 500px; /* Độ rộng tối đa */
+    max-width: 600px;/* Độ rộng tối đa */
     border-radius: 10px; /* Bo tròn các góc */
 }
 
@@ -735,9 +735,13 @@ main .home-content .content {
 }
 
 .cart-items {
-    max-height: 300px; /* Giới hạn chiều cao */
-    overflow-y: auto; /* Cuộn dọc */
-    margin-bottom: 20px; /* Khoảng cách dưới cùng */
+    /* Tăng đáng kể giới hạn chiều cao (Ví dụ: 500px) */
+    max-height: 500px; 
+    /* Bắt buộc phải có 'auto' để bật thanh cuộn khi nội dung tràn */
+    overflow-y: auto; 
+    margin-bottom: 20px;
+    /* Có thể thêm border hoặc padding nếu cần tách biệt danh sách với phần tổng tiền */
+    padding-right: 10px;
 }
 
 .cart-item {

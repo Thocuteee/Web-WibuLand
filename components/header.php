@@ -80,7 +80,6 @@ function get_or_create_cart_id($conn, $user_id) {
         mysqli_stmt_close($stmt);
         return $row['IDGioHang'];
     } else {
-        mysqli_stmt_close($stmt);
         // Ở đây ta không tạo, việc tạo sẽ được thực hiện trong cart_handler khi thêm sản phẩm.
         return false;
     }
@@ -158,7 +157,10 @@ function get_or_create_cart_id($conn, $user_id) {
                                 // Lấy dữ liệu Giỏ hàng từ DB (nếu đã đăng nhập)
                                 if ($is_logged_in) {
                                     $cart_id = get_or_create_cart_id($conn, $user_id);
-                                    if ($cart_id) {
+                                    // SỬA LỖI: Kiểm tra $cart_id khác FALSE để chấp nhận giá trị 0
+                                    if ($cart_id !== false) { 
+                                        
+                                        // Lấy danh sách sản phẩm chi tiết
                                         $select_cart_query = "SELECT IdGioHangChiTiet, IdSanPham, LoaiSanPham as category, SoLuong as quantity, Gia as item_price FROM `giohang_chitiet` WHERE IdGioHang = ?";
                                         $stmt_cart = mysqli_prepare($conn, $select_cart_query);
                                         if($stmt_cart) {
@@ -212,7 +214,10 @@ function get_or_create_cart_id($conn, $user_id) {
                                         
                                         // Lấy chi tiết sản phẩm để hiển thị tên và ảnh
                                         $product_data = get_product_details_by_id_and_category($conn, $product_id, $category);
-                                        $item_price = $item['item_price'] ?? $product_data['final_price'];
+                                        $item_price = $item['item_price'] ?? ($product_data['final_price'] ?? 0);
+                            
+                            // ĐÃ THÊM KIỂM TRA $product_data
+                            if ($product_data):
                             ?>
                                 <div class="cart-item">
                                     <img src="/admin/<?php echo $product_data['Img1']; ?>" alt="<?php echo $product_data['Name']; ?>">
@@ -231,7 +236,7 @@ function get_or_create_cart_id($conn, $user_id) {
                                     <a href="../components/cart_handler.php?action=remove&key=<?php echo $item_key_or_id; ?>" class="remove-btn">Xóa</a>
                                 </div>
                                 <?php 
-                                        
+                            endif; // Kết thúc kiểm tra $product_data
                                     endforeach; 
                                 else:
                             ?>
@@ -306,7 +311,3 @@ function get_or_create_cart_id($conn, $user_id) {
         }
     }
     </script>
-
-
-
-    

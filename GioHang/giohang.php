@@ -1,17 +1,22 @@
 <?php
     include '../components/connect.php'; 
-    // Include header để có các hàm cần thiết (get_product_details_by_id_and_category, get_or_create_cart_id)
-    include '../components/header.php'; 
+    // KHÔNG include header.php ở đây để tránh định nghĩa lại biến và hàm, 
+    // nhưng cần include nó ở bên dưới để có HTML. 
+    // Tuy nhiên, do các hàm get_product_details_by_id_and_category, get_or_create_cart_id cần được định nghĩa,
+    // nên ta BẮT BUỘC phải include header.php ở đây.
+    include '../components/header.php';
     
-    // Các biến $items_to_display, $cart_total, $is_logged_in đã có từ header.php
+    // Khởi tạo các biến cần thiết (được sử dụng lại sau khi header.php chạy)
     $cart_total = 0;
     $items_to_display = [];
     $is_logged_in = $user_id !== null;
 
-    // Logic tải Giỏ hàng (tương tự như trong header.php để đảm bảo đồng bộ)
+    // --- LOGIC TẢI GIỎ HÀNG CHO TRANG ĐẦY ĐỦ ---
     if ($is_logged_in) {
         $cart_id = get_or_create_cart_id($conn, $user_id);
-        if ($cart_id) {
+        // SỬA LỖI: Kiểm tra $cart_id khác FALSE để chấp nhận giá trị 0
+        if ($cart_id !== false) { 
+            // 1. Lấy danh sách sản phẩm trong giohang_chitiet
             $select_cart_query = "SELECT IdGioHangChiTiet, IdSanPham, LoaiSanPham, SoLuong, Gia as item_price FROM `giohang_chitiet` WHERE IdGioHang = ?";
             $stmt_cart = mysqli_prepare($conn, $select_cart_query);
             if($stmt_cart) {
@@ -19,6 +24,7 @@
                 mysqli_stmt_execute($stmt_cart);
                 $result_cart = mysqli_stmt_get_result($stmt_cart);
                 
+                // 2. Điền dữ liệu vào $items_to_display và tính tổng
                 while ($row = mysqli_fetch_assoc($result_cart)) {
                     $items_to_display[] = $row;
                     $cart_total += $row['item_price'] * $row['SoLuong'];
@@ -32,6 +38,7 @@
         
         if (!empty($items_to_display)) {
             $cart_total = 0;
+            // Phải tính toán lại giá và tổng cho session cart
             foreach ($items_to_display as $item_key => &$item) {
                 $product_data = get_product_details_by_id_and_category($conn, $item['id'], $item['category']);
                 if ($product_data) {
@@ -86,7 +93,10 @@
                                 $item_key_or_id = $item['IdGioHangChiTiet'] ?? $category . '_' . $product_id; 
                                 
                                 $product_data = get_product_details_by_id_and_category($conn, $product_id, $category);
-                                $item_price = $item['item_price'] ?? $product_data['final_price'];
+                                $item_price = $item['item_price'] ?? ($product_data['final_price'] ?? 0);
+                            
+                            // ĐÃ THÊM KIỂM TRA $product_data
+                            if ($product_data):
                             ?>
                                 <div class="giohang-item-full" id="cart-item-<?php echo $item_key_or_id; ?>">
                                     <div class="col-product">
@@ -111,7 +121,9 @@
                                         </a>
                                     </div>
                                 </div>
-                            <?php endforeach; ?>
+                            <?php 
+                            endif; // Kết thúc kiểm tra $product_data
+                            endforeach; ?>
                         </div>
                         <div class="giohang-summary-full">
                             <h2>Tóm tắt đơn hàng</h2>
