@@ -31,10 +31,15 @@ function generateHTMLPagesProducts($sanpham, $name_category) {
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Paytone+One&display=swap" rel="stylesheet">
+        <script src="https://kit.fontawesome.com/eff669a9ab.js" crossorigin="anonymous"></script>
         <link rel="stylesheet" href="/components/css/global.css">
         <link rel="stylesheet" href="/components/css/header_sidebar_footer.css">
         <link rel="stylesheet" href="/Home/css/home.css">
         <link rel="stylesheet" href="/Pagesproducts/css/listproducts.css">
+        <title><?php echo $name_category; ?></title>
         <title><?php echo $name_category; ?></title>
     </head>
     <body>

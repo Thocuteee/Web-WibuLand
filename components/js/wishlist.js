@@ -9,9 +9,8 @@ function toggleWishlist(event, product_id, category, is_in_wishlist) {
     const action = is_in_wishlist ? 'remove_wishlist' : 'add_wishlist';
     const iconElement = document.getElementById(`wishlist_${item_key}`);
 
-    // SỬA ĐƯỜNG DẪN TẠI ĐÂY (THÊM MỘT CẤP ../)
-    // Đường dẫn chính xác từ /Pagesproducts/Mohinh/mohinh.php đến /components/cart_handler.php
-    const url = `../../components/cart_handler.php?action=${action}&product_id=${product_id}&category=${category}&key=${item_key}&ajax=1`;
+    // Đã sửa: Chuyển sang đường dẫn tuyệt đối để tránh lỗi đường dẫn tương đối
+    const url = `/components/cart_handler.php?action=${action}&product_id=${product_id}&category=${category}&key=${item_key}&ajax=1`;
 
     fetch(url)
         .then(response => {
@@ -44,6 +43,7 @@ function toggleWishlist(event, product_id, category, is_in_wishlist) {
         })
         .catch(error => {
             console.error('Lỗi AJAX:', error);
+            // Hiển thị thông báo lỗi chi tiết cho người dùng
             alert(`Lỗi kết nối server: ${error.message}`);
         });
 }
