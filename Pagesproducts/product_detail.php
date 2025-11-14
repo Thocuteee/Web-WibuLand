@@ -64,17 +64,20 @@ if ($product['Sale'] > 0) {
     <title><?php echo $product['Name']; ?></title>
 </head>
 <body>
-    <?php include '../../components/header.php'; ?>
+    <?php include '../components/header.php'; ?>
     
     <main>
-        <?php include '../../components/sidebar.php'; ?>
+        <?php include '../components/sidebar.php'; ?>
         
         <div class="home-content">
             <div class="content">
+                
+                
+
                 <div class="product-container">
                     
                     <div class="product-images">
-                        <img src="/admin/<?php echo $product['Img1']; ?>" alt="<?php echo $product['Name']; ?>" class="main-image">
+                        <img src="../admin/<?php echo $product['Img1']; ?>" alt="<?php echo $product['Name']; ?>" class="main-image">
                         </div>
 
                     <div class="product-info-area">
@@ -123,7 +126,7 @@ if ($product['Sale'] > 0) {
         </div>
     </main>
 
-    <?php include "../../components/footer.php"?>
+    <?php include "../components/footer.php"?>
     <script src="/components/js/global.js" defer></script>
 </body>
 </html>

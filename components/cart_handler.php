@@ -3,7 +3,6 @@
 
     // Hàm trả về JSON và thoát script
     function send_json_response($status, $message = '', $data = []) {
-        // Tắt hiển thị lỗi PHP nếu có (rất quan trọng để fix lỗi JSON)
         ini_set('display_errors', 0);
         header('Content-Type: application/json');
         echo json_encode(['status' => $status, 'message' => $message, 'data' => $data]);
@@ -38,9 +37,9 @@
             } else {
                 $final_price = $price;
             }
+            $product['final_price'] = $final_price;
             // Lưu ID TheLoai dưới dạng ID số (1, 2, 3) để khớp với cột IdTheLoai
             $product['TheLoaiId'] = $product['TheLoai']; 
-            $product['final_price'] = $final_price;
             return $product;
         }
         
@@ -134,6 +133,7 @@
 
                 $check_item_query = "SELECT IdGioHangChiTiet, SoLuong FROM `giohang_chitiet` WHERE IdGioHang = ? AND IdSanPham = ? AND LoaiSanPham = ?";
                 $stmt_check = mysqli_prepare($conn, $check_item_query);
+                // SỬA LỖI: LoaiSanPham là VARCHAR (string), nên dùng "s"
                 mysqli_stmt_bind_param($stmt_check, "iis", $cart_id, $product_id, $category);
                 mysqli_stmt_execute($stmt_check);
                 $result_check = mysqli_stmt_get_result($stmt_check);
@@ -150,6 +150,8 @@
                     $insert_query = "INSERT INTO `giohang_chitiet` (IdGioHang, LoaiSanPham, IdSanPham, SoLuong, Gia, IdTheLoai) 
                                      VALUES (?, ?, ?, ?, ?, ?)";
                     $stmt_insert = mysqli_prepare($conn, $insert_query);
+                    // SỬA LỖI: LoaiSanPham là VARCHAR (string), nên dùng "s"
+                    // Định dạng: i (IdGioHang), s (LoaiSanPham), i (IdSanPham), i (SoLuong), i (Gia), i (IdTheLoai)
                     mysqli_stmt_bind_param($stmt_insert, "isiiii", $cart_id, $category, $product_id, $quantity, $final_price, $the_loai_id);
                     mysqli_stmt_execute($stmt_insert);
                     mysqli_stmt_close($stmt_insert);
@@ -194,6 +196,7 @@
 
         $check_item_query = "SELECT IdGioHangChiTiet, SoLuong FROM `giohang_chitiet` WHERE IdGioHang = ? AND IdSanPham = ? AND LoaiSanPham = ?";
         $stmt_check = mysqli_prepare($conn, $check_item_query);
+        // SỬA LỖI: LoaiSanPham là VARCHAR (string), nên dùng "s"
         mysqli_stmt_bind_param($stmt_check, "iis", $cart_id, $product_id, $category);
         mysqli_stmt_execute($stmt_check);
         $result_check = mysqli_stmt_get_result($stmt_check);
@@ -210,6 +213,7 @@
             $insert_query = "INSERT INTO `giohang_chitiet` (IdGioHang, LoaiSanPham, IdSanPham, SoLuong, Gia, IdTheLoai) 
                              VALUES (?, ?, ?, ?, ?, ?)";
             $stmt_insert = mysqli_prepare($conn, $insert_query);
+            // SỬA LỖI: LoaiSanPham là VARCHAR (string), nên dùng "s"
             mysqli_stmt_bind_param($stmt_insert, "isiiii", $cart_id, $category, $product_id, $quantity, $final_price, $the_loai_id);
             mysqli_stmt_execute($stmt_insert);
             mysqli_stmt_close($stmt_insert);
@@ -275,8 +279,7 @@
     if ($action == 'update_quantity' && $is_ajax_request && isset($_POST['item_detail_id']) && isset($_POST['quantity'])) {
         $item_detail_id = filter_var($_POST['item_detail_id'], FILTER_SANITIZE_NUMBER_INT);
         $new_quantity = filter_var($_POST['quantity'], FILTER_SANITIZE_NUMBER_INT);
-        $status = 'success';
-        $message = 'Cập nhật thành công';
+        $status = 'success'; $message = 'Cập nhật thành công';
         
         if (!$user_id) { send_json_response('error', 'Bạn cần đăng nhập để cập nhật giỏ hàng.'); }
 
@@ -309,7 +312,7 @@
     }
     
     // ------------------------------------
-    // Các logic Wishlist (đã ổn định)
+    // Logic Wishlist (Giữ nguyên)
     // ------------------------------------
     $wishlist_actions = ['add_wishlist', 'remove_wishlist', 'remove_all_wishlist'];
     if (in_array($action, $wishlist_actions)) {
@@ -359,7 +362,7 @@
     }
     
     if (!$action) {
-         header("Location: ../Home/index.php");
-         exit();
+        header("Location: ../Home/index.php");
+        exit();
     }
 ?>
