@@ -1,13 +1,14 @@
+/* Container cho trang thanh toán */
 #pay-header {
     background-color: white !important; 
     border: 2px solid purple !important; 
-    padding: 1rem;
-    width: 45%; 
+    padding: 2rem;
+    width: 100%;
     height: auto;
-    position: absolute; 
-    margin-left: 15rem;
-    margin-top: 15rem;
+    position: relative; 
+    margin: 0;
     border-radius: 0.9rem;
+    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.1);
 }
 
 
@@ -179,17 +180,18 @@ label {
 
 
 .product {
-    width: 56rem;
+    width: 100%;
     border-radius: 1rem;
-    height: 50rem;
-    overflow-x: scroll;
+    min-height: 30rem;
+    max-height: 50rem;
+    overflow-y: auto;
     overflow-x: hidden;
-    padding-right: 1rem;
+    padding: 1rem;
     background-color: #fef6e4;
     border: 1px solid #ddd;
-    margin-left: 90rem;
-    margin-top: 15rem;
-    position: absolute;
+    margin: 0;
+    position: relative;
+    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.1);
 }
 
 .product-list {
@@ -287,12 +289,10 @@ label {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: 68rem;
-    margin-left: 93rem;
-    width: 50rem;
-    margin-bottom: 10rem;
+    margin: 0;
+    width: 100%;
+    max-width: 60rem;
     z-index: 10;
-    
 }
 
 .voucher select {
@@ -316,11 +316,11 @@ label {
 }
 
 .summary {
-    margin-top: -7rem;
-    margin-left: 90rem;
+    margin: 0;
     text-align: left;
     font-size: 1.2rem;
-    width: 55rem;
+    width: 100%;
+    max-width: 60rem;
     border-top: 1px solid gray;
     border-bottom: 1px solid gray;
     padding: 2rem;
@@ -359,7 +359,8 @@ label {
 .payments-button {
     display: block;
     width: 19rem;
-    margin: 4rem 110rem;
+    max-width: 100%;
+    margin: 0 auto;
     padding: 15px;
     background-color: orange;
     border: 2px solid black;

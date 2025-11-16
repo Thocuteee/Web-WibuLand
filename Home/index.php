@@ -279,14 +279,14 @@
 
 
 
-              </div>
-          </div>
+            </div>
+        </div>
     </main>
                             
 
     <?php include "../components/footer.php"?>
     
-  <script src="../components/js/global.js" defer></script>
+    <script src="../components/js/global.js" defer></script>
     <script src="js/home.js"defer></script>
     <script src="../components/js/wishlist.js" defer></script> 
 </body>

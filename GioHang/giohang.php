@@ -6,18 +6,19 @@
     // nên ta BẮT BUỘC phải include header.php ở đây.
     include '../components/header.php';
     
-    // Khởi tạo các biến cần thiết (được sử dụng lại sau khi header.php chạy)
-    $cart_total = 0;
-    $items_to_display = [];
-    $is_logged_in = $user_id !== null;
+    // Khởi tạo các biến cần thiết (TRƯỚC KHI include header.php lần 2)
+    // LƯU Ý: Header.php sẽ chạy lại logic load giỏ hàng, nên ta cần lưu biến để tránh bị ghi đè
+    $cart_total_for_page = 0;
+    $items_to_display_for_page = [];
+    $is_logged_in_for_page = $user_id !== null;
 
     // --- LOGIC TẢI GIỎ HÀNG CHO TRANG ĐẦY ĐỦ ---
-    if ($is_logged_in) {
+    if ($is_logged_in_for_page) {
         $cart_id = get_or_create_cart_id($conn, $user_id);
         // SỬA LỖI: Kiểm tra $cart_id khác FALSE để chấp nhận giá trị 0
         if ($cart_id !== false) { 
             // 1. Lấy danh sách sản phẩm trong giohang_chitiet
-            $select_cart_query = "SELECT IdGioHangChiTiet, IdSanPham, LoaiSanPham, SoLuong, Gia as item_price FROM `giohang_chitiet` WHERE IdGioHang = ?";
+            $select_cart_query = "SELECT IdGioHangChiTiet, IdSanPham, LoaiSanPham, SoLuong, Gia as item_price FROM `giohang_chitiet` WHERE IdGioHang = ? ORDER BY IdGioHangChiTiet DESC";
             $stmt_cart = mysqli_prepare($conn, $select_cart_query);
             if($stmt_cart) {
                 mysqli_stmt_bind_param($stmt_cart, "i", $cart_id);
@@ -26,24 +27,24 @@
                 
                 // 2. Điền dữ liệu vào $items_to_display và tính tổng
                 while ($row = mysqli_fetch_assoc($result_cart)) {
-                    $items_to_display[] = $row;
-                    $cart_total += $row['item_price'] * $row['SoLuong'];
+                    $items_to_display_for_page[] = $row;
+                    $cart_total_for_page += $row['item_price'] * $row['SoLuong'];
                 }
                 mysqli_stmt_close($stmt_cart);
             }
         }
     } else if (isset($_SESSION['cart'])) {
         // Lấy từ Session (fallback nếu chưa đăng nhập)
-        $items_to_display = $_SESSION['cart'];
+        $items_to_display_for_page = $_SESSION['cart'];
         
-        if (!empty($items_to_display)) {
-            $cart_total = 0;
+        if (!empty($items_to_display_for_page)) {
+            $cart_total_for_page = 0;
             // Phải tính toán lại giá và tổng cho session cart
-            foreach ($items_to_display as $item_key => &$item) {
+            foreach ($items_to_display_for_page as $item_key => &$item) {
                 $product_data = get_product_details_by_id_and_category($conn, $item['id'], $item['category']);
                 if ($product_data) {
                     $item_price = $product_data['final_price'];
-                    $cart_total += $item_price * $item['quantity'];
+                    $cart_total_for_page += $item_price * $item['quantity'];
                     $item['IdGioHangChiTiet'] = $item_key; 
                     $item['item_price'] = $item_price;
                 }
@@ -51,6 +52,10 @@
             unset($item);
         }
     }
+    
+    // LƯU BIẾN ĐỂ TRÁNH BỊ HEADER.PHP GHI ĐÈ
+    $_SESSION['_cart_for_page'] = $items_to_display_for_page;
+    $_SESSION['_cart_total_for_page'] = $cart_total_for_page;
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -76,7 +81,24 @@
                 
                 <h1>Giỏ hàng của tôi</h1>
                 <div class="giohang-container">
-                    <?php if (!empty($items_to_display)): ?>
+                    <?php 
+                    // Dùng lại biến đã lưu để tránh bị header.php ghi đè
+                    // Sau khi include header.php lần 2, biến có thể bị reset
+                    if (isset($_SESSION['_cart_for_page'])) {
+                        $items_to_display = $_SESSION['_cart_for_page'];
+                        $cart_total = $_SESSION['_cart_total_for_page'];
+                        $is_logged_in = $is_logged_in_for_page;
+                        // Xóa session tạm
+                        unset($_SESSION['_cart_for_page']);
+                        unset($_SESSION['_cart_total_for_page']);
+                    } else {
+                        // Fallback: dùng biến hiện tại
+                        $items_to_display = $items_to_display_for_page ?? [];
+                        $cart_total = $cart_total_for_page ?? 0;
+                        $is_logged_in = $is_logged_in_for_page ?? false;
+                    }
+                    
+                    if (!empty($items_to_display)): ?>
                         <div class="giohang-list">
                             <div class="giohang-header">
                                 <span class="col-product">Sản phẩm</span>
@@ -87,15 +109,25 @@
                             </div>
 
                             <?php foreach ($items_to_display as $item): 
-                                $product_id = $item['IdSanPham'] ?? $item['id'];
-                                $category = $item['LoaiSanPham'] ?? $item['category'];
-                                $quantity = $item['SoLuong'] ?? $item['quantity'];
+                                // Đảm bảo lấy đúng product_id và category từ item
+                                $product_id = $item['IdSanPham'] ?? $item['id'] ?? 0;
+                                $category = $item['LoaiSanPham'] ?? $item['category'] ?? '';
+                                $quantity = $item['SoLuong'] ?? $item['quantity'] ?? 1;
                                 $item_key_or_id = $item['IdGioHangChiTiet'] ?? $category . '_' . $product_id; 
                                 
+                                // Lấy chi tiết sản phẩm để hiển thị đúng tên và ảnh
                                 $product_data = get_product_details_by_id_and_category($conn, $product_id, $category);
-                                $item_price = $item['item_price'] ?? ($product_data['final_price'] ?? 0);
+                                
+                                // Sử dụng giá từ DB (đã được lưu khi thêm vào giỏ hàng), không tính lại
+                                // Giá trong DB là giá đã tính sale rồi
+                                $item_price = $item['item_price'] ?? 0;
+                                
+                                // Nếu không có giá từ DB, lấy từ product_data (fallback)
+                                if ($item_price == 0 && $product_data) {
+                                    $item_price = $product_data['final_price'] ?? 0;
+                                }
                             
-                            // ĐÃ THÊM KIỂM TRA $product_data
+                            // ĐÃ THÊM KIỂM TRA $product_data - Hiển thị ngay cả khi không tìm thấy product_data
                             if ($product_data):
                             ?>
                                 <div class="giohang-item-full" id="cart-item-<?php echo $item_key_or_id; ?>">
@@ -159,8 +191,8 @@
                 }
                 const removeLink = cartItem.querySelector('.remove-btn-full');
                 if (removeLink) {
-                     window.location.href = removeLink.href;
-                     return;
+                    window.location.href = removeLink.href;
+                    return;
                 }
             }
             

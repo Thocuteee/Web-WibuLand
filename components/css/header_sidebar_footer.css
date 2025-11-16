@@ -720,11 +720,12 @@ main .home-content .content {
     margin: 15% auto;
     padding: 20px;
     border: 1px solid #888;
-    width: 80%; /* Chiều rộng của pop-up */
-    max-width: 500px; /* Độ rộng tối đa */
+    width: 90%; /* Chiều rộng của pop-up */
+    max-width: 600px; /* Độ rộng tối đa - tăng lên để có đủ không gian */
     border-radius: 10px; /* Bo tròn các góc */
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.3); /* Đổ bóng */
     position: relative; /* Để đặt vị trí cho nút đóng */
+    box-sizing: border-box; /* Đảm bảo padding được tính trong width */
 }
 
 .cart-popup h1 {
@@ -735,13 +736,37 @@ main .home-content .content {
 }
 
 .cart-items {
-    /* Tăng đáng kể giới hạn chiều cao (Ví dụ: 500px) */
-    max-height: 500px; 
+    /* Tăng đáng kể giới hạn chiều cao để hiển thị nhiều sản phẩm */
+    max-height: 600px; 
+    min-height: 100px;
     /* Bắt buộc phải có 'auto' để bật thanh cuộn khi nội dung tràn */
     overflow-y: auto; 
+    overflow-x: hidden;
     margin-bottom: 20px;
     /* Có thể thêm border hoặc padding nếu cần tách biệt danh sách với phần tổng tiền */
     padding-right: 10px;
+    /* Thêm scrollbar đẹp hơn */
+    scrollbar-width: thin;
+    scrollbar-color: var(--yellow-color) #f0f0f0;
+}
+
+/* Tùy chỉnh scrollbar cho trình duyệt WebKit (Chrome, Safari) */
+.cart-items::-webkit-scrollbar {
+    width: 8px;
+}
+
+.cart-items::-webkit-scrollbar-track {
+    background: #f0f0f0;
+    border-radius: 4px;
+}
+
+.cart-items::-webkit-scrollbar-thumb {
+    background: var(--yellow-color);
+    border-radius: 4px;
+}
+
+.cart-items::-webkit-scrollbar-thumb:hover {
+    background: #d68910;
 }
 
 .cart-item {
@@ -750,29 +775,46 @@ main .home-content .content {
     margin-bottom: 15px; /* Khoảng cách giữa các sản phẩm */
     padding: 10px;
     border-bottom: 1px solid #ccc; /* Đường viền dưới */
+    min-height: 80px; /* Đảm bảo chiều cao tối thiểu cho mỗi item */
+    width: 100%; /* Đảm bảo chiếm toàn bộ chiều rộng */
+    gap: 10px; /* Khoảng cách giữa các phần tử */
+    box-sizing: border-box; /* Đảm bảo padding được tính trong width */
 }
 
 .cart-item img {
     width: 60px; /* Chiều rộng hình ảnh */
-    height: auto;
-    margin-right: 15px; /* Khoảng cách bên phải */
+    height: 60px; /* Chiều cao cố định */
+    object-fit: cover; /* Đảm bảo ảnh không bị méo */
+    flex-shrink: 0; /* Không cho phép co lại */
+    margin-right: 0; /* Bỏ margin vì đã có gap */
     border-radius: 5px; /* Bo tròn góc hình ảnh */
 }
 
 .item-details {
-    flex-grow: 1; /* Chiếm không gian còn lại */
+    flex: 1 1 auto; /* Chiếm không gian còn lại nhưng có thể co lại */
+    min-width: 0; /* Cho phép co lại khi cần */
+    max-width: calc(100% - 150px); /* Giới hạn chiều rộng để đảm bảo nút xóa có chỗ */
+    overflow: hidden; /* Ẩn nội dung tràn */
+    margin-right: 10px; /* Khoảng cách với nút xóa */
 }
 
 .item-details h2 {
     font-size: 1.4rem; /* Kích thước tiêu đề sản phẩm */
     margin: 0;
     color: #333; /* Màu chữ */
+    white-space: nowrap; /* Không xuống dòng */
+    overflow: hidden; /* Ẩn nội dung tràn */
+    text-overflow: ellipsis; /* Hiển thị dấu ... khi quá dài */
 }
 
 .item-details p {
     margin: 5px 0; /* Khoảng cách giữa các dòng */
     font-weight: bold; /* Chữ đậm */
     color: var(--yellow-color); /* Màu giá */
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex-wrap: nowrap; /* Không cho phép xuống dòng */
 }
 
 .item-quantity {
@@ -780,14 +822,32 @@ main .home-content .content {
     margin-right: 10px; /* Khoảng cách bên phải */
 }
 
+.item-quantity-input {
+    width: 50px; /* Chiều rộng cố định cho input số lượng */
+    padding: 3px 5px; /* Padding nhỏ */
+    border: 1px solid #ccc; /* Viền */
+    border-radius: 3px; /* Bo góc */
+    font-size: 1.3rem; /* Kích thước chữ */
+    text-align: center; /* Căn giữa số */
+    flex-shrink: 0; /* Không cho phép co lại */
+}
+
 .remove-btn {
     background-color: var(--yellow-color); /* Màu nền nút */
     color: white; /* Màu chữ */
     border: none; /* Không đường viền */
-    padding: 5px 10px; /* Khoảng cách bên trong nút */
+    padding: 8px 12px; /* Khoảng cách bên trong nút */
     border-radius: 5px; /* Bo tròn góc */
     cursor: pointer; /* Con trỏ chuột */
     transition: background-color 0.3s; /* Hiệu ứng chuyển màu */
+    flex-shrink: 0; /* Không cho phép co lại */
+    white-space: nowrap; /* Không xuống dòng */
+    text-decoration: none; /* Bỏ gạch chân */
+    display: inline-block; /* Hiển thị như block */
+    font-size: 1.3rem; /* Kích thước chữ */
+    font-weight: 600; /* Chữ đậm */
+    min-width: 60px; /* Chiều rộng tối thiểu */
+    text-align: center; /* Căn giữa chữ */
 }
 
 .remove-btn:hover {

@@ -186,7 +186,9 @@
             } else {
                 $_SESSION['cart'][$item_key] = array('id' => $product_id, 'category' => $category, 'quantity' => $quantity);
             }
-            header("Location: $referring_page");
+            // Thêm parameter để tự động mở popup giỏ hàng
+            $separator = strpos($referring_page, '?') !== false ? '&' : '?';
+            header("Location: $referring_page{$separator}cart_added=1");
             exit();
         } 
         
@@ -220,7 +222,9 @@
         }
         mysqli_stmt_close($stmt_check);
         calculate_cart_totals($conn, $cart_id);
-        header("Location: $referring_page");
+        // Thêm parameter để tự động mở popup giỏ hàng
+        $separator = strpos($referring_page, '?') !== false ? '&' : '?';
+        header("Location: $referring_page{$separator}cart_added=1");
         exit();
     }
     

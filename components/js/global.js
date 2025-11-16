@@ -20,7 +20,18 @@ function siderOpenClose(){
 // Mở/Đóng popup giỏ hàng
 function toggleCartPopup() {
     const cartPopup = document.getElementById('cart-popup');
-    cartPopup.style.display = cartPopup.style.display === 'block' ? 'none' : 'block';
+    if (cartPopup) {
+        const isOpen = cartPopup.style.display === 'block';
+        cartPopup.style.display = isOpen ? 'none' : 'block';
+        
+        // Khi mở popup, scroll lên đầu danh sách để hiển thị tất cả items
+        if (!isOpen) {
+            const cartItems = cartPopup.querySelector('.cart-items');
+            if (cartItems) {
+                cartItems.scrollTop = 0;
+            }
+        }
+    }
 }
 
 
