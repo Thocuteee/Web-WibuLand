@@ -1,221 +1,352 @@
-/* Container cho trang thanh toán */
+/* ==================== TRANG THANH TOÁN - GIAO DIỆN ĐẸP ==================== */
+
+/* Container chính */
 #pay-header {
-    background-color: white !important; 
-    border: 2px solid purple !important; 
-    padding: 2rem;
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    border: 2px solid #e0e0e0;
+    padding: 2.5rem;
     width: 100%;
     height: auto;
-    position: relative; 
+    position: relative;
     margin: 0;
-    border-radius: 0.9rem;
-    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.1);
+    border-radius: 1.5rem;
+    box-shadow: 0 0.5rem 2rem rgba(0,0,0,0.08);
+    transition: box-shadow 0.3s ease;
 }
 
+#pay-header:hover {
+    box-shadow: 0 0.8rem 2.5rem rgba(0,0,0,0.12);
+}
 
+/* Navigation links */
 .pay {
     display: flex;
     justify-content: space-between;
     width: 100%;
-    padding: 1rem;
-    
+    padding: 0;
+    margin-bottom: 2rem;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 1rem;
 }
 
 .main-pay {
     display: flex;
     justify-content: space-between;
     width: 100%;
+    align-items: center;
 }
 
 .main-pay a {
-    font-style: italic;
-    color: black;
-    font-size: 1.5rem;
+    font-style: normal;
+    color: var(--yellow-color);
+    font-size: 1.4rem;
     cursor: pointer;
-    border-bottom: 0.0625rem solid gray;
-    margin-top: 1rem;
-    
+    text-decoration: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 0.5rem;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    border: 2px solid transparent;
+}
+
+.main-pay a:hover {
+    background-color: var(--yellow-color);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 0.3rem 0.8rem rgba(249, 160, 27, 0.3);
 }
 
 .left-link {
-    margin-left: 5.625rem;
+    margin-left: 0;
 }
 
 .right-link {
-    margin-right: 1.25rem;
+    margin-right: 0;
 }
 
-.left-link,
-.right-link {
-    font-style: italic;
-    color: black;
-    font-size: 1.5rem;
-    cursor: pointer;
-}
-
+/* Form thông tin */
 .pay-imformation {
     position: relative;
-    padding: 1rem;
+    padding: 0;
     margin-top: 2rem;
 }
 
-label {
-    display: block;
-    width: 100%;
-    font-size: 1.25rem;
-    margin-bottom: 0.5rem;
-    color: gray;
-    border-bottom: 1px dashed gray;
-    padding-bottom: 0.7rem;
+.pay-imform h2 {
+    font-size: 1.8rem;
+    margin: 0 0 1.5rem 0;
+    color: #333;
+    font-weight: 600;
+    padding-bottom: 0.8rem;
+    border-bottom: 3px solid var(--yellow-color);
+    display: inline-block;
 }
 
 .pay-imform,
 .pay-address {
-    padding-top: 0.625rem;
-    margin-left: 7rem;
+    padding-top: 1.5rem;
+    margin-left: 0;
 }
 
 .pay-imform input {
-    margin-top: 0.625rem;
-    font-size: 1.25rem;
-    border: 0.0625rem solid black;
-    border-radius: 0.3125rem;
-    background-color: var(--header_color);
-    padding: 0.625rem;
-    width: 50rem;
+    margin-top: 1rem;
+    font-size: 1.4rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 0.8rem;
+    background-color: #ffffff;
+    padding: 1.2rem 1.5rem;
+    width: 100%;
     display: block;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+}
+
+.pay-imform input:focus {
+    outline: none;
+    border-color: var(--yellow-color);
+    box-shadow: 0 0 0 3px rgba(249, 160, 27, 0.1);
+    background-color: #fffef9;
 }
 
 .pay-address {
-    border: 0.0625rem dashed gray;
-    border-radius: 0.25rem;
-    width: 51rem;
-    margin-top: 1.375rem;
+    border: 2px dashed #d0d0d0;
+    border-radius: 1rem;
+    width: 100%;
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background-color: #fafafa;
+}
+
+.pay-address label {
+    font-size: 1.6rem;
+    color: #555;
+    border-bottom: 2px dashed #d0d0d0;
+    padding-bottom: 1rem;
+    margin-bottom: 1.5rem;
+    font-weight: 600;
 }
 
 .pay-country input {
-    margin-top: 0.625rem;
-    font-size: 1.25rem;
-    border: 0.0625rem solid black;
-    border-radius: 0.3125rem;
-    background-color: var(--header_color);
-    padding: 0.625rem;
-    width: 50rem;
+    margin-top: 1rem;
+    font-size: 1.4rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 0.8rem;
+    background-color: #ffffff;
+    padding: 1.2rem 1.5rem;
+    width: 100%;
     display: block;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+}
+
+.pay-country input:focus {
+    outline: none;
+    border-color: var(--yellow-color);
+    box-shadow: 0 0 0 3px rgba(249, 160, 27, 0.1);
+    background-color: #fffef9;
 }
 
 .address-order input {
-    height: 6.25rem;
+    height: 8rem;
+    resize: vertical;
 }
 
+/* Phương thức thanh toán */
 .pay-method {
-    background-color: white;
-    z-index: 100; 
-    padding: 1rem;
+    background: linear-gradient(135deg, #fff9e6 0%, #ffffff 100%);
+    padding: 2rem;
     margin-top: 2rem;
-    max-width: 400px;   
+    border-radius: 1rem;
+    border: 2px solid #ffe6b3;
+}
+
+.pay-method h3 {
+    margin: 0 0 1.5rem 0;
+    font-size: 1.6rem;
+    color: #333;
+    font-weight: 600;
+    text-align: center;
 }
 
 .pay-option {
     display: flex;
-    justify-content: space-around;
-    margin-left: 14rem;
-    margin-bottom: 1rem;
-    gap: 6rem;
-    border-radius: 50%;
+    justify-content: center;
+    gap: 3rem;
+    margin-bottom: 0;
+    flex-wrap: wrap;
 }
 
 .pay-option label {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     align-items: center;
     cursor: pointer;
-    padding: 1rem;
-    border: none;
+    padding: 1.5rem;
+    border: 3px solid #e0e0e0;
+    border-radius: 1rem;
+    transition: all 0.3s ease;
+    background-color: white;
+    min-width: 12rem;
+}
+
+.pay-option label:hover {
+    border-color: var(--yellow-color);
+    transform: translateY(-3px);
+    box-shadow: 0 0.5rem 1rem rgba(249, 160, 27, 0.2);
+}
+
+.pay-option input[type="radio"] {
+    margin-bottom: 1rem;
+    width: 2rem;
+    height: 2rem;
+    cursor: pointer;
+}
+
+.pay-option input[type="radio"]:checked + img {
+    filter: drop-shadow(0 0 0.5rem var(--yellow-color));
+}
+
+.pay-option input[type="radio"]:checked {
+    accent-color: var(--yellow-color);
+}
+
+.pay-option label {
+    position: relative;
+}
+
+.pay-option input[type="radio"]:checked ~ img,
+.pay-option input[type="radio"]:checked + img {
+    filter: drop-shadow(0 0 0.5rem var(--yellow-color));
+}
+
+/* Style cho label khi radio được chọn */
+.pay-option input[type="radio"]:checked {
+    accent-color: var(--yellow-color);
+}
+
+/* Thêm class khi được chọn bằng JavaScript */
+.pay-option label.selected {
+    border-color: var(--yellow-color);
+    background-color: #fff9e6;
 }
 
 .pay-option img {
-    width: 8rem;
-    height: 10rem;
+    width: 10rem;
+    height: auto;
     object-fit: contain;
-    margin-bottom: 0.1rem;
-    margin-left: 1.5rem;
-    margin-top: 1rem;
+    transition: transform 0.3s ease;
 }
 
+.pay-option label:hover img {
+    transform: scale(1.05);
+}
+
+/* Note section */
 .pay-note {
     position: relative;
     width: 100%;
     margin-top: 2rem;
-    padding: 1rem;
-    left: 0; 
-    z-index: 10;
+    padding: 0;
 }
-
 
 .pay-note h3 {
     margin-bottom: 1rem;
     font-size: 1.6rem;
+    color: #333;
+    font-weight: 600;
 }
 
 .pay-note textarea {
     width: 100%;
-    height: 15rem;
-    border-radius: 2rem;
-    resize: none;
+    height: 12rem;
+    border-radius: 1rem;
+    resize: vertical;
     outline: none;
-    border: 2px solid var(--header_color); 
-    padding: 1rem;
+    border: 2px solid #e0e0e0;
+    padding: 1.5rem;
     box-sizing: border-box;
-    background-color: white; 
+    background-color: #ffffff;
+    font-size: 1.4rem;
+    font-family: inherit;
+    transition: all 0.3s ease;
+}
+
+.pay-note textarea:focus {
+    border-color: var(--yellow-color);
+    box-shadow: 0 0 0 3px rgba(249, 160, 27, 0.1);
+    background-color: #fffef9;
 }
 
 .character-count {
-    text-align: right; 
-    font-size: 0.9rem;
-    color: black;
+    text-align: right;
+    font-size: 1.2rem;
+    color: #999;
     pointer-events: none;
-    margin-top: -2.5rem;
-    margin-right: 1rem;
+    margin-top: 0.5rem;
+    margin-right: 0.5rem;
 }
 
-
+/* Product section */
 .product {
     width: 100%;
-    border-radius: 1rem;
+    border-radius: 1.5rem;
     min-height: 30rem;
     max-height: 50rem;
     overflow-y: auto;
     overflow-x: hidden;
-    padding: 1rem;
-    background-color: #fef6e4;
-    border: 1px solid #ddd;
+    padding: 2rem;
+    background: linear-gradient(135deg, #fff9e6 0%, #ffffff 100%);
+    border: 2px solid #ffe6b3;
     margin: 0;
     position: relative;
-    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.1);
+    box-shadow: 0 0.5rem 2rem rgba(0,0,0,0.08);
+}
+
+.product h2 {
+    text-align: center;
+    font-size: 2rem;
+    margin-bottom: 2rem;
+    color: var(--yellow-color);
+    font-weight: 600;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .product-list {
-    background-color: #FFFF99;
-    padding: 2rem;
-    border-radius: 2rem;
-    border: 2px solid black;
-    border-top: 2px solid black;
+    background-color: #ffffff;
+    padding: 1.5rem;
+    border-radius: 1rem;
+    border: 1px solid #e0e0e0;
 }
 
 .product-items {
     display: flex;
     align-items: center;
-    padding: 1rem 0;
-    border-bottom: 1px solid #ddd;
+    padding: 1.5rem;
+    border-bottom: 2px solid #f0f0f0;
     margin-bottom: 1rem;
+    border-radius: 0.8rem;
+    transition: all 0.3s ease;
+    background-color: #fafafa;
+}
+
+.product-items:hover {
+    background-color: #fff9e6;
+    transform: translateX(5px);
+    box-shadow: 0 0.3rem 0.8rem rgba(0,0,0,0.1);
+}
+
+.product-items:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
 }
 
 .product-items img {
-    width: 7rem;
-    height: auto;
+    width: 8rem;
+    height: 8rem;
     border-radius: 1rem;
-    margin-right: 1rem;
-    object-fit: contain;
+    margin-right: 1.5rem;
+    object-fit: cover;
+    border: 2px solid #e0e0e0;
+    box-shadow: 0 0.2rem 0.5rem rgba(0,0,0,0.1);
 }
 
 .product-detail {
@@ -223,68 +354,53 @@ label {
     margin-left: 1rem;
 }
 
-.product-title,
-.product-subtitle {
-    white-space: nowrap;
-    font-size: 1rem;
-    margin: 0;
+.product-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #333;
+    line-height: 1.4;
+    display: block;
+    margin-bottom: 0.5rem;
 }
 
 .product-info {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 16rem;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.5rem;
+    min-width: 12rem;
 }
 
 .product-quantity {
-    font-size: 1rem;
-    margin-top: 8rem;
-    margin-left: -29rem;
+    font-size: 1.3rem;
+    color: #666;
+    margin: 0;
 }
 
 .product-price {
-    font-size: 1rem;
-    font-weight: bold;
-    text-decoration: underline;
-    margin-right: -14rem;
-    margin-top: 4rem;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--yellow-color);
+    margin: 0;
+    text-decoration: none;
 }
 
-.product-quantity,
-.product-price {
-    display: flex;
-    justify-content: space-between;
-    width: 19rem;
-}
-
+/* Scrollbar */
 .product::-webkit-scrollbar {
-    width: 1rem;
+    width: 0.8rem;
 }
 
 .product::-webkit-scrollbar-thumb {
-    background-color: #ffb6c1;
+    background: linear-gradient(180deg, var(--yellow-color) 0%, #d68910 100%);
     border-radius: 1rem;
 }
 
 .product::-webkit-scrollbar-track {
-    background-color: #ffb6c1;
-}
-
-.product::-webkit-scrollbar {
-    width: 1rem;
-}
-
-.product::-webkit-scrollbar-thumb {
-    background-color: #ffb6c1;
+    background-color: #f0f0f0;
     border-radius: 1rem;
 }
 
-.product::-webkit-scrollbar-track {
-    background-color: black;
-    border-radius: 1rem;
-}
-
+/* Voucher */
 .voucher {
     display: flex;
     justify-content: space-between;
@@ -292,99 +408,154 @@ label {
     margin: 0;
     width: 100%;
     max-width: 60rem;
-    z-index: 10;
+    gap: 1rem;
+    background: linear-gradient(135deg, #fff9e6 0%, #ffffff 100%);
+    padding: 1.5rem;
+    border-radius: 1rem;
+    border: 2px solid #ffe6b3;
 }
 
 .voucher select {
-    padding: 1rem;
-    border: 2px solid #ffb6c1;
+    padding: 1.2rem 1.5rem;
+    border: 2px solid #e0e0e0;
     border-radius: 1rem;
-    background-color: #ffb6c1;
+    background-color: #ffffff;
     width: 75%;
-    font-size: 1rem;
+    font-size: 1.4rem;
     cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
 }
 
-.voucher button {
-    padding: 1rem 2.8rem;
-    border: 2px solid #ddd;
+.voucher select:focus {
+    outline: none;
+    border-color: var(--yellow-color);
+    box-shadow: 0 0 0 3px rgba(249, 160, 27, 0.1);
+}
+
+.apply-button {
+    padding: 1.2rem 2.5rem;
+    border: 2px solid var(--yellow-color);
     border-radius: 1rem;
-    background-color: #ffc0cb;
-    font-size: 1rem;
+    background: linear-gradient(135deg, var(--yellow-color) 0%, #d68910 100%);
+    color: white;
+    font-size: 1.4rem;
     cursor: pointer;
-    width: 20%;
+    width: 23%;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 0.3rem 0.8rem rgba(249, 160, 27, 0.3);
 }
 
+.apply-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 1.2rem rgba(249, 160, 27, 0.4);
+}
+
+.apply-button:active {
+    transform: translateY(0);
+}
+
+/* Summary */
 .summary {
     margin: 0;
     text-align: left;
-    font-size: 1.2rem;
+    font-size: 1.4rem;
     width: 100%;
     max-width: 60rem;
-    border-top: 1px solid gray;
-    border-bottom: 1px solid gray;
+    border: 2px solid #e0e0e0;
+    border-radius: 1rem;
     padding: 2rem;
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    box-shadow: 0 0.3rem 1rem rgba(0,0,0,0.08);
 }
 
-.summary p, .summary h3 {
+.summary p {
     display: flex;
-    justify-content: space-between; 
-    margin: 1rem 0;
-    font-size: 1.2rem;
-    color: black;
+    justify-content: space-between;
+    margin: 1.5rem 0;
+    font-size: 1.4rem;
+    color: #555;
+    padding: 0.8rem 0;
+    border-bottom: 1px dashed #e0e0e0;
+}
+
+.summary p:last-of-type {
+    border-bottom: 2px solid #e0e0e0;
+    padding-bottom: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.summary p span {
+    font-weight: 600;
+    color: #333;
 }
 
 .summary h3 {
     display: flex;
-    justify-content: space-between; 
-    align-items: center; 
-    font-size: 1.5rem;
-    font-weight: bold;
-    margin: 1rem 0;
-    width: 100%; 
-}
-
-.summary h3 .total-label {
-    flex-grow: 1;
-    text-align: left; 
+    justify-content: space-between;
+    align-items: center;
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 1.5rem 0 0 0;
+    padding-top: 1.5rem;
+    border-top: 3px solid var(--yellow-color);
+    color: #333;
 }
 
 .summary h3 .grand-total {
-    text-align: right;
-    min-width: 10rem; 
-    margin-left: auto; 
+    color: var(--yellow-color);
+    font-size: 2.2rem;
 }
 
-
+/* Payment button */
 .payments-button {
     display: block;
-    width: 19rem;
-    max-width: 100%;
-    margin: 0 auto;
-    padding: 15px;
-    background-color: orange;
-    border: 2px solid black;
+    width: 100%;
+    max-width: 60rem;
+    margin: 2rem auto 0;
+    padding: 1.8rem 3rem;
+    background: linear-gradient(135deg, var(--yellow-color) 0%, #d68910 100%);
+    border: none;
     border-radius: 1rem;
-    color: black;
-    font-size: 1.5rem;
-    font-weight: bold;
+    color: white;
+    font-size: 1.8rem;
+    font-weight: 700;
     cursor: pointer;
-    z-index: 10;
+    transition: all 0.3s ease;
+    box-shadow: 0 0.5rem 1.5rem rgba(249, 160, 27, 0.4);
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 .payments-button:hover {
-    background-color: #ffcc00;
+    transform: translateY(-3px);
+    box-shadow: 0 0.8rem 2rem rgba(249, 160, 27, 0.5);
+    background: linear-gradient(135deg, #ffb84d 0%, #e89a20 100%);
 }
 
-.product::-webkit-scrollbar {
-    width: 1rem;
+.payments-button:active {
+    transform: translateY(-1px);
 }
 
-.product::-webkit-scrollbar-thumb {
-    background-color: #ffb6c1;
-    border-radius: 1rem;
-}
-
-.product::-webkit-scrollbar-track {
-    background-color: black;
+/* Responsive */
+@media (max-width: 768px) {
+    #pay-header {
+        padding: 1.5rem;
+    }
+    
+    .pay-option {
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+    
+    .product-items {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .product-info {
+        align-items: center;
+        margin-top: 1rem;
+    }
 }

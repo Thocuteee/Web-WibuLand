@@ -1,0 +1,252 @@
+/* ==================== TRANG VOUCHER ==================== */
+
+.voucher-tabs {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 3rem;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.tab-btn {
+    padding: 1.2rem 2.5rem;
+    background: transparent;
+    border: none;
+    border-bottom: 3px solid transparent;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    bottom: -2px;
+}
+
+.tab-btn:hover {
+    color: var(--yellow-color);
+}
+
+.tab-btn.active {
+    color: var(--yellow-color);
+    border-bottom-color: var(--yellow-color);
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.vouchers-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(30rem, 1fr));
+    gap: 2rem;
+}
+
+.voucher-card {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    border-radius: 1.5rem;
+    overflow: hidden;
+    box-shadow: 0 0.5rem 2rem rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+    border: 2px solid #e0e0e0;
+    position: relative;
+}
+
+.voucher-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.8rem 2.5rem rgba(0,0,0,0.12);
+}
+
+.voucher-card.active {
+    border-color: var(--yellow-color);
+}
+
+.voucher-card.expired {
+    opacity: 0.6;
+    filter: grayscale(0.5);
+}
+
+.voucher-card.used {
+    opacity: 0.7;
+    filter: grayscale(0.8);
+}
+
+.voucher-header {
+    background: linear-gradient(135deg, var(--yellow-color) 0%, #d68910 100%);
+    padding: 2rem;
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.voucher-card.expired .voucher-header,
+.voucher-card.used .voucher-header {
+    background: linear-gradient(135deg, #999 0%, #666 100%);
+}
+
+.voucher-discount {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: white;
+}
+
+.discount-percent {
+    font-size: 4rem;
+    font-weight: 700;
+    line-height: 1;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.discount-label {
+    font-size: 1.4rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-top: 0.5rem;
+}
+
+.expired-badge,
+.used-badge {
+    background-color: rgba(255,255,255,0.9);
+    color: #f44336;
+    padding: 0.8rem 1.5rem;
+    border-radius: 2rem;
+    font-size: 1.2rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.used-badge {
+    color: #4caf50;
+}
+
+.voucher-body {
+    padding: 2rem;
+}
+
+.voucher-body h3 {
+    font-size: 1.8rem;
+    color: #333;
+    margin-bottom: 1rem;
+    font-weight: 700;
+}
+
+.voucher-description {
+    font-size: 1.4rem;
+    color: #666;
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+}
+
+.voucher-details {
+    background-color: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.voucher-details p {
+    font-size: 1.3rem;
+    color: #555;
+    margin: 0.8rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+.voucher-details i {
+    color: var(--yellow-color);
+    width: 2rem;
+    text-align: center;
+}
+
+.voucher-code {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, #fff9e6 0%, #ffffff 100%);
+    border-radius: 1rem;
+    border: 2px dashed var(--yellow-color);
+}
+
+.voucher-code span {
+    font-size: 1.5rem;
+    color: #333;
+}
+
+.voucher-code strong {
+    color: var(--yellow-color);
+    font-size: 1.8rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+}
+
+.btn-copy {
+    padding: 0.8rem 1.5rem;
+    background: linear-gradient(135deg, var(--yellow-color) 0%, #d68910 100%);
+    color: white;
+    border: none;
+    border-radius: 0.8rem;
+    font-size: 1.3rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    box-shadow: 0 0.3rem 1rem rgba(249, 160, 27, 0.3);
+}
+
+.btn-copy:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 1.5rem rgba(249, 160, 27, 0.4);
+}
+
+.btn-copy:active {
+    transform: translateY(0);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .vouchers-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .voucher-tabs {
+        flex-direction: column;
+    }
+    
+    .tab-btn {
+        width: 100%;
+        text-align: left;
+    }
+    
+    .voucher-code {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: stretch;
+    }
+    
+    .btn-copy {
+        width: 100%;
+        justify-content: center;
+    }
+}
+

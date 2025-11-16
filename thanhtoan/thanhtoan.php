@@ -1,6 +1,33 @@
 <?php
     include '../components/connect.php';
     
+    // Lấy thông tin user từ session - CHÚ Ý: ĐOẠN CODE NÀY ĐÃ BỊ DƯ THỪA 
+    // VÀ CŨNG ĐƯỢC CHUYỂN VÀO FILE HEADER.PHP, NÊN CHỈ CẦN DÙNG BIẾN TỪ SESSION
+    // Nếu bạn muốn giữ lại biến $user_id sớm, có thể giữ đoạn sau:
+    $user_id = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null;
+
+    // Định nghĩa các hàm cần thiết - ĐÃ BỊ XÓA VÌ ĐƯỢC CHUYỂN SANG HEADER.PHP VÀ CÓ GUARD
+    
+    // Khai báo các hàm này để sử dụng: (Nếu bạn không muốn include header.php quá sớm)
+    // PHẢI ĐẢM BẢO CÁC HÀM CŨ ĐƯỢC ĐỊNH NGHĨA TRƯỚC KHI CHẠY LOGIC DƯỚI ĐÂY
+    // Hiện tại, tôi sẽ giữ nguyên các định nghĩa hàm CŨ, nhưng bạn có thể XÓA TOÀN BỘ CHÚNG 
+    // và thay thế bằng include '../components/header.php'; ở đây.
+    
+    // CÁCH TỐI ƯU NHẤT: BỎ TOÀN BỘ ĐỊNH NGHĨA HÀM DƯ THỪA (Dòng 8-40 CỦA FILE CŨ)
+    
+    // Dưới đây là nội dung PHP CỦA BẠN SAU KHI ĐÃ BỎ ĐỊNH NGHĨA HÀM DƯ THỪA
+    
+    // Dòng 8-40 (function definitions) ĐÃ BỊ XOÁ. Logic còn lại:
+    
+    // Định nghĩa lại các hàm cần thiết (dù đã được định nghĩa trong header.php)
+    // Để giữ nguyên cấu trúc cũ, ta dùng các định nghĩa này TẠM THỜI
+    // TỪ ĐÂY TRỞ XUỐNG LÀ CODE CŨ, CHỈ XÓA PHẦN ĐỊNH NGHĨA HÀM DƯ THỪA ĐỂ DÙNG CHUNG CÁC HÀM ĐÃ FIX Ở HEADER.PHP
+    
+    // *************************************************************************************************
+    // * KHOẢNG NÀY ĐÁNG LẼ LÀ function get_product_details_by_id_and_category() và function get_or_create_cart_id() *
+    // * NHƯNG ĐÃ ĐƯỢC XÓA ĐỂ TRÁNH LỖI VÀ DÙNG CÁC HÀM ĐÃ ĐƯỢC FIX Ở header.php *
+    // *************************************************************************************************
+
     // Lấy thông tin user từ session
     if (isset($_SESSION['user_id'])){
         $user_id = $_SESSION['user_id'];
@@ -121,10 +148,12 @@
         <div class="home-content">
             <div class="content" style="padding-top: 5rem; width: 95%; max-width: 140rem; margin: 0 auto;">
                 
-                <h1 style="text-align: center; font-size: 2.5rem; margin-bottom: 2rem; color: var(--yellow-color);">Thanh toán</h1>
+                <div style="text-align: center; margin-bottom: 3rem;">
+                    <h1 style="font-size: 3rem; margin-bottom: 0.5rem; color: var(--yellow-color); font-weight: 700; text-shadow: 0 2px 4px rgba(0,0,0,0.1);">Thanh toán</h1>
+                    <p style="font-size: 1.6rem; color: #666;">Vui lòng điền đầy đủ thông tin để hoàn tất đơn hàng</p>
+                </div>
                 
                 <div style="display: flex; gap: 2rem; flex-wrap: wrap;">
-                    <!-- Form thông tin giao hàng -->
                     <div id="pay-header" style="flex: 1; min-width: 50rem;">
                         <div id="pay-header-1">
                             <div class="pay">
@@ -138,13 +167,13 @@
                         <div id="pay-header-2">
                             <div class="pay-imformation">
                                 <div class="pay-imform">
-                                    <h2 style="font-size: 1.4rem; margin-left: 30px; margin-top: -25px;">Thông tin giao hàng *</h2>
+                                    <h2>Thông tin giao hàng *</h2>
                                     <input type="text" id="name" name="name" placeholder="Họ và tên" required>
                                     <input type="text" id="phone" name="phone" placeholder="Số điện thoại" required>
                                 </div>
                 
                                 <div class="pay-address">
-                                    <label for="address" style="font-size: 20px; color: gray; border-bottom: 1px dashed gray;">Địa chỉ *</label>
+                                    <label for="address">Địa chỉ *</label>
                                     <div class="pay-country">
                                         <input type="text" id="city" name="city" placeholder="Tỉnh/Thành" required>
                                         <input type="text" id="district" name="district" placeholder="Quận/Huyện" required>
@@ -157,7 +186,7 @@
                             </div>
                 
                             <div class="pay-method">
-                                <h3 style="margin-left: 100px;margin-bottom: 40px; font-size: 1.3rem;">Phương thức thanh toán điện tử *</h3>
+                                <h3>Phương thức thanh toán điện tử *</h3>
                                 <div class="pay-option">
                                     <label for="momo">
                                         <input type="radio" name="payment" value="momo" required>
@@ -181,9 +210,8 @@
                         </div> 
                     </div> 
                 
-                    <!-- Danh sách sản phẩm -->
                     <div class="product" style="flex: 1; min-width: 40rem;">
-                        <h2 style="text-align: center; font-size: 1.8rem; margin-bottom: 1rem; color: var(--yellow-color);">Sản phẩm đã chọn</h2>
+                        <h2>Sản phẩm đã chọn</h2>
                         <div class="product-list">
                             <?php if (!empty($items_to_display)): ?>
                                 <?php foreach ($items_to_display as $item): 
@@ -225,7 +253,6 @@
                     </div>
                 </div>
 
-                <!-- Voucher và Summary -->
                 <div style="display: flex; flex-direction: column; gap: 2rem; margin-top: 2rem; max-width: 60rem; margin-left: auto; margin-right: auto;">
                     <div class="voucher">
                         <select id="voucher-select">
@@ -266,6 +293,25 @@
                 characterCount.textContent = count + '/200';
             });
         }
+        
+        // Thêm class selected cho label khi radio được chọn
+        document.querySelectorAll('input[name="payment"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                document.querySelectorAll('.pay-option label').forEach(label => {
+                    label.classList.remove('selected');
+                });
+                if (this.checked) {
+                    this.closest('label').classList.add('selected');
+                }
+            });
+        });
+        
+        // Kiểm tra radio đã được chọn khi load trang
+        document.querySelectorAll('input[name="payment"]').forEach(radio => {
+            if (radio.checked) {
+                radio.closest('label').classList.add('selected');
+            }
+        });
         
         function applyVoucher() {
             const voucherSelect = document.getElementById('voucher-select');

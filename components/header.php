@@ -28,6 +28,7 @@
 ?>
 
 <?php
+if (!function_exists('get_product_details_by_id_and_category')) {
 /**
  * Lấy chi tiết sản phẩm từ database dựa trên ID và Category.
  */
@@ -63,8 +64,10 @@ function get_product_details_by_id_and_category($conn, $product_id, $category) {
     if ($stmt) mysqli_stmt_close($stmt);
     return null;
 }
+}
 
 
+if (!function_exists('get_or_create_cart_id')) {
 /**
  * Hàm lấy ID Giỏ hàng (Tạo mới nếu chưa có)
  */
@@ -83,6 +86,7 @@ function get_or_create_cart_id($conn, $user_id) {
         // Ở đây ta không tạo, việc tạo sẽ được thực hiện trong cart_handler khi thêm sản phẩm.
         return false;
     }
+}
 }
 ?>
   
@@ -121,8 +125,6 @@ function get_or_create_cart_id($conn, $user_id) {
                     <?php
                         if (isset($_SESSION['user_id'])){
                             echo ' <a href="/thongtinkhachhang/thongtinkhachhang.php">Thông tin tài khoản</a>';
-                            echo ' <a href="#">Đơn hàng</a>';
-                            echo ' <a href="#">Kho vocher</a>';
                             echo '<a href="../login&registration/logout.php">Đăng xuất</a>';
                         }else{
                             echo '<a href="../login&registration/login.php">Đăng nhập</a>';
@@ -235,11 +237,11 @@ function get_or_create_cart_id($conn, $user_id) {
                                         <p>
                                             <?php echo number_format($item_price); ?>₫ x 
                                             <input type="number" 
-                                                   value="<?php echo $quantity; ?>" 
-                                                   min="1" 
-                                                   data-item-id="<?php echo htmlspecialchars($item_key_or_id); ?>" 
-                                                   onchange="updateCartQuantity(this, <?php echo $is_logged_in ? 'true' : 'false'; ?>)"
-                                                   class="item-quantity-input">
+                                                value="<?php echo $quantity; ?>" 
+                                                min="1" 
+                                                data-item-id="<?php echo htmlspecialchars($item_key_or_id); ?>" 
+                                                onchange="updateCartQuantity(this, <?php echo $is_logged_in ? 'true' : 'false'; ?>)"
+                                                class="item-quantity-input">
                                         </p>
                                     </div>
                                     <a href="../components/cart_handler.php?action=remove&key=<?php echo urlencode($item_key_or_id); ?>" class="remove-btn">Xóa</a>
@@ -257,12 +259,12 @@ function get_or_create_cart_id($conn, $user_id) {
                                         <p style="color: #999;">
                                             ID: <?php echo $product_id; ?> - Category: <?php echo htmlspecialchars($category); ?>
                                             <input type="number" 
-                                                   value="<?php echo $quantity; ?>" 
-                                                   min="1" 
-                                                   data-item-id="<?php echo htmlspecialchars($item_key_or_id); ?>" 
-                                                   onchange="updateCartQuantity(this, <?php echo $is_logged_in ? 'true' : 'false'; ?>)"
-                                                   class="item-quantity-input" 
-                                                   disabled>
+                                                value="<?php echo $quantity; ?>" 
+                                                min="1" 
+                                                data-item-id="<?php echo htmlspecialchars($item_key_or_id); ?>" 
+                                                onchange="updateCartQuantity(this, <?php echo $is_logged_in ? 'true' : 'false'; ?>)"
+                                                class="item-quantity-input" 
+                                                disabled>
                                         </p>
                                     </div>
                                     <a href="../components/cart_handler.php?action=remove&key=<?php echo urlencode($item_key_or_id); ?>" class="remove-btn">Xóa</a>
