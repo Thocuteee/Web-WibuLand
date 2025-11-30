@@ -34,6 +34,40 @@ function toggleCartPopup() {
     }
 }
 
+function quickAddToCart(event, product_id, category) {
+    event.preventDefault();
+    const quantity = 1; 
+
+    fetch('../components/cart_handler.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `action=add&product_id=${product_id}&category=${category}&quantity=${quantity}&ajax=1`
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Lỗi mạng: Không thể kết nối đến server.');
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.status === 'success') {
+            // Hiển thị thông báo và chuyển hướng nhẹ nhàng
+            alert(`✅ Đã thêm 1 sản phẩm ${data.data.product_name || 'vào'} giỏ hàng!`);
+            // Chuyển hướng với query param để header.php (có cart logic) load lại dữ liệu giỏ hàng chính xác
+            window.location.href = window.location.href.split('?')[0] + '?cart_added=1';
+            
+        } else {
+            alert(`Lỗi: ${data.message}`);
+        }
+    })
+    .catch(error => {
+        console.error('Lỗi AJAX:', error);
+        alert(`Lỗi hệ thống: ${error.message}`);
+    });
+}
+
 
 window.addEventListener('load', function() {
     siderOpenClose();

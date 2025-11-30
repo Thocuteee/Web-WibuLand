@@ -1,77 +1,133 @@
+// File: Home/js/home.js (Thay thế toàn bộ nội dung trong file này)
 
-//-Cho các ảnh đầu trang chủ trượt đi trượt lại
-
-function slideOpenClose(){
+//- Khởi tạo chức năng Slideshow và Indicators
+function initSlideShow() {
     const imagesWrapper = document.querySelector('.images-wrapper');
-    const images = document.querySelectorAll('.images-wrapper img');
-    
-    let cur  = 0;
+    const listPic = document.querySelector('.list-pic');
+    if (!imagesWrapper || !listPic) return;
+
+    const images = imagesWrapper.querySelectorAll('img');
     const listImgLen = images.length;
-    const imageWid = images[0].clientWidth; // Lấy chiều rộng của một ảnh
-    //Có gửi video sự khác nhau của clienWidth và offsetWidth
+    let currentSlide = 0; 
+    let autoSlideInterval;
+    const slideDuration = 5000; // 5 giây cho auto slide
 
-    // Tạo hàm để chuyển ảnh
-    function showNextImage(num) {
-        cur+=num;
-        if (cur >= listImgLen) {
-            cur = 0; // Quay lại ảnh đầu tiên khi đã hết
-        }
-        else if(cur < 0){
-            cur = listImgLen - 1;
-        }
+    const btnL = document.querySelector("#btn-slide-left");
+    const btnR = document.querySelector("#btn-slide-right");
+    const indicatorContainer = document.querySelector(".indicator-dots");
 
-        // Cộng trừ khoảng cách để di chuyển ảnh
-        imagesWrapper.style.transform = `translateX(-${cur * imageWid}px)`;
+    // 1. Hàm chuyển slide chính
+    function goToSlide(index) {
+        // Dừng auto slide trước khi chuyển thủ công
+        clearInterval(autoSlideInterval);
+        
+        // Đảm bảo index nằm trong giới hạn (vòng lặp vô hạn)
+        if (index < 0) {
+            index = listImgLen - 1;
+        } else if (index >= listImgLen) {
+            index = 0;
+        }
+        currentSlide = index;
+
+        // Tính toán khoảng dịch chuyển: index * chiều rộng của container
+        const offset = currentSlide * listPic.clientWidth;
+        imagesWrapper.style.transform = `translateX(-${offset}px)`;
+
+        updateIndicators();
+        // Khởi động lại auto slide sau khi chuyển thủ công
+        startAutoSlide();
     }
 
-    //Chuyển ảnh mỗi 15 giây
-    setInterval(showNextImage(1), 15000);
-// Nút btn-L and btn-R nhấn vào sẽ di chuyển ảnh
-    const btnL =document.querySelector(".fa-chevron-left");
-    const btnR =document.querySelector(".fa-chevron-right");
+    // 2. Tạo và cập nhật chỉ báo (dots)
+    function createIndicators() {
+        if (!indicatorContainer) return;
+        for (let i = 0; i < listImgLen; i++) {
+            const dot = document.createElement('div');
+            dot.classList.add('dot');
+            dot.dataset.index = i;
+            dot.addEventListener('click', () => goToSlide(i));
+            indicatorContainer.appendChild(dot);
+        }
+        updateIndicators();
+    }
 
-    btnR.addEventListener('click' , () =>{
-        showNextImage(1);
-    })
-    btnL.addEventListener('click',()=>{
-        showNextImage(-1);
-    })
+    function updateIndicators() {
+        if (!indicatorContainer) return;
+        const dots = indicatorContainer.querySelectorAll('.dot');
+        dots.forEach((dot, index) => {
+            dot.classList.toggle('active', index === currentSlide);
+        });
+    }
+
+    // 3. Logic Auto Slide
+    function startAutoSlide() {
+        // Đảm bảo không tạo quá nhiều interval
+        clearInterval(autoSlideInterval); 
+        autoSlideInterval = setInterval(() => {
+            goToSlide(currentSlide + 1);
+        }, slideDuration);
+    }
+    
+    // 4. Khởi tạo event listeners
+    if (btnR) {
+        btnR.addEventListener('click', (e) => {
+            e.preventDefault();
+            goToSlide(currentSlide + 1);
+        });
+    }
+    if (btnL) {
+        btnL.addEventListener('click', (e) => {
+            e.preventDefault();
+            goToSlide(currentSlide - 1);
+        });
+    }
+
+    // Cập nhật lại vị trí khi thay đổi kích thước màn hình
+    window.addEventListener('resize', () => {
+        setTimeout(() => goToSlide(currentSlide), 50); 
+    });
+
+    createIndicators();
+    startAutoSlide(); 
+
+    setTimeout(() => goToSlide(0), 100); 
 }
 
-//- Tạo bộ đếm thời gian cho bảng FLASH_SALE
+
+//- Tạo bộ đếm thời gian cho bảng FLASH_SALE (Giữ nguyên)
 function count_Time_FS(){
-    //Kiểm tra coi time_FS có trên localStorage chưa
     let time_FS;
-    //Nếu không có key nào tên timeFlashSale thì sẽ tạo một key đó hoặc khi value của key đó nó không giống như num
     if (!localStorage.getItem('timeFlashSale')){
         time_FS = new Date().getTime() + 8*24*60*60*1000;
         localStorage.setItem('timeFlashSale', time_FS);
     } else {
-        //Còn nếu thì ta sẽ lấy giá trị của key timeFlashSale gán vào từ chuỗi string sang dạng số time_FS
         time_FS = parseInt(localStorage.getItem('timeFlashSale'));
     }
 
-    //Hàm cập nhật thời gian (Đếm ngược)
     function update_time_FS(){
-        let update_time = time_FS - new Date().getTime(); // lấy thời gian từ đã tính từ đầu trừ đi thời gian của năm 
+        let update_time = time_FS - new Date().getTime(); 
 
         let days = Math.floor(update_time / (1000*24*60*60));
         let hours = Math.floor((update_time % (1000*24*60*60))/ (1000*60*60));
         let minutes = Math.floor((update_time % (1000*60*60))/(1000*60));
         let seconds = Math.floor((update_time % (1000*60))/1000);
+        
+        const timeElements = document.getElementsByClassName("time");
+        if (timeElements.length >= 4) {
+             timeElements[0].innerHTML = days < 10 ? "0" + days : days;
+             timeElements[1].innerHTML = hours < 10 ? "0" + hours : hours;
+             timeElements[2].innerHTML = minutes < 10 ? "0" + minutes : minutes;
+             timeElements[3].innerHTML = seconds < 10 ? "0" + seconds : seconds;
+        }
 
-        document.getElementsByClassName("time")[0].innerHTML = days < 10 ? "0" + days : days;
-        document.getElementsByClassName("time")[1].innerHTML = hours < 10 ? "0" + hours : hours;
-        document.getElementsByClassName("time")[2].innerHTML = minutes < 10 ? "0" + minutes : minutes;
-        document.getElementsByClassName("time")[3].innerHTML = seconds < 10 ? "0" + seconds : seconds;
-
-        // Nếu thời gian đã hết, dừng bộ đếm và xóa thời gian khỏi localStorage
         if (update_time < 0) {
             clearInterval(a);
-            document.getElementsByClassName("time")[0].innerHTML = "00";
-            document.getElementsByClassName("time")[1].innerHTML = "00";
-            document.getElementsByClassName("time")[2].innerHTML = "00";
-            document.getElementsByClassName("time")[3].innerHTML = "00";
+            if (timeElements.length >= 4) {
+                 timeElements[0].innerHTML = "00";
+                 timeElements[1].innerHTML = "00";
+                 timeElements[2].innerHTML = "00";
+                 timeElements[3].innerHTML = "00";
+            }
             localStorage.removeItem('timeFlashSale');
         }
     }
@@ -79,10 +135,7 @@ function count_Time_FS(){
 }    
 
 
-//- Nhấn vào trái tim trong flash-sale sẽ hiện trái tim màu 
-
-
 window.addEventListener('load', function() {
-    slideOpenClose();
+    initSlideShow(); 
     count_Time_FS();
 });

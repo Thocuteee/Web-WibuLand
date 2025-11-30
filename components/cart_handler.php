@@ -174,7 +174,10 @@
         $quantity = filter_var($_REQUEST['quantity'], FILTER_SANITIZE_NUMBER_INT);
         
         $product_data = get_product_details_by_id_and_category($conn, $product_id, $category);
-        if (!$product_data) { header("Location: $referring_page"); exit(); }
+        if (!$product_data) { 
+            if ($is_ajax_request) { send_json_response('error', 'Sản phẩm không tồn tại.'); }
+            else { header("Location: $referring_page"); exit(); }
+        }
         
         if (!$user_id) {
             // Logic SESSION
@@ -186,6 +189,9 @@
             } else {
                 $_SESSION['cart'][$item_key] = array('id' => $product_id, 'category' => $category, 'quantity' => $quantity);
             }
+            
+            if ($is_ajax_request) { send_json_response('success', 'Đã thêm vào giỏ hàng (Session).', ['product_name' => $product_data['Name']]); }
+
             // Thêm parameter để tự động mở popup giỏ hàng
             $separator = strpos($referring_page, '?') !== false ? '&' : '?';
             header("Location: $referring_page{$separator}cart_added=1");
@@ -198,7 +204,6 @@
 
         $check_item_query = "SELECT IdGioHangChiTiet, SoLuong FROM `giohang_chitiet` WHERE IdGioHang = ? AND IdSanPham = ? AND LoaiSanPham = ?";
         $stmt_check = mysqli_prepare($conn, $check_item_query);
-        // SỬA LỖI: LoaiSanPham là VARCHAR (string), nên dùng "s"
         mysqli_stmt_bind_param($stmt_check, "iis", $cart_id, $product_id, $category);
         mysqli_stmt_execute($stmt_check);
         $result_check = mysqli_stmt_get_result($stmt_check);
@@ -213,15 +218,17 @@
             mysqli_stmt_close($stmt_update);
         } else {
             $insert_query = "INSERT INTO `giohang_chitiet` (IdGioHang, LoaiSanPham, IdSanPham, SoLuong, Gia, IdTheLoai) 
-                             VALUES (?, ?, ?, ?, ?, ?)";
+                            VALUES (?, ?, ?, ?, ?, ?)";
             $stmt_insert = mysqli_prepare($conn, $insert_query);
-            // SỬA LỖI: LoaiSanPham là VARCHAR (string), nên dùng "s"
             mysqli_stmt_bind_param($stmt_insert, "isiiii", $cart_id, $category, $product_id, $quantity, $final_price, $the_loai_id);
             mysqli_stmt_execute($stmt_insert);
             mysqli_stmt_close($stmt_insert);
         }
         mysqli_stmt_close($stmt_check);
         calculate_cart_totals($conn, $cart_id);
+        
+        if ($is_ajax_request) { send_json_response('success', 'Đã thêm vào giỏ hàng.', ['product_name' => $product_data['Name']]); }
+        
         // Thêm parameter để tự động mở popup giỏ hàng
         $separator = strpos($referring_page, '?') !== false ? '&' : '?';
         header("Location: $referring_page{$separator}cart_added=1");
