@@ -296,7 +296,7 @@
                     mysqli_stmt_close($stmt_update);
                 } else {
                     $insert_query = "INSERT INTO `giohang_chitiet` (IdGioHang, LoaiSanPham, IdSanPham, SoLuong, Gia, IdTheLoai) 
-                                     VALUES (?, ?, ?, ?, ?, ?)";
+                                    VALUES (?, ?, ?, ?, ?, ?)";
                     $stmt_insert = mysqli_prepare($conn, $insert_query);
                     // SỬA LỖI: LoaiSanPham là VARCHAR (string), nên dùng "s"
                     // Định dạng: i (IdGioHang), s (LoaiSanPham), i (IdSanPham), i (SoLuong), i (Gia), i (IdTheLoai)

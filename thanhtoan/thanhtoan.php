@@ -25,7 +25,8 @@
     $discount_amount = 0;
     $is_logged_in = $user_id !== null;
     
-    if ($is_logged_in) {
+    // Lưu biến tạm để tránh bị header.php ghi đè khi include lại
+    if ($is_logged_in && $conn) {
         $cart_id = get_or_create_cart_id($conn, $user_id);
         if ($cart_id !== false) {
             $select_cart_query = "SELECT IdSanPham, LoaiSanPham, SoLuong, Gia as item_price FROM `giohang_chitiet` WHERE IdGioHang = ? ORDER BY IdGioHangChiTiet DESC";
@@ -42,7 +43,7 @@
                 mysqli_stmt_close($stmt_cart);
             }
         }
-    } else if (isset($_SESSION['cart'])) {
+    } else if (isset($_SESSION['cart']) && $conn) {
         $items_to_display = $_SESSION['cart'];
         
         if (!empty($items_to_display)) {
@@ -53,14 +54,49 @@
                     $item_price = $product_data['final_price'];
                     $product_total += $item_price * $item['quantity'];
                     $item['item_price'] = $item_price;
+                    // Chuẩn hóa tên cột để đồng nhất với DB
+                    $item['IdSanPham'] = $item['id'];
+                    $item['LoaiSanPham'] = $item['category'];
+                    $item['SoLuong'] = $item['quantity'];
                 }
             }
             unset($item);
         }
     }
     
+    // Lưu vào session để tránh bị header.php ghi đè
+    $_SESSION['_checkout_items'] = $items_to_display;
+    $_SESSION['_checkout_total'] = $product_total;
+    
+    // Tính lại tổng tiền dựa trên items_to_display thực tế
+    $product_total = 0;
+    if (!empty($items_to_display) && is_array($items_to_display)) {
+        foreach ($items_to_display as $item) {
+            $quantity = $item['SoLuong'] ?? $item['quantity'] ?? 1;
+            $item_price = $item['item_price'] ?? 0;
+            
+            // Nếu không có giá từ DB, lấy từ product_data
+            if ($item_price == 0) {
+                $product_id = $item['IdSanPham'] ?? $item['id'] ?? 0;
+                $category = $item['LoaiSanPham'] ?? $item['category'] ?? '';
+                if ($product_id > 0 && !empty($category) && $conn) {
+                    $product_data = get_product_details_by_id_and_category($conn, $product_id, $category);
+                    if ($product_data) {
+                        $item_price = $product_data['final_price'] ?? 0;
+                        $item['item_price'] = $item_price; // Lưu lại để dùng sau
+                    }
+                }
+            }
+            
+            $product_total += $item_price * $quantity;
+        }
+    }
+    
     // Đảm bảo không bị lỗi chia 0 nếu giỏ hàng rỗng
     $product_total = max(0, $product_total);
+    
+    // Cập nhật lại vào session
+    $_SESSION['_checkout_total'] = $product_total;
     
     // Tổng tiền cuối cùng
     $grand_total = $product_total + $shipping_fee - $discount_amount;
@@ -170,7 +206,28 @@
                         <div class="product" style="flex: 1; min-width: 40rem;">
                             <h2>Sản phẩm đã chọn</h2>
                             <div class="product-list">
-                                <?php if (!empty($items_to_display)): ?>
+                                <?php 
+                                // Lấy lại dữ liệu từ session nếu bị mất sau khi include header.php
+                                if (isset($_SESSION['_checkout_items'])) {
+                                    $items_to_display = $_SESSION['_checkout_items'];
+                                    $product_total = $_SESSION['_checkout_total'] ?? 0;
+                                    unset($_SESSION['_checkout_items']);
+                                    unset($_SESSION['_checkout_total']);
+                                }
+                                
+                                // Đảm bảo $items_to_display là mảng
+                                if (!is_array($items_to_display)) {
+                                    $items_to_display = [];
+                                }
+                                
+                                // Lọc bỏ các item không hợp lệ
+                                $items_to_display = array_filter($items_to_display, function($item) {
+                                    $product_id = $item['IdSanPham'] ?? $item['id'] ?? 0;
+                                    $category = $item['LoaiSanPham'] ?? $item['category'] ?? '';
+                                    return $product_id > 0 && !empty($category);
+                                });
+                                
+                                if (!empty($items_to_display)): ?>
                                     <?php foreach ($items_to_display as $item): 
                                         $product_id = $item['IdSanPham'] ?? $item['id'] ?? 0;
                                         $category = $item['LoaiSanPham'] ?? $item['category'] ?? '';
@@ -199,9 +256,13 @@
                                         endif;
                                     endforeach; 
                                 else: ?>
-                                    <div class="product-items" style="text-align: center; padding: 2rem;">
-                                        <p style="font-size: 1.6rem; color: #666;">Giỏ hàng của bạn đang trống.</p>
-                                        <a href="../Home/index.php" style="display: inline-block; margin-top: 1rem; padding: 1rem 2rem; background-color: var(--yellow-color); color: black; border-radius: 0.5rem; text-decoration: none;">
+                                    <div class="product-items" style="text-align: center; padding: 3rem; border: 2px dashed #ddd; border-radius: 1rem;">
+                                        <p style="font-size: 1.8rem; color: #999; margin-bottom: 1rem; font-weight: 600;">Giỏ hàng của bạn đang trống</p>
+                                        <p style="font-size: 1.4rem; color: #666; margin-bottom: 2rem;">Vui lòng thêm sản phẩm vào giỏ hàng trước khi thanh toán</p>
+                                        <a href="../GioHang/giohang.php" style="display: inline-block; margin-right: 1rem; padding: 1rem 2rem; background-color: var(--yellow-color); color: black; border-radius: 0.5rem; text-decoration: none; font-weight: 600;">
+                                            Xem giỏ hàng
+                                        </a>
+                                        <a href="../Home/index.php" style="display: inline-block; padding: 1rem 2rem; background-color: #333; color: white; border-radius: 0.5rem; text-decoration: none; font-weight: 600;">
                                             Quay lại mua sắm
                                         </a>
                                     </div>
@@ -235,7 +296,7 @@
                         <input type="hidden" name="discount_amount" id="input_discount_amount" value="<?php echo $discount_amount; ?>">
                         <input type="hidden" name="total_price_final" id="input_total_price_final" value="<?php echo $grand_total; ?>">
                     
-                        <button class="payments-button" type="submit" name="submit_order">ĐẶT HÀNG</button>
+                        <button class="payments-button" type="submit" name="submit_order" <?php echo empty($items_to_display) ? 'disabled style="opacity: 0.5; cursor: not-allowed;"' : ''; ?>>ĐẶT HÀNG</button>
                     </div>
                 </form>
             </div>
@@ -303,12 +364,29 @@
             const itemsCount = <?php echo (isset($items_to_display) && is_array($items_to_display)) ? count($items_to_display) : 0; ?>;
             if (itemsCount === 0) {
                 event.preventDefault();
-                alert('Giỏ hàng của bạn đang trống!');
+                alert('Giỏ hàng của bạn đang trống! Vui lòng thêm sản phẩm vào giỏ hàng trước khi thanh toán.');
                 window.location.href = '../GioHang/giohang.php';
-                return;
+                return false;
             }
+            
+            // Kiểm tra các trường bắt buộc
+            const name = document.getElementById('name').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const city = document.getElementById('city').value.trim();
+            const district = document.getElementById('district').value.trim();
+            const ward = document.getElementById('ward').value.trim();
+            const addressDetail = document.getElementById('orther').value.trim();
+            const paymentMethod = document.querySelector('input[name="payment"]:checked');
+            
+            if (!name || !phone || !city || !district || !ward || !addressDetail || !paymentMethod) {
+                event.preventDefault();
+                alert('Vui lòng điền đầy đủ thông tin giao hàng và chọn phương thức thanh toán!');
+                return false;
+            }
+            
             // Nếu không có lỗi, form sẽ được submit tới components/order_handler.php
-            alert('Đang xử lý đơn hàng, vui lòng chờ...');
+            // Không cần alert này vì có thể làm phiền người dùng
+            // alert('Đang xử lý đơn hàng, vui lòng chờ...');
         });
     </script>
 </body>

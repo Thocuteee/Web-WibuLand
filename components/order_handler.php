@@ -3,7 +3,20 @@
     // Bắt đầu output buffering để chặn output từ header.php
     ob_start();
     
+    // Đảm bảo session đã được start
+    if (!session_id()) {
+        session_start();
+    }
+    
     include 'connect.php';
+    
+    // Kiểm tra kết nối database
+    if (!$conn) {
+        ob_end_clean();
+        $_SESSION['order_message'] = ['type' => 'error', 'text' => 'Lỗi kết nối database. Vui lòng thử lại sau.'];
+        header("Location: ../thanhtoan/thanhtoan.php");
+        exit();
+    }
     
     // Chỉ include các hàm cần thiết từ header.php mà không output HTML
     // Tách phần functions từ header.php
@@ -65,14 +78,28 @@
     
     // Hàm chuyển hướng với thông báo
     function redirect_with_message($location, $type, $message) {
+        // Đảm bảo session đã start
+        if (!session_id()) {
+            session_start();
+        }
         $_SESSION['order_message'] = ['type' => $type, 'text' => $message];
+        
+        // Đảm bảo không có output trước khi redirect
+        while (ob_get_level()) {
+            ob_end_clean();
+        }
+        
         header("Location: $location");
         exit();
     }
     
     // Yêu cầu POST và đăng nhập
-    if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_SESSION['user_id'])) {
-        redirect_with_message('../Home/index.php', 'error', 'Truy cập không hợp lệ hoặc chưa đăng nhập.');
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        redirect_with_message('../Home/index.php', 'error', 'Yêu cầu không hợp lệ. Vui lòng sử dụng form để đặt hàng.');
+    }
+    
+    if (!isset($_SESSION['user_id'])) {
+        redirect_with_message('../login&registration/login.php', 'error', 'Bạn cần đăng nhập để đặt hàng.');
     }
     
     $user_id = $_SESSION['user_id'];
@@ -109,8 +136,8 @@
             // Cần lấy Tên sản phẩm từ DB (sử dụng hàm từ header.php)
             $product_data = get_product_details_by_id_and_category($conn, $row['IdSanPham'], $row['LoaiSanPham']);
             if ($product_data) {
-                 $row['TenSanPham'] = $product_data['Name'];
-                 $items_to_order[] = $row;
+                $row['TenSanPham'] = $product_data['Name'];
+                $items_to_order[] = $row;
             }
         }
         mysqli_stmt_close($stmt_items);
@@ -131,23 +158,35 @@
     
     $stmt_order = mysqli_prepare($conn, $insert_order_query);
     
-    // Tạo Mã đơn hàng duy nhất (ví dụ: WD2025MMDDHHMMSS)
-    $ma_don_hang = 'WD' . date('YmdHis') . $user_id;
-    
-    // Tổng tiền sản phẩm, Phí vận chuyển, Giảm giá, Tổng cộng
-    $TongCongFinal = $product_total + $shipping_fee - $discount_amount;
-    
-    // Dòng này cần được kiểm tra kỹ: tổng tiền sản phẩm ($product_total)
-    mysqli_stmt_bind_param($stmt_order, "issssssiiis", 
-        $user_id, $ma_don_hang, $name, $phone, $full_address, $city, $payment_method, 
-        $product_total, $shipping_fee, $discount_amount, $TongCongFinal, $note);
-        
-    if (!mysqli_stmt_execute($stmt_order)) {
+    if (!$stmt_order) {
         $success = false;
         $db_error = mysqli_error($conn);
+    } else {
+        // Tạo Mã đơn hàng duy nhất (ví dụ: WD2025MMDDHHMMSS)
+        $ma_don_hang = 'WD' . date('YmdHis') . $user_id;
+        
+        // Tổng tiền sản phẩm, Phí vận chuyển, Giảm giá, Tổng cộng
+        $TongCongFinal = $product_total + $shipping_fee - $discount_amount;
+        
+        // Dòng này cần được kiểm tra kỹ: tổng tiền sản phẩm ($product_total)
+        mysqli_stmt_bind_param($stmt_order, "issssssiiis", 
+            $user_id, $ma_don_hang, $name, $phone, $full_address, $city, $payment_method, 
+            $product_total, $shipping_fee, $discount_amount, $TongCongFinal, $note);
+            
+        if (!mysqli_stmt_execute($stmt_order)) {
+            $success = false;
+            $db_error = mysqli_error($conn);
+            error_log("Order INSERT Error: " . $db_error);
+        } else {
+            $order_id = mysqli_insert_id($conn);
+            if ($order_id <= 0) {
+                $success = false;
+                $db_error = "Không thể lấy ID đơn hàng sau khi insert.";
+                error_log("Order ID Error: Cannot get order ID after insert");
+            }
+        }
+        mysqli_stmt_close($stmt_order);
     }
-    $order_id = mysqli_insert_id($conn);
-    mysqli_stmt_close($stmt_order);
 
     // 5. INSERT vào bảng donhang_chitiet
     if ($success) {
@@ -157,20 +196,31 @@
         
         $stmt_detail = mysqli_prepare($conn, $insert_detail_query);
         
-        foreach ($items_to_order as $item) {
-            $item_subtotal = $item['item_price'] * $item['SoLuong'];
-            
-            mysqli_stmt_bind_param($stmt_detail, "isisiis", 
-                $order_id, $item['LoaiSanPham'], $item['IdSanPham'], $item['TenSanPham'], 
-                $item['SoLuong'], $item['item_price'], $item_subtotal);
-
-            if (!mysqli_stmt_execute($stmt_detail)) {
-                $success = false;
-                $db_error = mysqli_error($conn);
-                break;
+        if (!$stmt_detail) {
+            $success = false;
+            $db_error = mysqli_error($conn);
+        } else {
+            foreach ($items_to_order as $item) {
+                $item_subtotal = $item['item_price'] * $item['SoLuong'];
+                
+                mysqli_stmt_bind_param($stmt_detail, "isissii", 
+                    $order_id, 
+                    $item['LoaiSanPham'], 
+                    $item['IdSanPham'], 
+                    $item['TenSanPham'], 
+                    $item['SoLuong'], 
+                    $item['item_price'], 
+                    $item_subtotal
+                );
+                
+                if (!mysqli_stmt_execute($stmt_detail)) {
+                    $success = false;
+                    $db_error = mysqli_error($conn);
+                    break;
+                }
             }
+            mysqli_stmt_close($stmt_detail);
         }
-        mysqli_stmt_close($stmt_detail);
     }
 
     // 6. Xóa giỏ hàng (giohang_chitiet) và commit/rollback
@@ -185,12 +235,24 @@
         mysqli_stmt_close($stmt_delete);
     }
 
+    // Xử lý transaction
     if ($success) {
         mysqli_commit($conn);
+        mysqli_autocommit($conn, TRUE); // Khôi phục autocommit
         redirect_with_message("../thongtinkhachhang/donhang.php", "success", "Đặt hàng thành công! Mã đơn hàng của bạn là $ma_don_hang.");
     } else {
         mysqli_rollback($conn);
-        // Trong môi trường production, chỉ hiển thị thông báo lỗi chung
-        redirect_with_message("../thanhtoan/thanhtoan.php", "error", "Lỗi: Không thể hoàn tất đơn hàng. Vui lòng thử lại. (DB Error: $db_error)");
+        mysqli_autocommit($conn, TRUE); // Khôi phục autocommit
+        // Log lỗi để debug
+        $error_message = $db_error ?? 'Unknown error';
+        error_log("Order Handler Error: " . $error_message);
+        
+        // Fallback: Nếu redirect không hoạt động, hiển thị lỗi
+        if (headers_sent()) {
+            die("Lỗi: Không thể hoàn tất đơn hàng. Chi tiết lỗi: " . htmlspecialchars($error_message) . "<br><a href='../thanhtoan/thanhtoan.php'>Quay lại trang thanh toán</a>");
+        }
+        redirect_with_message("../thanhtoan/thanhtoan.php", "error", "Lỗi: Không thể hoàn tất đơn hàng. Vui lòng thử lại hoặc liên hệ hỗ trợ.");
     }
+    
+    // Không đóng kết nối vì có thể các file khác cần dùng
 ?>
