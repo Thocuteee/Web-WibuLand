@@ -189,6 +189,11 @@ if(isset($_GET["category"]) && isset ($_GET["id"])){
 
         <h1>Quản lý sản phẩm</h1>
         <div class="actions">
+            
+            <a href="orders.php" class="btn-func" style="background-color: #f9a01b;">
+                <i class="fa-solid fa-box"></i> Quản lý Đơn hàng
+            </a>
+            
             <form method="GET" action="">
                 <select id="categorySelect" onchange="this.form.submit()" name="category">
                     <option value="mohinh" <?php if ($category == "mohinh") echo "selected" ?>>Mô hình</option>
