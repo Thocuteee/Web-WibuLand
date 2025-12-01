@@ -1,5 +1,3 @@
-// File: Home/index.php (Thay thế toàn bộ nội dung trong file này)
-
 <?php
     // components/connect.php sẽ khởi tạo $conn và session
     include '../components/connect.php'; 
@@ -237,9 +235,10 @@
                                     <div class="price">
                                         <span class="price-sale"><?php echo $fs_final_price; ?>₫</span>
                                         <span class="price-not-sale"><?php echo $fs_old_price; ?>₫</span>
-                                        
+                                    </div>
+                                    <div class="add-to-cart-quick">
                                         <a href="#" onclick="quickAddToCart(event, <?php echo $fs_id; ?>, '<?php echo $fs_category; ?>')" title="Thêm nhanh vào giỏ hàng">
-                                            <i class="fa-solid fa-cart-plus" style="color: black; font-size: 1.8rem;"></i>
+                                            <i class="fa-solid fa-cart-plus"></i>
                                         </a>
                                     </div>
                                 </div>

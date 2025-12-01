@@ -559,3 +559,39 @@
         margin-top: 1rem;
     }
 }
+
+.pay-option img[alt="COD"] {
+    /* Đảm bảo hình ảnh COD (cash-on-delivery.png) có màu trắng để khớp với thiết kế */
+    filter: invert(1); 
+}
+
+/* Thêm box-shadow mạnh hơn cho các input khi hover/focus */
+.pay-imform input:focus,
+.pay-country input:focus,
+.pay-note textarea:focus,
+.voucher select:focus {
+    outline: none;
+    border-color: var(--yellow-color);
+    /* Tăng độ nổi bật của shadow */
+    box-shadow: 0 0 0 3px rgba(249, 160, 27, 0.3); 
+    background-color: #fffef9;
+}
+
+/* Tinh chỉnh tiêu đề và Box-shadow cho khu vực chính */
+#pay-header,
+.product {
+    box-shadow: 0 0.8rem 2.5rem rgba(0,0,0,0.12);
+    border: none; /* Bỏ viền cũ */
+}
+#pay-header:hover,
+.product:hover {
+    box-shadow: 0 1rem 3rem rgba(0,0,0,0.15);
+}
+
+/* Tinh chỉnh nút Thanh toán */
+.payments-button {
+    box-shadow: 0 0.5rem 1.5rem rgba(249, 160, 27, 0.6); /* Shadow mạnh hơn */
+}
+.payments-button:hover {
+    box-shadow: 0 0.8rem 2rem rgba(249, 160, 27, 0.8);
+}

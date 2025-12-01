@@ -1,19 +1,13 @@
 <?php
     include '../components/connect.php'; 
-    // KHÔNG include header.php ở đây để tránh định nghĩa lại biến và hàm, 
-    // nhưng cần include nó ở bên dưới để có HTML. 
-    // Tuy nhiên, do các hàm get_product_details_by_id_and_category, get_or_create_cart_id cần được định nghĩa,
-    // nên ta BẮT BUỘC phải include header.php ở đây.
     include '../components/header.php';
     
-    // Khởi tạo các biến cần thiết (TRƯỚC KHI include header.php lần 2)
-    // LƯU Ý: Header.php sẽ chạy lại logic load giỏ hàng, nên ta cần lưu biến để tránh bị ghi đè
     $cart_total_for_page = 0;
     $items_to_display_for_page = [];
     $is_logged_in_for_page = $user_id !== null;
 
     // --- LOGIC TẢI GIỎ HÀNG CHO TRANG ĐẦY ĐỦ ---
-    if ($is_logged_in_for_page) {
+    if ($is_logged_in_for_page && $conn) {
         $cart_id = get_or_create_cart_id($conn, $user_id);
         // SỬA LỖI: Kiểm tra $cart_id khác FALSE để chấp nhận giá trị 0
         if ($cart_id !== false) { 
@@ -37,7 +31,7 @@
         // Lấy từ Session (fallback nếu chưa đăng nhập)
         $items_to_display_for_page = $_SESSION['cart'];
         
-        if (!empty($items_to_display_for_page)) {
+        if (!empty($items_to_display_for_page) && $conn) {
             $cart_total_for_page = 0;
             // Phải tính toán lại giá và tổng cho session cart
             foreach ($items_to_display_for_page as $item_key => &$item) {
@@ -116,7 +110,7 @@
                                 $item_key_or_id = $item['IdGioHangChiTiet'] ?? $category . '_' . $product_id; 
                                 
                                 // Lấy chi tiết sản phẩm để hiển thị đúng tên và ảnh
-                                $product_data = get_product_details_by_id_and_category($conn, $product_id, $category);
+                                $product_data = $conn ? get_product_details_by_id_and_category($conn, $product_id, $category) : null;
                                 
                                 // Sử dụng giá từ DB (đã được lưu khi thêm vào giỏ hàng), không tính lại
                                 // Giá trong DB là giá đã tính sale rồi
@@ -184,6 +178,7 @@
             const itemDetailId = inputElement.getAttribute('data-item-id');
             const cartItem = inputElement.closest('.giohang-item-full');
             
+            // Nếu số lượng < 1, chuyển sang logic xóa
             if (newQuantity < 1) {
                 if (!confirm("Bạn có chắc chắn muốn xóa sản phẩm này khỏi giỏ hàng?")) {
                     inputElement.value = 1; 
@@ -191,12 +186,18 @@
                 }
                 const removeLink = cartItem.querySelector('.remove-btn-full');
                 if (removeLink) {
-                    window.location.href = removeLink.href;
+                    window.location.href = removeLink.href; // Gửi request xóa
                     return;
                 }
             }
             
+            // --- XỬ LÝ AJAX ---
             if (is_logged_in) {
+                // Lấy giá trị hiện tại (đã được định dạng)
+                const currentPriceText = cartItem.querySelector('.col-price').textContent;
+                // Chuyển đổi về dạng số nguyên (loại bỏ '₫' và dấu phẩy/chấm)
+                const itemPrice = parseInt(currentPriceText.replace('₫', '').replace(/,/g, '').replace(/\./g, ''));
+
                 fetch('../components/cart_handler.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded', },
@@ -208,11 +209,26 @@
                 })
                 .then(data => {
                     if (data.status === 'success') {
-                        document.getElementById('cart-subtotal').textContent = data.data.total_price + '₫';
-                        document.getElementById('cart-grand-total').textContent = (parseInt(data.data.total_price.replace(/,/g, '')) + 50000).toLocaleString('en-US') + '₫';
-                        window.location.reload();
+                        // 1. Cập nhật Tổng tiền cho item này trên giao diện
+                        const newSubtotal = itemPrice * newQuantity;
+                        cartItem.querySelector('.subtotal-item').textContent = newSubtotal.toLocaleString('en-US') + '₫';
+                        
+                        // 2. Cập nhật Tổng tiền chung của giỏ hàng
+                        const cartTotalRaw = parseInt(data.data.total_price.replace(/,/g, '').replace(/\./g, ''));
+                        document.getElementById('cart-subtotal').textContent = cartTotalRaw.toLocaleString('en-US') + '₫';
+                        
+                        // 3. Cập nhật Tổng cộng (Grand Total)
+                        const shippingFee = 50000;
+                        const grandTotal = cartTotalRaw + shippingFee;
+                        document.getElementById('cart-grand-total').textContent = grandTotal.toLocaleString('en-US') + '₫';
+                        
+                        alert('Cập nhật số lượng thành công!');
+
                     } else {
                         alert('Lỗi cập nhật giỏ hàng: ' + data.message);
+                        // Cập nhật lại giá trị cũ nếu có lỗi
+                        // Để đơn giản, bạn có thể buộc reload trang nếu xảy ra lỗi không mong muốn.
+                        window.location.reload(); 
                     }
                 })
                 .catch(error => {
@@ -220,6 +236,7 @@
                     alert('Lỗi kết nối server khi cập nhật số lượng: ' + error.message);
                 });
             } else {
+                // Nếu chưa đăng nhập, vẫn phải reload để PHP cập nhật Session
                 window.location.href = `../components/cart_handler.php?action=update_session_quantity&key=${itemDetailId}&quantity=${newQuantity}`;
             }
         }

@@ -72,18 +72,67 @@ if (!function_exists('get_or_create_cart_id')) {
  * Hàm lấy ID Giỏ hàng (Tạo mới nếu chưa có)
  */
 function get_or_create_cart_id($conn, $user_id) {
+    if (!$conn || !$user_id) {
+        return false;
+    }
+    
+    // Kiểm tra user có tồn tại không
+    $check_user = "SELECT IdUser FROM `users` WHERE IdUser = ?";
+    $stmt_check = mysqli_prepare($conn, $check_user);
+    if ($stmt_check) {
+        mysqli_stmt_bind_param($stmt_check, "i", $user_id);
+        mysqli_stmt_execute($stmt_check);
+        $result_check = mysqli_stmt_get_result($stmt_check);
+        if (mysqli_num_rows($result_check) == 0) {
+            mysqli_stmt_close($stmt_check);
+            return false; // User không tồn tại
+        }
+        mysqli_stmt_close($stmt_check);
+    }
+    
     $query = "SELECT IDGioHang FROM `giohang` WHERE IdUser = ?";
     $stmt = mysqli_prepare($conn, $query);
+    
+    if (!$stmt) {
+        return false;
+    }
+    
     mysqli_stmt_bind_param($stmt, "i", $user_id);
-    mysqli_stmt_execute($stmt);
+    if (!mysqli_stmt_execute($stmt)) {
+        mysqli_stmt_close($stmt);
+        return false;
+    }
+    
     $result = mysqli_stmt_get_result($stmt);
 
     if (mysqli_num_rows($result) > 0) {
         $row = mysqli_fetch_assoc($result);
         mysqli_stmt_close($stmt);
-        return $row['IDGioHang'];
+        return (int)$row['IDGioHang'];
     } else {
-        // Ở đây ta không tạo, việc tạo sẽ được thực hiện trong cart_handler khi thêm sản phẩm.
+        // Tạo giỏ hàng mới
+        mysqli_stmt_close($stmt);
+        $insert_query = "INSERT INTO `giohang` (IdUser, TongGiaTien, TongSoLuong) VALUES (?, 0, 0)";
+        $stmt_insert = mysqli_prepare($conn, $insert_query);
+        
+        if (!$stmt_insert) {
+            return false;
+        }
+        
+        mysqli_stmt_bind_param($stmt_insert, "i", $user_id);
+        $execute_result = mysqli_stmt_execute($stmt_insert);
+        
+        if ($execute_result) {
+            $new_id = mysqli_insert_id($conn);
+            mysqli_stmt_close($stmt_insert);
+            if ($new_id > 0) {
+                return (int)$new_id;
+            }
+        } else {
+            mysqli_stmt_close($stmt_insert);
+            return false;
+        }
+        mysqli_stmt_close($stmt_insert);
         return false;
     }
 }

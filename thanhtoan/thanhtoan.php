@@ -1,101 +1,34 @@
+// File: thanhtoan/thanhtoan.php (Thay thế toàn bộ nội dung file này)
+
 <?php
     include '../components/connect.php';
+    include '../components/header.php'; // Cần include header để lấy các hàm và biến user
     
-    // Lấy thông tin user từ session - CHÚ Ý: ĐOẠN CODE NÀY ĐÃ BỊ DƯ THỪA 
-    // VÀ CŨNG ĐƯỢC CHUYỂN VÀO FILE HEADER.PHP, NÊN CHỈ CẦN DÙNG BIẾN TỪ SESSION
-    // Nếu bạn muốn giữ lại biến $user_id sớm, có thể giữ đoạn sau:
-    $user_id = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null;
-
-    // Định nghĩa các hàm cần thiết - ĐÃ BỊ XÓA VÌ ĐƯỢC CHUYỂN SANG HEADER.PHP VÀ CÓ GUARD
-    
-    // Khai báo các hàm này để sử dụng: (Nếu bạn không muốn include header.php quá sớm)
-    // PHẢI ĐẢM BẢO CÁC HÀM CŨ ĐƯỢC ĐỊNH NGHĨA TRƯỚC KHI CHẠY LOGIC DƯỚI ĐÂY
-    // Hiện tại, tôi sẽ giữ nguyên các định nghĩa hàm CŨ, nhưng bạn có thể XÓA TOÀN BỘ CHÚNG 
-    // và thay thế bằng include '../components/header.php'; ở đây.
-    
-    // CÁCH TỐI ƯU NHẤT: BỎ TOÀN BỘ ĐỊNH NGHĨA HÀM DƯ THỪA (Dòng 8-40 CỦA FILE CŨ)
-    
-    // Dưới đây là nội dung PHP CỦA BẠN SAU KHI ĐÃ BỎ ĐỊNH NGHĨA HÀM DƯ THỪA
-    
-    // Dòng 8-40 (function definitions) ĐÃ BỊ XOÁ. Logic còn lại:
-    
-    // Định nghĩa lại các hàm cần thiết (dù đã được định nghĩa trong header.php)
-    // Để giữ nguyên cấu trúc cũ, ta dùng các định nghĩa này TẠM THỜI
-    // TỪ ĐÂY TRỞ XUỐNG LÀ CODE CŨ, CHỈ XÓA PHẦN ĐỊNH NGHĨA HÀM DƯ THỪA ĐỂ DÙNG CHUNG CÁC HÀM ĐÃ FIX Ở HEADER.PHP
-    
-    // *************************************************************************************************
-    // * KHOẢNG NÀY ĐÁNG LẼ LÀ function get_product_details_by_id_and_category() và function get_or_create_cart_id() *
-    // * NHƯNG ĐÃ ĐƯỢC XÓA ĐỂ TRÁNH LỖI VÀ DÙNG CÁC HÀM ĐÃ ĐƯỢC FIX Ở header.php *
-    // *************************************************************************************************
-
     // Lấy thông tin user từ session
-    if (isset($_SESSION['user_id'])){
-        $user_id = $_SESSION['user_id'];
-    } else {
-        $user_id = null;
+    $user_id = $_SESSION['user_id'] ?? null;
+    $user_info = null;
+
+    if ($user_id) {
+        $select_user = "SELECT * FROM users WHERE IdUser = ?";
+        $stmt_user = mysqli_prepare($conn, $select_user);
+        mysqli_stmt_bind_param($stmt_user, "i", $user_id);
+        mysqli_stmt_execute($stmt_user);
+        $result_user = mysqli_stmt_get_result($stmt_user);
+        $user_info = mysqli_fetch_assoc($result_user);
+        mysqli_stmt_close($stmt_user);
     }
     
-    // Định nghĩa các hàm cần thiết
-    function get_product_details_by_id_and_category($conn, $product_id, $category) {
-        if (empty($category) || $product_id <= 0) {
-            return null;
-        }
-        
-        $select_query = "SELECT Name, Img1, Gia, Sale FROM `$category` WHERE ID = ?";
-        $stmt = mysqli_prepare($conn, $select_query);
-        
-        if (!$stmt) return null;
-
-        mysqli_stmt_bind_param($stmt, "i", $product_id);
-        mysqli_stmt_execute($stmt);
-        $result = mysqli_stmt_get_result($stmt);
-
-        if (mysqli_num_rows($result) > 0) {
-            $product = mysqli_fetch_assoc($result);
-            mysqli_stmt_close($stmt);
-            
-            $price = $product['Gia'];
-            if ($product['Sale'] > 0) {
-                $final_price = $price * (1 - $product['Sale'] / 100);
-            } else {
-                $final_price = $price;
-            }
-            $product['final_price'] = $final_price;
-            return $product;
-        }
-        
-        if ($stmt) mysqli_stmt_close($stmt);
-        return null;
-    }
-    
-    function get_or_create_cart_id($conn, $user_id) {
-        $query = "SELECT IDGioHang FROM `giohang` WHERE IdUser = ?";
-        $stmt = mysqli_prepare($conn, $query);
-        mysqli_stmt_bind_param($stmt, "i", $user_id);
-        mysqli_stmt_execute($stmt);
-        $result = mysqli_stmt_get_result($stmt);
-
-        if (mysqli_num_rows($result) > 0) {
-            $row = mysqli_fetch_assoc($result);
-            mysqli_stmt_close($stmt);
-            return $row['IDGioHang'];
-        } else {
-            return false;
-        }
-    }
-    
-    // Khởi tạo các biến
+    // --- KHỞI TẠO LOGIC TẢI GIỎ HÀNG (Giống GioHang/giohang.php) ---
     $items_to_display = [];
     $product_total = 0;
     $shipping_fee = 50000;
     $discount_amount = 0;
     $is_logged_in = $user_id !== null;
-
-    // --- LOGIC TẢI GIỎ HÀNG ---
+    
     if ($is_logged_in) {
         $cart_id = get_or_create_cart_id($conn, $user_id);
         if ($cart_id !== false) {
-            $select_cart_query = "SELECT IdGioHangChiTiet, IdSanPham, LoaiSanPham, SoLuong, Gia as item_price FROM `giohang_chitiet` WHERE IdGioHang = ? ORDER BY IdGioHangChiTiet DESC";
+            $select_cart_query = "SELECT IdSanPham, LoaiSanPham, SoLuong, Gia as item_price FROM `giohang_chitiet` WHERE IdGioHang = ? ORDER BY IdGioHangChiTiet DESC";
             $stmt_cart = mysqli_prepare($conn, $select_cart_query);
             if($stmt_cart) {
                 mysqli_stmt_bind_param($stmt_cart, "i", $cart_id);
@@ -119,7 +52,6 @@
                 if ($product_data) {
                     $item_price = $product_data['final_price'];
                     $product_total += $item_price * $item['quantity'];
-                    $item['IdGioHangChiTiet'] = $item_key; 
                     $item['item_price'] = $item_price;
                 }
             }
@@ -127,7 +59,17 @@
         }
     }
     
+    // Đảm bảo không bị lỗi chia 0 nếu giỏ hàng rỗng
+    $product_total = max(0, $product_total);
+    
+    // Tổng tiền cuối cùng
     $grand_total = $product_total + $shipping_fee - $discount_amount;
+    
+    // Lấy thông báo lỗi/thành công từ Session (nếu có)
+    $message = $_SESSION['order_message'] ?? null;
+    if (isset($_SESSION['order_message'])) {
+        unset($_SESSION['order_message']);
+    }
 ?>
 
 <!DOCTYPE html>
@@ -153,129 +95,149 @@
                     <p style="font-size: 1.6rem; color: #666;">Vui lòng điền đầy đủ thông tin để hoàn tất đơn hàng</p>
                 </div>
                 
-                <div style="display: flex; gap: 2rem; flex-wrap: wrap;">
-                    <div id="pay-header" style="flex: 1; min-width: 50rem;">
-                        <div id="pay-header-1">
-                            <div class="pay">
-                                <div class="main-pay">
-                                    <a href="../Home/index.php" class="left-link"><i>Trở về Home</i></a>
-                                    <a href="../GioHang/giohang.php" class="right-link"><i>Trở về giỏ hàng</i></a>
-                                </div>
-                            </div>
-                        </div>
-                
-                        <div id="pay-header-2">
-                            <div class="pay-imformation">
-                                <div class="pay-imform">
-                                    <h2>Thông tin giao hàng *</h2>
-                                    <input type="text" id="name" name="name" placeholder="Họ và tên" required>
-                                    <input type="text" id="phone" name="phone" placeholder="Số điện thoại" required>
-                                </div>
-                
-                                <div class="pay-address">
-                                    <label for="address">Địa chỉ *</label>
-                                    <div class="pay-country">
-                                        <input type="text" id="city" name="city" placeholder="Tỉnh/Thành" required>
-                                        <input type="text" id="district" name="district" placeholder="Quận/Huyện" required>
-                                        <input type="text" id="ward" name="ward" placeholder="Phường/Xã" required>
-                                        <div class="address-order">
-                                            <input type="text" id="orther" name="address_detail" placeholder="Địa chỉ cụ thể" required>
-                                        </div>
+                <?php if ($message): ?>
+                    <div class="message <?php echo $message['type']; ?>" style="max-width: 60rem; margin: 0 auto 2rem; padding: 1.5rem; border-radius: 1rem; font-size: 1.5rem; text-align: center; background-color: <?php echo ($message['type'] == 'success' ? '#d4edda' : '#f8d7da'); ?>; color: <?php echo ($message['type'] == 'success' ? '#155724' : '#721c24'); ?>;">
+                        <?php echo htmlspecialchars($message['text']); ?>
+                    </div>
+                <?php endif; ?>
+
+                <form method="POST" action="../components/order_handler.php" id="checkout-form">
+                    <div style="display: flex; gap: 2rem; flex-wrap: wrap;">
+                        <div id="pay-header" style="flex: 1; min-width: 50rem;">
+                            <div id="pay-header-1">
+                                <div class="pay">
+                                    <div class="main-pay">
+                                        <a href="../Home/index.php" class="left-link"><i>Trở về Home</i></a>
+                                        <a href="../GioHang/giohang.php" class="right-link"><i>Trở về giỏ hàng</i></a>
                                     </div>
                                 </div>
                             </div>
-                
-                            <div class="pay-method">
-                                <h3>Phương thức thanh toán điện tử *</h3>
-                                <div class="pay-option">
-                                    <label for="momo">
-                                        <input type="radio" name="payment" value="momo" required>
-                                        <img src="/Home/img/MoMo_Logo.png" alt="MoMo">
-                                    </label>
-                
-                                    <label for="vietcombank"> 
-                                        <input type="radio" name="payment" value="vietcombank" required>
-                                        <img src="/Home/img/Vietcombank.jpg" alt="Vietcombank">
-                                    </label>
+                    
+                            <div id="pay-header-2">
+                                <div class="pay-imformation">
+                                    <div class="pay-imform">
+                                        <h2>Thông tin giao hàng *</h2>
+                                        <input type="text" id="name" name="name" placeholder="Họ và tên" value="<?php echo htmlspecialchars($user_info['NameUser'] ?? ''); ?>" required>
+                                        <input type="text" id="phone" name="phone" placeholder="Số điện thoại" value="<?php echo htmlspecialchars($user_info['SDT'] ?? ''); ?>" required>
+                                    </div>
+                    
+                                    <div class="pay-address">
+                                        <label for="address">Địa chỉ *</label>
+                                        <div class="pay-country">
+                                            <input type="text" id="city" name="city" placeholder="Tỉnh/Thành" value="<?php echo htmlspecialchars($user_info['TinhThanh'] ?? ''); ?>" required>
+                                            <input type="text" id="district" name="district" placeholder="Quận/Huyện" required>
+                                            <input type="text" id="ward" name="ward" placeholder="Phường/Xã" required>
+                                            <div class="address-order">
+                                                <input type="text" id="orther" name="address_detail" placeholder="Địa chỉ cụ thể (Số nhà, tên đường...)" value="<?php echo htmlspecialchars($user_info['DiaChi'] ?? ''); ?>" required>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                
-                            <div class="pay-note">
-                                <div class="note-box">
-                                    <h3>Lời nhắn:</h3>
-                                    <textarea id="note" name="note" placeholder="Lưu ý cho Shop..." maxlength="200"></textarea>
-                                    <div class="character-count">0/200</div>
+                    
+                                <div class="pay-method">
+                                    <h3>Phương thức thanh toán *</h3>
+                                    <div class="pay-option">
+                                        <label for="momo">
+                                            <input type="radio" name="payment" value="momo" required>
+                                            <img src="/Home/img/MoMo_Logo.png" alt="MoMo">
+                                            <span>MoMo</span>
+                                        </label>
+                    
+                                        <label for="vietcombank"> 
+                                            <input type="radio" name="payment" value="vietcombank" required>
+                                            <img src="/Home/img/Vietcombank.jpg" alt="Vietcombank">
+                                            <span>Vietcombank</span>
+                                        </label>
+                                        
+                                        <label for="cod"> 
+                                            <input type="radio" name="payment" value="cod" required>
+                                            <img src="/Home/img/cash-on-delivery.png" alt="COD" style="filter: invert(1);">
+                                            <span>COD</span>
+                                        </label>
+                                    </div>
                                 </div>
-                            </div>
+                    
+                                <div class="pay-note">
+                                    <div class="note-box">
+                                        <h3>Lời nhắn:</h3>
+                                        <textarea id="note" name="note" placeholder="Lưu ý cho Shop..." maxlength="200"></textarea>
+                                        <div class="character-count">0/200</div>
+                                    </div>
+                                </div>
+                            </div> 
                         </div> 
-                    </div> 
-                
-                    <div class="product" style="flex: 1; min-width: 40rem;">
-                        <h2>Sản phẩm đã chọn</h2>
-                        <div class="product-list">
-                            <?php if (!empty($items_to_display)): ?>
-                                <?php foreach ($items_to_display as $item): 
-                                    $product_id = $item['IdSanPham'] ?? $item['id'] ?? 0;
-                                    $category = $item['LoaiSanPham'] ?? $item['category'] ?? '';
-                                    $quantity = $item['SoLuong'] ?? $item['quantity'] ?? 1;
+                    
+                        <div class="product" style="flex: 1; min-width: 40rem;">
+                            <h2>Sản phẩm đã chọn</h2>
+                            <div class="product-list">
+                                <?php if (!empty($items_to_display)): ?>
+                                    <?php foreach ($items_to_display as $item): 
+                                        $product_id = $item['IdSanPham'] ?? $item['id'] ?? 0;
+                                        $category = $item['LoaiSanPham'] ?? $item['category'] ?? '';
+                                        $quantity = $item['SoLuong'] ?? $item['quantity'] ?? 1;
+                                        
+                                        $product_data = get_product_details_by_id_and_category($conn, $product_id, $category);
+                                        $item_price = $item['item_price'] ?? 0;
+                                        
+                                        if ($item_price == 0 && $product_data) {
+                                            $item_price = $product_data['final_price'] ?? 0;
+                                        }
                                     
-                                    $product_data = get_product_details_by_id_and_category($conn, $product_id, $category);
-                                    $item_price = $item['item_price'] ?? 0;
-                                    
-                                    if ($item_price == 0 && $product_data) {
-                                        $item_price = $product_data['final_price'] ?? 0;
-                                    }
-                                
-                                    if ($product_data):
-                                ?>
-                                    <div class="product-items">
-                                        <img src="/admin/<?php echo $product_data['Img1']; ?>" alt="<?php echo htmlspecialchars($product_data['Name']); ?>">
-                                        <div class="product-detail">
-                                            <span class="product-title"><?php echo htmlspecialchars($product_data['Name']); ?></span>
+                                        if ($product_data):
+                                    ?>
+                                        <div class="product-items">
+                                            <img src="/admin/<?php echo $product_data['Img1']; ?>" alt="<?php echo htmlspecialchars($product_data['Name']); ?>">
+                                            <div class="product-detail">
+                                                <span class="product-title"><?php echo htmlspecialchars($product_data['Name']); ?></span>
+                                            </div>
+                                            <div class="product-info">
+                                                <span class="product-quantity">Số lượng: <?php echo $quantity; ?></span>
+                                                <span class="product-price"><?php echo number_format($item_price * $quantity); ?>₫</span>
+                                            </div>
                                         </div>
-                                        <div class="product-info">
-                                            <span class="product-quantity">Số lượng: <?php echo $quantity; ?></span>
-                                            <span class="product-price"><?php echo number_format($item_price * $quantity); ?>₫</span>
-                                        </div>
+                                    <?php 
+                                        endif;
+                                    endforeach; 
+                                else: ?>
+                                    <div class="product-items" style="text-align: center; padding: 2rem;">
+                                        <p style="font-size: 1.6rem; color: #666;">Giỏ hàng của bạn đang trống.</p>
+                                        <a href="../Home/index.php" style="display: inline-block; margin-top: 1rem; padding: 1rem 2rem; background-color: var(--yellow-color); color: black; border-radius: 0.5rem; text-decoration: none;">
+                                            Quay lại mua sắm
+                                        </a>
                                     </div>
-                                <?php 
-                                    endif;
-                                endforeach; 
-                            else: ?>
-                                <div class="product-items" style="text-align: center; padding: 2rem;">
-                                    <p style="font-size: 1.6rem; color: #666;">Giỏ hàng của bạn đang trống.</p>
-                                    <a href="../Home/index.php" style="display: inline-block; margin-top: 1rem; padding: 1rem 2rem; background-color: var(--yellow-color); color: black; border-radius: 0.5rem; text-decoration: none;">
-                                        Quay lại mua sắm
-                                    </a>
-                                </div>
-                            <?php endif; ?>
+                                <?php endif; ?>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <div style="display: flex; flex-direction: column; gap: 2rem; margin-top: 2rem; max-width: 60rem; margin-left: auto; margin-right: auto;">
-                    <div class="voucher">
-                        <select id="voucher-select">
-                            <option class="voucher-select" value="">Chọn Voucher</option>
-                            <option value="10">Giảm 10%</option>
-                            <option value="20">Giảm 20%</option>
-                            <option value="30">Giảm 30%</option>
-                        </select>
-                        <button class="apply-button" onclick="applyVoucher()">Áp dụng</button>
-                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 2rem; margin-top: 2rem; max-width: 60rem; margin-left: auto; margin-right: auto;">
+                        <div class="voucher">
+                            <select id="voucher-select" name="voucher_code">
+                                <option class="voucher-select" value="">Chọn Voucher</option>
+                                <option value="10">Giảm 10% (Placeholder)</option>
+                                <option value="20">Giảm 20% (Placeholder)</option>
+                                <option value="30">Giảm 30% (Placeholder)</option>
+                            </select>
+                            <button class="apply-button" type="button" onclick="applyVoucher()">Áp dụng</button>
+                        </div>
 
-                    <div class="summary">
-                        <p>Tổng phí sản phẩm: <span class="product-total"><?php echo number_format($product_total); ?>₫</span></p>
-                        <p>Phí vận chuyển: <span class="shipping-fee"><?php echo number_format($shipping_fee); ?>₫</span></p>
-                        <p>Chi phí giảm: <span class="discount-amount"><?php echo number_format($discount_amount); ?>₫</span></p>
-                        <h3>
-                            <span>Tổng:</span> 
-                            <span class="grand-total"><?php echo number_format($grand_total); ?>₫</span>
-                        </h3>
+                        <div class="summary">
+                            <p>Tổng phí sản phẩm: <span class="product-total"><?php echo number_format($product_total); ?>₫</span></p>
+                            <p>Phí vận chuyển: <span class="shipping-fee"><?php echo number_format($shipping_fee); ?>₫</span></p>
+                            <p>Chi phí giảm: <span class="discount-amount"><?php echo number_format($discount_amount); ?>₫</span></p>
+                            <h3>
+                                <span>Tổng:</span> 
+                                <span class="grand-total"><?php echo number_format($grand_total); ?>₫</span>
+                            </h3>
+                        </div>
+                        
+                        <input type="hidden" name="product_total" id="input_product_total" value="<?php echo $product_total; ?>">
+                        <input type="hidden" name="discount_amount" id="input_discount_amount" value="<?php echo $discount_amount; ?>">
+                        <input type="hidden" name="total_price_final" id="input_total_price_final" value="<?php echo $grand_total; ?>">
+                    
+                        <button class="payments-button" type="submit" name="submit_order">ĐẶT HÀNG</button>
                     </div>
-                
-                    <button class="payments-button" onclick="submitOrder()">Đặt hàng</button>
-                </div>
+                </form>
             </div>
         </div>
     </main>
@@ -284,17 +246,10 @@
     
     <script src="../components/js/global.js" defer></script>
     <script>
-        const noteTextarea = document.getElementById('note');
-        const characterCount = document.querySelector('.character-count');
-        
-        if (noteTextarea && characterCount) {
-            noteTextarea.addEventListener('input', function() {
-                const count = this.value.length;
-                characterCount.textContent = count + '/200';
-            });
-        }
-        
-        // Thêm class selected cho label khi radio được chọn
+        const productTotal = <?php echo $product_total; ?>;
+        const shippingFee = <?php echo $shipping_fee; ?>;
+
+        // Thêm class selected cho label khi radio được chọn (JS)
         document.querySelectorAll('input[name="payment"]').forEach(radio => {
             radio.addEventListener('change', function() {
                 document.querySelectorAll('.pay-option label').forEach(label => {
@@ -304,61 +259,57 @@
                     this.closest('label').classList.add('selected');
                 }
             });
-        });
-        
-        // Kiểm tra radio đã được chọn khi load trang
-        document.querySelectorAll('input[name="payment"]').forEach(radio => {
             if (radio.checked) {
                 radio.closest('label').classList.add('selected');
             }
         });
+
+        // Cập nhật bộ đếm ký tự
+        const noteTextarea = document.getElementById('note');
+        const characterCount = document.querySelector('.character-count');
+        if (noteTextarea && characterCount) {
+            noteTextarea.addEventListener('input', function() {
+                const count = this.value.length;
+                characterCount.textContent = count + '/200';
+            });
+        }
         
         function applyVoucher() {
             const voucherSelect = document.getElementById('voucher-select');
             const discountPercent = parseInt(voucherSelect.value);
-            const productTotal = <?php echo $product_total; ?>;
-            const shippingFee = <?php echo $shipping_fee; ?>;
-            
+            let discountAmount = 0;
+            let currentProductTotal = productTotal; // Bắt đầu từ tổng tiền gốc
+
             if (discountPercent > 0) {
-                const discountAmount = Math.round(productTotal * discountPercent / 100);
-                const grandTotal = productTotal + shippingFee - discountAmount;
-                
-                document.querySelector('.discount-amount').textContent = discountAmount.toLocaleString('en-US') + '₫';
-                document.querySelector('.grand-total').textContent = grandTotal.toLocaleString('en-US') + '₫';
-            } else {
-                document.querySelector('.discount-amount').textContent = '0₫';
-                document.querySelector('.grand-total').textContent = (productTotal + shippingFee).toLocaleString('en-US') + '₫';
+                discountAmount = Math.round(currentProductTotal * discountPercent / 100);
             }
+            
+            const grandTotal = currentProductTotal + shippingFee - discountAmount;
+            
+            document.querySelector('.discount-amount').textContent = discountAmount.toLocaleString('en-US') + '₫';
+            document.querySelector('.grand-total').textContent = grandTotal.toLocaleString('en-US') + '₫';
+
+            // Cập nhật giá trị ẩn để gửi đi
+            document.getElementById('input_discount_amount').value = discountAmount;
+            document.getElementById('input_total_price_final').value = grandTotal;
+
+            alert(`Giảm giá ${discountPercent}% đã được áp dụng!`);
         }
         
-        function submitOrder() {
-            const name = document.getElementById('name').value.trim();
-            const phone = document.getElementById('phone').value.trim();
-            const city = document.getElementById('city').value.trim();
-            const district = document.getElementById('district').value.trim();
-            const ward = document.getElementById('ward').value.trim();
-            const addressDetail = document.getElementById('orther').value.trim();
-            const paymentMethod = document.querySelector('input[name="payment"]:checked');
-            
-            if (!name || !phone || !city || !district || !ward || !addressDetail) {
-                alert('Vui lòng điền đầy đủ thông tin giao hàng!');
-                return;
-            }
-            
-            if (!paymentMethod) {
-                alert('Vui lòng chọn phương thức thanh toán!');
-                return;
-            }
-            
-            const itemsCount = <?php echo count($items_to_display); ?>;
+        // Không cần hàm submitOrder() nữa, thay bằng submit form HTML
+        // Đảm bảo Form được validate đúng trước khi submit
+        document.getElementById('checkout-form').addEventListener('submit', function(event) {
+            // Kiểm tra các trường bắt buộc mà HTML không bắt được (nếu cần)
+            const itemsCount = <?php echo (isset($items_to_display) && is_array($items_to_display)) ? count($items_to_display) : 0; ?>;
             if (itemsCount === 0) {
+                event.preventDefault();
                 alert('Giỏ hàng của bạn đang trống!');
                 window.location.href = '../GioHang/giohang.php';
                 return;
             }
-            
-            alert('Đơn hàng của bạn đã được gửi thành công! (Tính năng đang được phát triển)');
-        }
+            // Nếu không có lỗi, form sẽ được submit tới components/order_handler.php
+            alert('Đang xử lý đơn hàng, vui lòng chờ...');
+        });
     </script>
 </body>
 </html>

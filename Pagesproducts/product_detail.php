@@ -51,6 +51,37 @@ if ($product['Sale'] > 0) {
     $price_display = number_format($price);
     $old_price_display = null;
 }
+
+$related_products = [];
+if ($product && isset($product['TheLoai'])) {
+    $category_id = $product['TheLoai'];
+    $current_id = $product['ID'];
+    
+    // Lấy 4 sản phẩm cùng loại, khác ID hiện tại
+    $select_related = "SELECT * FROM `$category` WHERE TheLoai = ? AND ID != ? LIMIT 4";
+    $stmt_related = mysqli_prepare($conn, $select_related);
+    
+    if ($stmt_related) {
+        mysqli_stmt_bind_param($stmt_related, "ii", $category_id, $current_id);
+        mysqli_stmt_execute($stmt_related);
+        $result_related = mysqli_stmt_get_result($stmt_related);
+        
+        while ($row = mysqli_fetch_assoc($result_related)) {
+            // Tính giá cuối cùng cho sản phẩm liên quan
+            $price_related = $row['Gia'];
+            $sale_related = $row['Sale'];
+            if ($sale_related > 0) {
+                $final_price_related = $price_related * (1 - $sale_related / 100);
+            } else {
+                $final_price_related = $price_related;
+            }
+            $row['final_price'] = $final_price_related;
+            $related_products[] = $row;
+        }
+        mysqli_stmt_close($stmt_related);
+    }
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -77,8 +108,17 @@ if ($product['Sale'] > 0) {
                 <div class="product-container">
                     
                     <div class="product-images">
-                        <img src="../admin/<?php echo $product['Img1']; ?>" alt="<?php echo $product['Name']; ?>" class="main-image">
-                        </div>
+                        <img src="../admin/<?php echo $product['Img1']; ?>" alt="<?php echo $product['Name']; ?>" class="main-image" id="main-product-image">
+                        
+                        <div class="thumbnail-gallery">
+                            <img src="../admin/<?php echo $product['Img1']; ?>" alt="Thumbnail 1" class="thumbnail-item active" onclick="changeMainImage(this)">
+                            
+                            <?php if (!empty($product['Img2'])): ?>
+                            <img src="../admin/<?php echo $product['Img2']; ?>" alt="Thumbnail 2" class="thumbnail-item" onclick="changeMainImage(this)">
+                            <?php endif; ?>
+                            
+                            </div>
+                    </div>
 
                     <div class="product-info-area">
                         <h1><?php echo $product['Name']; ?></h1>

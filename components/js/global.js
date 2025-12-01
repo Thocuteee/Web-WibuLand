@@ -49,17 +49,42 @@ function quickAddToCart(event, product_id, category) {
         if (!response.ok) {
             throw new Error('Lỗi mạng: Không thể kết nối đến server.');
         }
-        return response.json();
+        // Đọc response dưới dạng text trước để debug
+        return response.text();
     })
-    .then(data => {
-        if (data.status === 'success') {
-            // Hiển thị thông báo và chuyển hướng nhẹ nhàng
-            alert(`✅ Đã thêm 1 sản phẩm ${data.data.product_name || 'vào'} giỏ hàng!`);
-            // Chuyển hướng với query param để header.php (có cart logic) load lại dữ liệu giỏ hàng chính xác
-            window.location.href = window.location.href.split('?')[0] + '?cart_added=1';
+    .then(text => {
+        // Loại bỏ whitespace và comment ở đầu nếu có
+        let cleanedText = text.trim();
+        
+        // Nếu bắt đầu bằng comment, loại bỏ nó
+        if (cleanedText.startsWith('//')) {
+            const lines = cleanedText.split('\n');
+            let jsonStart = 0;
+            for (let i = 0; i < lines.length; i++) {
+                if (lines[i].trim().startsWith('{') || lines[i].trim().startsWith('[')) {
+                    jsonStart = i;
+                    break;
+                }
+            }
+            cleanedText = lines.slice(jsonStart).join('\n');
+        }
+        
+        // Parse JSON
+        try {
+            const data = JSON.parse(cleanedText);
             
-        } else {
-            alert(`Lỗi: ${data.message}`);
+            if (data.status === 'success') {
+                // Hiển thị thông báo và chuyển hướng nhẹ nhàng
+                alert(`✅ Đã thêm 1 sản phẩm ${data.data?.product_name || 'vào'} giỏ hàng!`);
+                // Chuyển hướng với query param để header.php (có cart logic) load lại dữ liệu giỏ hàng chính xác
+                window.location.href = window.location.href.split('?')[0] + '?cart_added=1';
+            } else {
+                alert(`Lỗi: ${data.message || 'Không thể thêm vào giỏ hàng'}`);
+            }
+        } catch (parseError) {
+            console.error('Lỗi parse JSON:', parseError);
+            console.error('Response text:', text);
+            alert(`Lỗi hệ thống: Không thể xử lý phản hồi từ server. Vui lòng thử lại.`);
         }
     })
     .catch(error => {

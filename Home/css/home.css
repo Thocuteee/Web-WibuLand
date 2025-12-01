@@ -257,6 +257,54 @@
         color: white;
         border: 0.20rem solid white;
     }
+
+    /* Nút thêm vào giỏ hàng trong Flash Sale */
+    .body-flash-sale .product-card .product-content .add-to-cart-quick {
+        position: absolute;
+        bottom: 1rem;
+        right: 1rem;
+        z-index: 10;
+        opacity: 0;
+        transform: scale(0.8);
+        transition: all 0.3s ease;
+    }
+
+    .body-flash-sale .product-card:hover .add-to-cart-quick {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    .body-flash-sale .product-card .add-to-cart-quick a {
+        display: inline-block;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .body-flash-sale .product-card .add-to-cart-quick i {
+        font-size: 1.8rem;
+        color: #000;
+        background: linear-gradient(135deg, var(--yellow-color) 0%, #ffd700 100%);
+        padding: 0.8rem;
+        border-radius: 50%;
+        border: 2px solid #000;
+        box-shadow: 0 4px 15px rgba(249, 160, 27, 0.4);
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 3.5rem;
+        height: 3.5rem;
+    }
+
+    .body-flash-sale .product-card .add-to-cart-quick:hover i {
+        transform: scale(1.15) rotate(10deg);
+        background: linear-gradient(135deg, #ff8c00 0%, var(--yellow-color) 100%);
+        box-shadow: 0 6px 20px rgba(249, 160, 27, 0.6);
+    }
+
+    .body-flash-sale .product-card .add-to-cart-quick:active i {
+        transform: scale(1) rotate(5deg);
+    }
     
 
 
