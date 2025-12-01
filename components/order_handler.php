@@ -9,6 +9,7 @@
     }
     
     include 'connect.php';
+    include 'shipping_calculator.php';
     
     // Kiểm tra kết nối database
     if (!$conn) {
@@ -118,8 +119,15 @@
     $total_price_final = (int)($_POST['total_price_final'] ?? 0); // Tổng cộng cuối cùng
     $product_total = (int)($_POST['product_total'] ?? 0); // Tổng tiền sản phẩm
     
+    // Lấy phí vận chuyển từ form (nếu có) hoặc tính lại
+    if (isset($_POST['shipping_fee']) && $_POST['shipping_fee'] > 0) {
+        $shipping_fee = (int)$_POST['shipping_fee'];
+    }
+    
     $full_address = "$address_detail, $ward, $district, $city";
-    $shipping_fee = 50000;
+    
+    // Tính phí vận chuyển dựa trên địa chỉ giao hàng
+    $shipping_fee = calculate_shipping_fee($city, $district, $ward);
     
     // 2. Xác minh Giỏ hàng và Tổng tiền
     $cart_id = get_or_create_cart_id($conn, $user_id);

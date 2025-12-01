@@ -18,10 +18,21 @@
         mysqli_stmt_close($stmt_user);
     }
     
+    // Include hàm tính phí vận chuyển
+    include '../components/shipping_calculator.php';
+    
     // --- KHỞI TẠO LOGIC TẢI GIỎ HÀNG (Giống GioHang/giohang.php) ---
     $items_to_display = [];
     $product_total = 0;
-    $shipping_fee = 50000;
+    
+    // Tính phí vận chuyển dựa trên địa chỉ (nếu có)
+    $shipping_fee = 50000; // Mặc định
+    if (isset($user_info['TinhThanh']) && !empty($user_info['TinhThanh'])) {
+        $city = $user_info['TinhThanh'];
+        $district = $user_info['QuanHuyen'] ?? '';
+        $shipping_fee = calculate_shipping_fee($city, $district);
+    }
+    
     $discount_amount = 0;
     $is_logged_in = $user_id !== null;
     
@@ -294,6 +305,7 @@
                         
                         <input type="hidden" name="product_total" id="input_product_total" value="<?php echo $product_total; ?>">
                         <input type="hidden" name="discount_amount" id="input_discount_amount" value="<?php echo $discount_amount; ?>">
+                        <input type="hidden" name="shipping_fee" id="input_shipping_fee" value="<?php echo $shipping_fee; ?>">
                         <input type="hidden" name="total_price_final" id="input_total_price_final" value="<?php echo $grand_total; ?>">
                     
                         <button class="payments-button" type="submit" name="submit_order" <?php echo empty($items_to_display) ? 'disabled style="opacity: 0.5; cursor: not-allowed;"' : ''; ?>>ĐẶT HÀNG</button>
@@ -308,7 +320,96 @@
     <script src="../components/js/global.js" defer></script>
     <script>
         const productTotal = <?php echo $product_total; ?>;
-        const shippingFee = <?php echo $shipping_fee; ?>;
+        let shippingFee = <?php echo $shipping_fee; ?>;
+        
+        // Hàm tính phí vận chuyển dựa trên địa chỉ (JavaScript)
+        function calculateShippingFee(city, district) {
+            city = city.toLowerCase().trim();
+            district = district.toLowerCase().trim();
+            
+            const hcmVariants = ['hồ chí minh', 'ho chi minh', 'hcm', 'tp.hcm', 'tp hcm', 'thành phố hồ chí minh'];
+            const isHCM = hcmVariants.some(v => city.includes(v)) || city.includes('hồ chí minh') || city.includes('ho chi minh');
+            const binhThanhVariants = ['bình thạnh', 'binh thanh'];
+            const isBinhThanh = binhThanhVariants.some(v => district.includes(v)) || district.includes('bình thạnh') || district.includes('binh thanh');
+            
+            // Cùng quận Bình Thạnh: 20,000₫
+            if (isHCM && isBinhThanh) {
+                return 20000;
+            }
+            
+            // Khác quận nhưng cùng HCM: 30,000₫ - 40,000₫
+            if (isHCM && !isBinhThanh) {
+                const innerDistricts = ['quận 1', 'quận 2', 'quận 3', 'quận 4', 'quận 5', 'quận 6', 'quận 7', 'quận 8', 
+                    'quận 9', 'quận 10', 'quận 11', 'quận 12', 'tân bình', 'tân phú', 'phú nhuận',
+                    'gò vấp', 'bình tân', 'thủ đức'];
+                const isInner = innerDistricts.some(d => district.includes(d));
+                return isInner ? 30000 : 40000;
+            }
+            
+            // Miền Nam: 50,000₫ - 70,000₫
+            const southProvinces = ['bình dương', 'đồng nai', 'bà rịa', 'vũng tàu', 'tây ninh', 
+                'bình phước', 'long an', 'tiền giang', 'bến tre', 'vĩnh long', 'đồng tháp',
+                'an giang', 'kiên giang', 'cà mau', 'bạc liêu', 'sóc trăng', 'trà vinh',
+                'hậu giang', 'cần thơ'];
+            const isSouth = southProvinces.some(p => city.includes(p));
+            if (isSouth) {
+                const nearHCM = ['bình dương', 'đồng nai', 'bà rịa', 'vũng tàu', 'tây ninh', 'bình phước', 'long an'];
+                const isNear = nearHCM.some(p => city.includes(p));
+                return isNear ? 50000 : 70000;
+            }
+            
+            // Miền Trung: 80,000₫ - 100,000₫
+            const centralProvinces = ['đà nẵng', 'quảng nam', 'quảng ngãi', 'bình định', 'phú yên', 'khánh hòa',
+                'ninh thuận', 'bình thuận', 'quảng bình', 'quảng trị', 'thừa thiên huế',
+                'kon tum', 'gia lai', 'đắk lắk', 'đắk nông', 'lâm đồng'];
+            const isCentral = centralProvinces.some(p => city.includes(p));
+            if (isCentral) {
+                const nearCentral = ['đà nẵng', 'quảng nam', 'khánh hòa', 'bình thuận'];
+                const isNear = nearCentral.some(p => city.includes(p));
+                return isNear ? 80000 : 100000;
+            }
+            
+            // Miền Bắc: 100,000₫ - 150,000₫
+            const northProvinces = ['hà nội', 'hải phòng', 'hải dương', 'hưng yên', 'thái bình', 'nam định',
+                'ninh bình', 'hà nam', 'bắc ninh', 'bắc giang', 'quảng ninh', 'lạng sơn',
+                'cao bằng', 'bắc kạn', 'thái nguyên', 'tuyên quang', 'hà giang', 'yên bái',
+                'lào cai', 'điện biên', 'sơn la', 'hoà bình', 'phú thọ', 'vĩnh phúc'];
+            const isNorth = northProvinces.some(p => city.includes(p));
+            if (isNorth) {
+                const nearNorth = ['hà nội', 'hải phòng', 'hải dương', 'bắc ninh', 'hưng yên', 'vĩnh phúc'];
+                const isNear = nearNorth.some(p => city.includes(p));
+                return isNear ? 100000 : 150000;
+            }
+            
+            // Mặc định: 80,000₫
+            return 80000;
+        }
+        
+        // Cập nhật phí vận chuyển khi người dùng nhập địa chỉ
+        function updateShippingFee() {
+            const city = document.getElementById('city').value.trim();
+            const district = document.getElementById('district').value.trim();
+            
+            if (city && district) {
+                shippingFee = calculateShippingFee(city, district);
+                updateTotal();
+            }
+        }
+        
+        // Cập nhật tổng tiền
+        function updateTotal() {
+            const discountAmount = parseInt(document.getElementById('input_discount_amount').value) || 0;
+            const grandTotal = productTotal + shippingFee - discountAmount;
+            
+            document.querySelector('.shipping-fee').textContent = shippingFee.toLocaleString('en-US') + '₫';
+            document.querySelector('.grand-total').textContent = grandTotal.toLocaleString('en-US') + '₫';
+            document.getElementById('input_shipping_fee').value = shippingFee;
+            document.getElementById('input_total_price_final').value = grandTotal;
+        }
+        
+        // Lắng nghe sự kiện thay đổi địa chỉ
+        document.getElementById('city').addEventListener('blur', updateShippingFee);
+        document.getElementById('district').addEventListener('blur', updateShippingFee);
 
         // Thêm class selected cho label khi radio được chọn (JS)
         document.querySelectorAll('input[name="payment"]').forEach(radio => {
@@ -345,13 +446,22 @@
                 discountAmount = Math.round(currentProductTotal * discountPercent / 100);
             }
             
+            // Cập nhật lại shipping fee nếu địa chỉ đã được nhập
+            const city = document.getElementById('city').value.trim();
+            const district = document.getElementById('district').value.trim();
+            if (city && district) {
+                shippingFee = calculateShippingFee(city, district);
+            }
+            
             const grandTotal = currentProductTotal + shippingFee - discountAmount;
             
             document.querySelector('.discount-amount').textContent = discountAmount.toLocaleString('en-US') + '₫';
             document.querySelector('.grand-total').textContent = grandTotal.toLocaleString('en-US') + '₫';
+            document.querySelector('.shipping-fee').textContent = shippingFee.toLocaleString('en-US') + '₫';
 
             // Cập nhật giá trị ẩn để gửi đi
             document.getElementById('input_discount_amount').value = discountAmount;
+            document.getElementById('input_shipping_fee').value = shippingFee;
             document.getElementById('input_total_price_final').value = grandTotal;
 
             alert(`Giảm giá ${discountPercent}% đã được áp dụng!`);

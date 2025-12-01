@@ -144,20 +144,45 @@ if ($product && isset($product['TheLoai'])) {
                         </div>
 
                         <?php if ($product['SoLuongTonKho'] > $product['SoLuongDaBan']): ?>
-                            <form action="../components/cart_handler.php" method="POST" class="add-to-cart-form">
-                                <input type="hidden" name="product_id" value="<?php echo $product_id; ?>">
-                                <input type="hidden" name="category" value="<?php echo $category; ?>">
-                                <input type="hidden" name="action" value="add">
-                                
-                                <div class="quantity-control">
-                                    <label for="quantity">Số lượng:</label>
-                                    <input type="number" id="quantity" name="quantity" value="1" min="1" max="<?php echo $product['SoLuongTonKho'] - $product['SoLuongDaBan']; ?>">
+                            <?php 
+                            // Kiểm tra đăng nhập
+                            $is_logged_in = isset($_SESSION['user_id']) && !empty($_SESSION['user_id']);
+                            ?>
+                            <?php if (!$is_logged_in): ?>
+                                <div class="login-required-message" style="padding: 2rem; background-color: #fff3cd; border: 2px solid #ffc107; border-radius: 0.5rem; margin-top: 2rem;">
+                                    <p style="font-size: 1.6rem; color: #856404; margin-bottom: 1.5rem; text-align: center;">
+                                        <i class="fa-solid fa-lock" style="margin-right: 0.5rem;"></i>
+                                        Bạn cần đăng nhập để thêm sản phẩm vào giỏ hàng
+                                    </p>
+                                    <div style="text-align: center;">
+                                        <a href="../login&registration/login.php?redirect=<?php echo urlencode($_SERVER['REQUEST_URI']); ?>" 
+                                           class="btn-login-required" 
+                                           style="display: inline-block; padding: 1rem 2rem; background-color: var(--yellow-color); color: black; text-decoration: none; border-radius: 0.5rem; font-weight: 600; margin-right: 1rem;">
+                                            <i class="fa-solid fa-sign-in-alt"></i> Đăng nhập
+                                        </a>
+                                        <a href="../login&registration/registration.php?redirect=<?php echo urlencode($_SERVER['REQUEST_URI']); ?>" 
+                                           class="btn-register-required" 
+                                           style="display: inline-block; padding: 1rem 2rem; background-color: #333; color: white; text-decoration: none; border-radius: 0.5rem; font-weight: 600;">
+                                            <i class="fa-solid fa-user-plus"></i> Đăng ký
+                                        </a>
+                                    </div>
                                 </div>
-                                
-                                <button type="submit" class="btn-add-to-cart">
-                                    <i class="fa-solid fa-cart-shopping"></i> Thêm vào Giỏ hàng
-                                </button>
-                            </form>
+                            <?php else: ?>
+                                <form action="../components/cart_handler.php" method="POST" class="add-to-cart-form">
+                                    <input type="hidden" name="product_id" value="<?php echo $product_id; ?>">
+                                    <input type="hidden" name="category" value="<?php echo $category; ?>">
+                                    <input type="hidden" name="action" value="add">
+                                    
+                                    <div class="quantity-control">
+                                        <label for="quantity">Số lượng:</label>
+                                        <input type="number" id="quantity" name="quantity" value="1" min="1" max="<?php echo $product['SoLuongTonKho'] - $product['SoLuongDaBan']; ?>">
+                                    </div>
+                                    
+                                    <button type="submit" class="btn-add-to-cart">
+                                        <i class="fa-solid fa-cart-shopping"></i> Thêm vào Giỏ hàng
+                                    </button>
+                                </form>
+                            <?php endif; ?>
                         <?php endif; ?>
                         
                         </div>

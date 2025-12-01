@@ -90,6 +90,20 @@
                             <i class="fa fa-envelope-o"></i>Hỗ trợ: support@anime.vn
                         </li>
                     </ul>
+                    
+                    <!-- Bản đồ nhỏ -->
+                    <div class="footer-map">
+                        <iframe 
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3918.231!2d106.699!3d10.801!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x317528b0!2zMDIgVsO1IE9hbmgsIELDrG5oIFRo4buNbmgsIEjhu5MgQ2jhu41pLCBI4buTIENow60gTWluaA!5e0!3m2!1svi!2s!4v1234567890123!5m2!1svi!2s&q=02+Võ+Oanh,+Bình+Thạnh,+Hồ+Chí+Minh" 
+                            width="100%" 
+                            height="200" 
+                            style="border:0; border-radius: 0.5rem;" 
+                            allowfullscreen="" 
+                            loading="lazy" 
+                            referrerpolicy="no-referrer-when-downgrade"
+                            title="Vị trí cửa hàng Wibu Dreamland">
+                        </iframe>
+                    </div>
                 </div>
             </div>
         </div>

@@ -356,29 +356,22 @@
             exit();
         }
         
+        // BẮT BUỘC ĐĂNG NHẬP TRƯỚC KHI THÊM VÀO GIỎ HÀNG
         if (!$user_id) {
-            // Logic SESSION
-            if (!isset($_SESSION['cart'])) { 
-                $_SESSION['cart'] = array(); 
-            }
-            $item_key = $category . '_' . $product_id; 
-            
-            if (array_key_exists($item_key, $_SESSION['cart'])) {
-                $_SESSION['cart'][$item_key]['quantity'] += $quantity;
-            } else {
-                $_SESSION['cart'][$item_key] = array('id' => $product_id, 'category' => $category, 'quantity' => $quantity);
-            }
-            
             if ($is_ajax_request) { 
-                send_json_response('success', 'Đã thêm vào giỏ hàng (Session).', ['product_name' => $product_data['Name']]); 
+                send_json_response('error', 'login_required', [
+                    'message' => 'Bạn cần đăng nhập để thêm sản phẩm vào giỏ hàng.',
+                    'login_url' => '../login&registration/login.php?redirect=' . urlencode($referring_page)
+                ]); 
             }
-
-            // Thêm parameter để tự động mở popup giỏ hàng
+            
+            // Redirect đến trang đăng nhập với thông báo
             while (ob_get_level()) {
                 ob_end_clean();
             }
-            $separator = strpos($referring_page, '?') !== false ? '&' : '?';
-            header("Location: $referring_page{$separator}cart_added=1");
+            $_SESSION['login_message'] = 'Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng.';
+            $_SESSION['redirect_after_login'] = $referring_page;
+            header("Location: ../login&registration/login.php");
             exit();
         } 
         

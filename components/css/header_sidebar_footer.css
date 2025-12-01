@@ -939,3 +939,34 @@ main .home-content .content {
 .book-item button:hover {
     background-color: #e18b00; /* Màu khi hover */
 }
+
+/*-----------------------------------------------BẢN ĐỒ MAP NHỎ TRONG FOOTER ------------------------------------------*/
+
+.footer-map {
+    margin-top: 2rem;
+    width: 100%;
+    max-width: 40rem;
+    box-shadow: 0 0.2rem 0.8rem rgba(0, 0, 0, 0.15);
+    border-radius: 0.5rem;
+    overflow: hidden;
+    border: 0.2rem solid var(--header_color);
+}
+
+.footer-map iframe {
+    display: block;
+    width: 100%;
+    height: 20rem;
+    border: none;
+}
+
+/* Responsive cho bản đồ footer */
+@media (max-width: 768px) {
+    .footer-map {
+        max-width: 100%;
+        margin-top: 1.5rem;
+    }
+    
+    .footer-map iframe {
+        height: 18rem;
+    }
+}

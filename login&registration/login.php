@@ -34,10 +34,19 @@ if (isset($_POST['submit'])) { // Kiểm tra xem form đăng nhập đã đượ
             // Mật khẩu khớp -> Đăng nhập thành công
             $_SESSION["user_id"] = $row["IdUser"]; // Lưu ID người dùng vào session
 
+            // Kiểm tra redirect sau khi đăng nhập
+            $redirect_url = '../Home/index.php'; // Mặc định về trang chủ
+            if (isset($_SESSION['redirect_after_login']) && !empty($_SESSION['redirect_after_login'])) {
+                $redirect_url = $_SESSION['redirect_after_login'];
+                unset($_SESSION['redirect_after_login']);
+            } elseif (isset($_GET['redirect']) && !empty($_GET['redirect'])) {
+                $redirect_url = urldecode($_GET['redirect']);
+            }
+
             if ($row["role"] == "0") {
-                header ("Location: ../admin/admin.php");
+                header("Location: ../admin/admin.php");
             } else if ($row["role"] == "1") {
-                header("Location: ../Home/index.php"); // Chuyển hướng đến trang chủ
+                header("Location: " . $redirect_url); // Chuyển hướng đến trang được yêu cầu hoặc trang chủ
             }
             // Giải phóng statement
             mysqli_stmt_close($stmt); 

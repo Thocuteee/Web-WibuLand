@@ -36,6 +36,25 @@ function toggleCartPopup() {
 
 function quickAddToCart(event, product_id, category) {
     event.preventDefault();
+    
+    // Kiểm tra đăng nhập trước (nếu có thông tin trong DOM)
+    const isLoggedIn = document.querySelector('.user-info') !== null || 
+                      document.querySelector('.dropdown-menu') !== null ||
+                      (typeof window.userId !== 'undefined' && window.userId);
+    
+    if (!isLoggedIn) {
+        // Kiểm tra lại bằng cách xem có session không (nếu có cookie)
+        const hasSession = document.cookie.includes('PHPSESSID');
+        if (!hasSession) {
+            const confirmLogin = confirm('Bạn cần đăng nhập để thêm sản phẩm vào giỏ hàng.\n\nBạn có muốn chuyển đến trang đăng nhập không?');
+            if (confirmLogin) {
+                const currentUrl = encodeURIComponent(window.location.href);
+                window.location.href = '../login&registration/login.php?redirect=' + currentUrl;
+            }
+            return;
+        }
+    }
+    
     const quantity = 1; 
 
     fetch('../components/cart_handler.php', {
@@ -79,7 +98,16 @@ function quickAddToCart(event, product_id, category) {
                 // Chuyển hướng với query param để header.php (có cart logic) load lại dữ liệu giỏ hàng chính xác
                 window.location.href = window.location.href.split('?')[0] + '?cart_added=1';
             } else {
-                alert(`Lỗi: ${data.message || 'Không thể thêm vào giỏ hàng'}`);
+                // Kiểm tra nếu cần đăng nhập
+                if (data.status === 'error' && data.message === 'login_required') {
+                    const confirmLogin = confirm('Bạn cần đăng nhập để thêm sản phẩm vào giỏ hàng.\n\nBạn có muốn chuyển đến trang đăng nhập không?');
+                    if (confirmLogin) {
+                        const loginUrl = data.data?.login_url || '../login&registration/login.php?redirect=' + encodeURIComponent(window.location.href);
+                        window.location.href = loginUrl;
+                    }
+                } else {
+                    alert(`Lỗi: ${data.message || 'Không thể thêm vào giỏ hàng'}`);
+                }
             }
         } catch (parseError) {
             console.error('Lỗi parse JSON:', parseError);

@@ -1,3 +1,28 @@
+<?php
+    // Kiểm tra quyền admin
+    $is_admin = false;
+    if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
+        // Kiểm tra xem connect.php đã được include chưa
+        if (!isset($conn)) {
+            include 'connect.php';
+        }
+        
+        if (isset($conn) && $conn) {
+            $user_id = $_SESSION['user_id'];
+            $check_admin_query = "SELECT role FROM users WHERE IdUser = ?";
+            $stmt_admin = mysqli_prepare($conn, $check_admin_query);
+            if ($stmt_admin) {
+                mysqli_stmt_bind_param($stmt_admin, "i", $user_id);
+                mysqli_stmt_execute($stmt_admin);
+                $result_admin = mysqli_stmt_get_result($stmt_admin);
+                if ($row_admin = mysqli_fetch_assoc($result_admin)) {
+                    $is_admin = ($row_admin['role'] == 0); // role = 0 là admin
+                }
+                mysqli_stmt_close($stmt_admin);
+            }
+        }
+    }
+?>
  <!-- MENU-NAV -->
         <div class="main-nav">
             <nav class="navbar">
@@ -44,6 +69,17 @@
                         </a>
                         <span class = "tooltip">Trang phục Cosplay</span>
                     </li>
+                    
+                    <!-- Quản lý (Chỉ hiển thị cho Admin) -->
+                    <?php if ($is_admin): ?>
+                    <li class="nav-list-item">
+                        <a href="/admin/admin.php" class ="nav-link">
+                            <img src="https://img.icons8.com/ios-filled/50/settings.png" alt="settings"/>
+                            <span>Quản lý</span>
+                        </a>
+                        <span class = "tooltip">Quản lý</span>
+                    </li>
+                    <?php endif; ?>
                 </ul>
             </nav>
         </div>

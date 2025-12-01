@@ -124,12 +124,22 @@
                         }
                         
                         // Nút Thêm vào giỏ hàng nhanh (Add to Cart Button)
-                        echo '<div class="add-to-cart-quick" style="position: absolute; bottom: 3rem; right: 0.5rem; z-index: 10;">';
-                        // Gọi hàm JS quickAddToCart với ID và Category
-                        echo '<a href="#" onclick="quickAddToCart(event, ' . $row['ID'] . ', \'' . $sanpham . '\')" title="Thêm vào Giỏ hàng">';
-                        echo '<i class="fa-solid fa-cart-plus" style="font-size: 2.3rem; color: black; background-color: var(--yellow-color); padding: 0.5rem; border-radius: 50%;"></i>'; 
-                        echo '</a>';
-                        echo '</div>';
+                        // Chỉ hiển thị nếu đã đăng nhập
+                        if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
+                            echo '<div class="add-to-cart-quick" style="position: absolute; bottom: 3rem; right: 0.5rem; z-index: 10;">';
+                            // Gọi hàm JS quickAddToCart với ID và Category
+                            echo '<a href="#" onclick="quickAddToCart(event, ' . $row['ID'] . ', \'' . $sanpham . '\')" title="Thêm vào Giỏ hàng">';
+                            echo '<i class="fa-solid fa-cart-plus" style="font-size: 2.3rem; color: black; background-color: var(--yellow-color); padding: 0.5rem; border-radius: 50%;"></i>'; 
+                            echo '</a>';
+                            echo '</div>';
+                        } else {
+                            // Nếu chưa đăng nhập, hiển thị nút yêu cầu đăng nhập
+                            echo '<div class="add-to-cart-quick" style="position: absolute; bottom: 3rem; right: 0.5rem; z-index: 10;">';
+                            echo '<a href="../login&registration/login.php?redirect=' . urlencode($_SERVER['REQUEST_URI']) . '" title="Đăng nhập để thêm vào giỏ hàng">';
+                            echo '<i class="fa-solid fa-lock" style="font-size: 2.3rem; color: white; background-color: #666; padding: 0.5rem; border-radius: 50%;"></i>'; 
+                            echo '</a>';
+                            echo '</div>';
+                        }
                         
                         // Nút Yêu thích (có thể click)
                         echo '<div class="heart-icon">';
@@ -237,7 +247,11 @@
                                         <span class="price-not-sale"><?php echo $fs_old_price; ?>₫</span>
                                     </div>
                                     <div class="add-to-cart-quick">
+                                        <?php if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])): ?>
                                         <a href="#" onclick="quickAddToCart(event, <?php echo $fs_id; ?>, '<?php echo $fs_category; ?>')" title="Thêm nhanh vào giỏ hàng">
+                                        <?php else: ?>
+                                        <a href="../login&registration/login.php?redirect=<?php echo urlencode($_SERVER['REQUEST_URI']); ?>" title="Đăng nhập để thêm vào giỏ hàng">
+                                        <?php endif; ?>
                                             <i class="fa-solid fa-cart-plus"></i>
                                         </a>
                                     </div>

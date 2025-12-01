@@ -189,6 +189,9 @@ if(isset($_GET["category"]) && isset ($_GET["id"])){
 
         <h1>Quản lý sản phẩm</h1>
         <div class="actions">
+            <a href="../Home/index.php" class="btn-func" style="background-color: #4caf50;">
+                <i class="fa-solid fa-home"></i> Về Trang chủ
+            </a>
             
             <a href="orders.php" class="btn-func" style="background-color: #f9a01b;">
                 <i class="fa-solid fa-box"></i> Quản lý Đơn hàng
