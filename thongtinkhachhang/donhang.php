@@ -228,7 +228,7 @@
                                                 Xem chi tiết
                                             </button>
                                             <?php if ($order['TrangThai'] == 'Chờ xử lý'): ?>
-                                            <button class="btn-cancel" onclick="cancelOrder(<?php echo $order['IdDonHang']; ?>)">
+                                            <button class="btn-cancel" onclick="cancelOrder(<?php echo $order['IdDonHang']; ?>, this)">
                                                 Hủy đơn
                                             </button>
                                             <?php endif; ?>
@@ -271,11 +271,53 @@
             }
         }
         
-        function cancelOrder(orderId) {
-            if (confirm('Bạn có chắc chắn muốn hủy đơn hàng này?')) {
-                // TODO: Gửi request hủy đơn hàng
-                alert('Tính năng hủy đơn hàng đang được phát triển');
+        function cancelOrder(orderId, buttonElement) {
+            if (!confirm('Bạn có chắc chắn muốn hủy đơn hàng này?\n\n⚠️ Lưu ý:\n- Đơn hàng sau khi hủy không thể khôi phục\n- Kho sản phẩm sẽ được hoàn trả tự động')) {
+                return;
             }
+            
+            // Hiển thị loading
+            const cancelButton = buttonElement || event.target;
+            const originalText = cancelButton.innerHTML;
+            const orderCard = cancelButton.closest('.order-card');
+            
+            cancelButton.disabled = true;
+            cancelButton.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Đang xử lý...';
+            
+            // Gửi AJAX request
+            fetch('../components/order_cancel_handler.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: 'order_id=' + encodeURIComponent(orderId)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Lỗi phản hồi HTTP: ' + response.status);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.status === 'success') {
+                    // Hiển thị thông báo thành công
+                    alert('✅ ' + (data.message || 'Đơn hàng đã được hủy thành công!'));
+                    // Reload trang để cập nhật trạng thái
+                    window.location.reload();
+                } else {
+                    // Hiển thị thông báo lỗi
+                    alert('❌ ' + (data.message || 'Không thể hủy đơn hàng. Vui lòng thử lại.'));
+                    cancelButton.disabled = false;
+                    cancelButton.innerHTML = originalText;
+                }
+            })
+            .catch(error => {
+                console.error('Lỗi khi hủy đơn hàng:', error);
+                alert('❌ Đã xảy ra lỗi khi hủy đơn hàng. Vui lòng thử lại hoặc làm mới trang.\n\nNếu vấn đề vẫn tiếp tục, vui lòng liên hệ hỗ trợ.');
+                cancelButton.disabled = false;
+                cancelButton.innerHTML = originalText;
+            });
         }
     </script>
 </body>

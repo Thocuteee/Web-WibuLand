@@ -169,7 +169,7 @@
         $TongCongFinal = $product_total + $shipping_fee - $discount_amount;
         
         // Dòng này cần được kiểm tra kỹ: tổng tiền sản phẩm ($product_total)
-        mysqli_stmt_bind_param($stmt_order, "issssssiiis", 
+        mysqli_stmt_bind_param($stmt_order, "issssssiiiis", 
             $user_id, $ma_don_hang, $name, $phone, $full_address, $city, $payment_method, 
             $product_total, $shipping_fee, $discount_amount, $TongCongFinal, $note);
             
@@ -203,7 +203,7 @@
             foreach ($items_to_order as $item) {
                 $item_subtotal = $item['item_price'] * $item['SoLuong'];
                 
-                mysqli_stmt_bind_param($stmt_detail, "isissii", 
+                mysqli_stmt_bind_param($stmt_detail, "isisiis", 
                     $order_id, 
                     $item['LoaiSanPham'], 
                     $item['IdSanPham'], 
@@ -211,7 +211,7 @@
                     $item['SoLuong'], 
                     $item['item_price'], 
                     $item_subtotal
-                );
+            );
                 
                 if (!mysqli_stmt_execute($stmt_detail)) {
                     $success = false;
