@@ -247,6 +247,27 @@
     if ($success) {
         mysqli_commit($conn);
         mysqli_autocommit($conn, TRUE); // Khôi phục autocommit
+        
+        // Nếu thanh toán bằng VNPay, trả về JSON để hiển thị popup QR
+        if ($payment_method == 'vnpay') {
+            // Lưu order_id vào session để dùng sau
+            $_SESSION['pending_vnpay_order_id'] = $order_id;
+            $_SESSION['pending_vnpay_order_code'] = $ma_don_hang;
+            
+            // Trả về JSON để JavaScript xử lý hiển thị popup
+            header('Content-Type: application/json');
+            echo json_encode([
+                'status' => 'success',
+                'payment_method' => 'vnpay',
+                'order_id' => $order_id,
+                'order_code' => $ma_don_hang,
+                'amount' => $TongCongFinal,
+                'message' => 'Đơn hàng đã được tạo. Vui lòng thanh toán để hoàn tất.'
+            ]);
+            exit();
+        }
+        
+        // COD hoặc các phương thức khác
         redirect_with_message("../thongtinkhachhang/donhang.php", "success", "Đặt hàng thành công! Mã đơn hàng của bạn là $ma_don_hang.");
     } else {
         mysqli_rollback($conn);

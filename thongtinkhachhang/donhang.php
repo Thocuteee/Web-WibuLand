@@ -9,6 +9,37 @@
         exit();
     }
     
+    // Kiểm tra thanh toán thành công từ VNPay (nếu có)
+    if (isset($_SESSION['vnpay_payment_success']) && $_SESSION['vnpay_payment_success']) {
+        $success_order_id = $_SESSION['vnpay_order_id'] ?? null;
+        unset($_SESSION['vnpay_payment_success']);
+        unset($_SESSION['vnpay_order_id']);
+        
+        // Có thể hiển thị thông báo thành công ở đây nếu cần
+    }
+    
+    // API endpoint để kiểm tra thanh toán (cho AJAX)
+    if (isset($_GET['check_payment']) && !empty($_GET['check_payment'])) {
+        $check_order_id = (int)$_GET['check_payment'];
+        $user_id = $_SESSION['user_id'];
+        
+        $check_query = "SELECT TrangThai FROM donhang WHERE IdDonHang = ? AND IdUser = ?";
+        $stmt_check = mysqli_prepare($conn, $check_query);
+        mysqli_stmt_bind_param($stmt_check, "ii", $check_order_id, $user_id);
+        mysqli_stmt_execute($stmt_check);
+        $result_check = mysqli_stmt_get_result($stmt_check);
+        $order_check = mysqli_fetch_assoc($result_check);
+        mysqli_stmt_close($stmt_check);
+        
+        header('Content-Type: application/json');
+        if ($order_check && $order_check['TrangThai'] == 'Đã xác nhận') {
+            echo json_encode(['status' => 'success', 'paid' => true]);
+        } else {
+            echo json_encode(['status' => 'pending', 'paid' => false]);
+        }
+        exit();
+    }
+    
     $user_id = $_SESSION['user_id'];
     $order_type = isset($_GET['type']) ? $_GET['type'] : 'normal'; // normal hoặc preorder
     
