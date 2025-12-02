@@ -51,8 +51,8 @@ if ($vnp_ResponseCode == '00' && $vnp_TransactionStatus == '00') {
         $order_amount = $order['TongCong'] * 100; // VNPay trả về số tiền đã nhân 100
         
         if ($vnp_Amount == $order_amount) {
-            // Cập nhật trạng thái đơn hàng thành "Đã xác nhận" (đã thanh toán thành công)
-            $update_order = "UPDATE donhang SET TrangThai = 'Đã xác nhận', NgayCapNhat = NOW() WHERE IdDonHang = ?";
+            // Cập nhật trạng thái đơn hàng thành "Đã xác nhận" và set TongCong = 0 (đã thanh toán thành công)
+            $update_order = "UPDATE donhang SET TrangThai = 'Đã xác nhận', TongCong = 0, NgayCapNhat = NOW() WHERE IdDonHang = ?";
             $stmt_update = mysqli_prepare($conn, $update_order);
             mysqli_stmt_bind_param($stmt_update, "i", $order['IdDonHang']);
             mysqli_stmt_execute($stmt_update);

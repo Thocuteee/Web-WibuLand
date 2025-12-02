@@ -208,15 +208,18 @@
                                                 <strong>Số tiền:</strong> <span id="qr-amount">0₫</span>
                                             </p>
                                         </div>
-                                        <div id="vnpay-qrcode-container" style="margin: 1rem auto; display: inline-block;"></div>
-                                        <p style="margin-top: 1.5rem; font-size: 1.3rem; color: #666;">
-                                            <i class="fa-solid fa-info-circle"></i> Bước 1: Điền thông tin & chọn Trả trước bằng QR. Bước 2: Nhấn "ĐẶT HÀNG" để tạo mã QR & mã đơn hàng.
-                                        </p>
-                                        <div style="margin-top: 1rem;">
-                                            <a href="#" id="vnpay-payment-link" data-enabled="false" onclick="return onVNPayLinkClick(event);" style="display: inline-block; padding: 1rem 2rem; background: #ccc; color: #666; text-decoration: none; border-radius: 0.5rem; font-size: 1.4rem; font-weight: 600; cursor: not-allowed;">
-                                                <i class="fa-solid fa-credit-card"></i> Mở trang thanh toán
-                                            </a>
+                                        <div id="vnpay-qrcode-container" style="margin: 1rem auto; display: inline-block;">
+                                            <img src="<?php echo '/components/qr_images/qr_code.png'; ?>" alt="QR Code thanh toán" style="max-width: 250px; width: 100%; height: auto; border-radius: 0.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1);" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                                            <p style="display: none; color: #999; font-size: 1.4rem; padding: 2rem;">Vui lòng đặt file QR code tại: components/qr_images/qr_code.png</p>
                                         </div>
+                                        <div style="background: #e7f3ff; padding: 1.5rem; border-radius: 0.5rem; margin-top: 1.5rem; text-align: center;">
+                                            <p style="margin: 0.5rem 0; font-size: 1.5rem; font-weight: bold; color: #1f4788;">CHENH HUNG THO</p>
+                                            <p style="margin: 0.5rem 0; font-size: 1.8rem; font-weight: bold; color: #1f4788;">7621983825</p>
+                                            <p style="margin: 0.5rem 0; font-size: 1.3rem; color: #666;">BIDV - CN PHU MY PGD CHAU DUC</p>
+                                        </div>
+                                        <p style="margin-top: 1.5rem; font-size: 1.3rem; color: #666;">
+                                            <i class="fa-solid fa-info-circle"></i> Bước 1: Điền thông tin & chọn Trả trước bằng QR. Bước 2: Nhấn "ĐẶT HÀNG" để tạo mã đơn hàng. Bước 3: Quét QR và chuyển khoản với nội dung là mã đơn hàng.
+                                        </p>
                                     </div>
                                 </div>
                     
@@ -361,9 +364,9 @@
             
             popup.innerHTML = `
                 <div style="background: white; padding: 3rem; border-radius: 1rem; max-width: 500px; width: 90%; text-align: center; position: relative;">
-                    <button onclick="closeVNPayPopup()" style="position: absolute; top: 1rem; right: 1rem; background: none; border: none; font-size: 2rem; cursor: pointer; color: #999;">&times;</button>
+                    <button type="button" onclick="closeVNPayPopup(); return false;" style="position: absolute; top: 1rem; right: 1rem; background: none; border: none; font-size: 2rem; cursor: pointer; color: #999;">&times;</button>
                     <h2 style="color: var(--yellow-color); margin-bottom: 2rem;">
-                        <i class="fa-solid fa-qrcode"></i> Thanh toán VNPay
+                        <i class="fa-solid fa-qrcode"></i> Thanh toán QR
                     </h2>
                     <div style="background: #f8f9fa; padding: 2rem; border-radius: 0.5rem; margin-bottom: 2rem;">
                         <p style="margin: 1rem 0; font-size: 1.6rem;"><strong>Mã đơn hàng:</strong> ${orderCode}</p>
@@ -371,18 +374,28 @@
                             <strong>Số tiền:</strong> ${parseInt(amount).toLocaleString('vi-VN')}₫
                         </p>
                     </div>
-                    <div id="qrcode" style="margin: 2rem auto; display: inline-block;"></div>
+                    <div id="qrcode" style="margin: 2rem auto; display: inline-block;">
+                        <img src="<?php echo '/components/qr_images/qr_code.png'; ?>" alt="QR Code thanh toán" style="max-width: 300px; width: 100%; height: auto; border-radius: 0.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1);" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                        <p style="display: none; color: #999; font-size: 1.4rem; padding: 2rem;">Vui lòng đặt file QR code tại: components/qr_images/qr_code.png</p>
+                    </div>
+                    <div style="background: #e7f3ff; padding: 1.5rem; border-radius: 0.5rem; margin-top: 1.5rem; text-align: center;">
+                        <p style="margin: 0.5rem 0; font-size: 1.5rem; font-weight: bold; color: #1f4788;">CHENH HUNG THO</p>
+                        <p style="margin: 0.5rem 0; font-size: 1.8rem; font-weight: bold; color: #1f4788;">7621983825</p>
+                        <p style="margin: 0.5rem 0; font-size: 1.3rem; color: #666;">BIDV - CN PHU MY PGD CHAU DUC</p>
+                    </div>
                     <div style="background: #fff3cd; padding: 1.5rem; border-radius: 0.5rem; margin-top: 2rem; text-align: left;">
                         <h4 style="color: #856404; margin-bottom: 1rem;">
                             <i class="fa-solid fa-info-circle"></i> Hướng dẫn:
                         </h4>
                         <ol style="margin-left: 2rem; color: #856404;">
                             <li>Quét mã QR bằng ứng dụng ngân hàng (BIDV, Vietcombank, v.v.)</li>
+                            <li>Nhập đúng số tiền: <strong>${parseInt(amount).toLocaleString('vi-VN')}₫</strong></li>
+                            <li>Ghi chú nội dung chuyển khoản: <strong>${orderCode}</strong></li>
                             <li>Xác nhận thanh toán trên ứng dụng</li>
                             <li>Hệ thống sẽ tự động cập nhật sau khi thanh toán thành công</li>
                         </ol>
                     </div>
-                    <button onclick="closeVNPayPopup()" style="margin-top: 2rem; padding: 1rem 2rem; background: #ccc; border: none; border-radius: 0.5rem; cursor: pointer; font-size: 1.4rem;">
+                    <button type="button" onclick="closeVNPayPopup(); return false;" style="margin-top: 2rem; padding: 1rem 2rem; background: #ccc; border: none; border-radius: 0.5rem; cursor: pointer; font-size: 1.4rem;">
                         Đóng
                     </button>
                 </div>
@@ -390,75 +403,8 @@
             
             document.body.appendChild(popup);
             
-            // Lấy URL thanh toán VNPay
-            fetch(`../components/vnpay_qr.php?order_id=${orderId}`)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('HTTP error: ' + response.status);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.status === 'success' || data.status === 'warning') {
-                        // Hiển thị cảnh báo nếu chưa cấu hình
-                        if (data.config_required) {
-                            const warningMsg = document.createElement('div');
-                            warningMsg.style.cssText = 'background: #fff3cd; color: #856404; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem; font-size: 1.3rem;';
-                            warningMsg.innerHTML = '<i class="fa-solid fa-exclamation-triangle"></i> <strong>Lưu ý:</strong> VNPay chưa được cấu hình. Vui lòng cấu hình trong file vnpay_config.php để sử dụng thanh toán thực tế.';
-                            popup.querySelector('.map-wrapper')?.parentNode?.insertBefore(warningMsg, popup.querySelector('.map-wrapper'));
-                        }
-                        
-                        // Tạo QR code từ payment URL
-                        const qrContainer = document.getElementById('qrcode');
-                        qrContainer.innerHTML = ''; // Xóa nội dung cũ
-                        
-                        if (typeof QRCode !== 'undefined') {
-                            try {
-                                new QRCode(qrContainer, {
-                                    text: data.payment_url,
-                                    width: 250,
-                                    height: 250,
-                                    colorDark: '#000000',
-                                    colorLight: '#ffffff',
-                                    correctLevel: QRCode.CorrectLevel.H
-                                });
-                            } catch (qrError) {
-                                console.error('QR Code error:', qrError);
-                                qrContainer.innerHTML = `
-                                    <p style="color: #999; font-size: 1.4rem;">Lỗi tạo QR code. Vui lòng sử dụng link bên dưới.</p>
-                                `;
-                            }
-                        } else {
-                            // Fallback: hiển thị link nếu không có QRCode library
-                            qrContainer.innerHTML = `
-                                <p style="color: #999; font-size: 1.4rem; margin-bottom: 1rem;">Thư viện QR code chưa được tải.</p>
-                            `;
-                        }
-                        
-                        // Thêm link thanh toán bên dưới QR
-                        const linkDiv = document.createElement('div');
-                        linkDiv.style.marginTop = '1rem';
-                        linkDiv.innerHTML = `
-                            <a href="${data.payment_url}" target="_blank" style="display: inline-block; padding: 1rem 2rem; background: #1f4788; color: white; text-decoration: none; border-radius: 0.5rem; font-size: 1.4rem; font-weight: 600;">
-                                <i class="fa-solid fa-credit-card"></i> Mở trang thanh toán
-                            </a>
-                        `;
-                        qrContainer.parentNode.insertBefore(linkDiv, qrContainer.nextSibling);
-                        
-                        // Kiểm tra thanh toán thành công định kỳ (chỉ khi đã cấu hình)
-                        if (!data.config_required) {
-                            checkPaymentStatus(orderId);
-                        }
-                    } else {
-                        alert('Lỗi: ' + (data.message || 'Không thể tạo mã QR'));
-                        closeVNPayPopup();
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Lỗi khi tạo mã QR: ' + error.message + '. Vui lòng kiểm tra console để biết thêm chi tiết.');
-                    closeVNPayPopup();
-                });
+            // Kiểm tra thanh toán thành công định kỳ
+            window.paymentCheckInterval = checkPaymentStatus(orderId);
         }
         
         // Kiểm tra trạng thái thanh toán
@@ -474,6 +420,7 @@
                     .then(data => {
                         if (data.status === 'success' && data.paid === true) {
                             clearInterval(checkInterval);
+                            window.paymentCheckInterval = null;
                             alert('✅ Thanh toán thành công! Đơn hàng đã được xác nhận.');
                             closeVNPayPopup();
                             // Reload trang sau 1 giây
@@ -482,7 +429,8 @@
                             }, 1000);
                         } else if (checkCount >= maxChecks) {
                             clearInterval(checkInterval);
-                            alert('⏰ Đã quá 5 phút nhưng chưa ghi nhận thanh toán VNPay.\n\nNếu bạn đã chuyển khoản, vui lòng kiểm tra lại trong mục Đơn hàng hoặc liên hệ hỗ trợ.\nNếu chưa thanh toán, bạn có thể đóng popup và thử lại.');
+                            window.paymentCheckInterval = null;
+                            alert('⏰ Đã quá 5 phút nhưng chưa ghi nhận thanh toán.\n\nNếu bạn đã chuyển khoản, vui lòng kiểm tra lại trong mục Đơn hàng hoặc liên hệ hỗ trợ.\nNếu chưa thanh toán, bạn có thể đóng popup và thử lại.');
                         }
                     })
                     .catch(error => {
@@ -493,6 +441,7 @@
                             .then(html => {
                                 if (html.includes('Thanh toán thành công') || html.includes('đã được xác nhận')) {
                                     clearInterval(checkInterval);
+                                    window.paymentCheckInterval = null;
                                     alert('✅ Thanh toán thành công! Đơn hàng đã được xác nhận.');
                                     closeVNPayPopup();
                                     window.location.href = '../thongtinkhachhang/donhang.php';
@@ -500,13 +449,25 @@
                             });
                     });
             }, 3000); // Kiểm tra mỗi 3 giây
+            
+            return checkInterval; // Trả về interval ID để có thể clear sau
         }
         
-        function closeVNPayPopup() {
+        function closeVNPayPopup(event) {
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
             const popup = document.getElementById('vnpay-popup');
             if (popup) {
                 popup.remove();
             }
+            // Dừng polling thanh toán nếu có
+            if (window.paymentCheckInterval) {
+                clearInterval(window.paymentCheckInterval);
+                window.paymentCheckInterval = null;
+            }
+            return false;
         }
         
         // Hàm tính phí vận chuyển dựa trên địa chỉ (JavaScript)
@@ -681,74 +642,18 @@
             if (qrOrderCode) qrOrderCode.textContent = orderCode;
             if (qrAmount) qrAmount.textContent = parseInt(amount).toLocaleString('vi-VN') + '₫';
             
-            // Lấy URL thanh toán và tạo QR
-            fetch(`../components/vnpay_qr.php?order_id=${orderId}`)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('HTTP error: ' + response.status);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.status === 'success' || data.status === 'warning') {
-                        const qrContainer = document.getElementById('vnpay-qrcode-container');
-                        if (!qrContainer) return;
-                        
-                        qrContainer.innerHTML = ''; // Xóa nội dung cũ
-                        
-                        // Hiển thị cảnh báo nếu chưa cấu hình
-                        if (data.config_required) {
-                            const warning = document.createElement('div');
-                            warning.style.cssText = 'background: #fff3cd; color: #856404; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem; font-size: 1.3rem;';
-                            warning.innerHTML = '<i class="fa-solid fa-exclamation-triangle"></i> <strong>Lưu ý:</strong> VNPay chưa được cấu hình. Vui lòng cấu hình trong file vnpay_config.php.';
-                            qrContainer.parentNode.insertBefore(warning, qrContainer);
-                        }
-                        
-                        // Tạo QR code
-                        if (typeof QRCode !== 'undefined') {
-                            try {
-                                new QRCode(qrContainer, {
-                                    text: data.payment_url,
-                                    width: 250,
-                                    height: 250,
-                                    colorDark: '#000000',
-                                    colorLight: '#ffffff',
-                                    correctLevel: QRCode.CorrectLevel.H
-                                });
-                            } catch (qrError) {
-                                console.error('QR Code error:', qrError);
-                                qrContainer.innerHTML = `
-                                    <p style="color: #999; font-size: 1.4rem;">Lỗi tạo QR code. Vui lòng sử dụng link bên dưới.</p>
-                                `;
-                            }
-                        } else {
-                            qrContainer.innerHTML = `
-                                <p style="color: #999; font-size: 1.4rem;">Thư viện QR code chưa được tải. Vui lòng làm mới trang.</p>
-                            `;
-                        }
-                        
-                        // Cập nhật link thanh toán
-                        const paymentLink = document.getElementById('vnpay-payment-link');
-                        if (paymentLink) {
-                            paymentLink.href = data.payment_url;
-                            paymentLink.setAttribute('data-enabled', 'true');
-                            paymentLink.style.background = '#1f4788';
-                            paymentLink.style.color = '#fff';
-                            paymentLink.style.cursor = 'pointer';
-                        }
-                    } else {
-                        console.error('Error from vnpay_qr.php:', data.message);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error loading QR:', error);
-                    const qrContainer = document.getElementById('vnpay-qrcode-container');
-                    if (qrContainer) {
-                        qrContainer.innerHTML = `
-                            <p style="color: #f44336; font-size: 1.4rem;">Lỗi khi tải mã QR: ${error.message}</p>
-                        `;
-                    }
-                });
+            // QR code tĩnh đã được hiển thị trong HTML, chỉ cần đảm bảo nó hiển thị đúng
+            const qrContainer = document.getElementById('vnpay-qrcode-container');
+            if (qrContainer) {
+                const qrImage = qrContainer.querySelector('img');
+                const placeholderText = qrContainer.querySelector('p');
+                if (qrImage) {
+                    qrImage.style.display = 'block';
+                    if (placeholderText) placeholderText.style.display = 'none';
+                } else if (placeholderText) {
+                    placeholderText.style.display = 'block';
+                }
+            }
         }
 
         // Cập nhật bộ đếm ký tự
@@ -777,7 +682,8 @@
             if (selectedValue === 'free_ship') {
                 // Voucher miễn phí vận chuyển: giảm toàn bộ phí ship
                 discountAmount = 0; // Không giảm vào tiền hàng
-                const grandTotal = currentProductTotal - 0; // Tổng = tiền hàng (ship = 0)
+                shippingFee = 0; // Set phí ship = 0
+                const grandTotal = currentProductTotal + shippingFee - discountAmount; // Tổng = tiền hàng (ship = 0)
 
                 document.querySelector('.discount-amount').textContent = discountAmount.toLocaleString('en-US') + '₫';
                 document.querySelector('.shipping-fee').textContent = '0₫';

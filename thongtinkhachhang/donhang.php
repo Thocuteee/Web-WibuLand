@@ -23,7 +23,7 @@
         $check_order_id = (int)$_GET['check_payment'];
         $user_id = $_SESSION['user_id'];
         
-        $check_query = "SELECT TrangThai FROM donhang WHERE IdDonHang = ? AND IdUser = ?";
+        $check_query = "SELECT TrangThai, TongCong, PhuongThucThanhToan FROM donhang WHERE IdDonHang = ? AND IdUser = ?";
         $stmt_check = mysqli_prepare($conn, $check_query);
         mysqli_stmt_bind_param($stmt_check, "ii", $check_order_id, $user_id);
         mysqli_stmt_execute($stmt_check);
@@ -32,7 +32,14 @@
         mysqli_stmt_close($stmt_check);
         
         header('Content-Type: application/json');
-        if ($order_check && $order_check['TrangThai'] == 'Đã xác nhận') {
+        // Kiểm tra thanh toán thành công: Trạng thái "Đã xác nhận" VÀ (TongCong = 0 HOẶC phương thức thanh toán là vnpay)
+        $is_paid = false;
+        if ($order_check) {
+            $is_paid = ($order_check['TrangThai'] == 'Đã xác nhận') && 
+                       (($order_check['TongCong'] == 0) || ($order_check['PhuongThucThanhToan'] == 'vnpay'));
+        }
+        
+        if ($is_paid) {
             echo json_encode(['status' => 'success', 'paid' => true]);
         } else {
             echo json_encode(['status' => 'pending', 'paid' => false]);

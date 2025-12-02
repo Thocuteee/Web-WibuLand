@@ -68,14 +68,33 @@
     mysqli_autocommit($conn, FALSE);
     $success = true;
 
-    // 2. Cập nhật trạng thái
-    $update_query = "UPDATE `donhang` SET TrangThai = ?, NgayCapNhat = NOW() WHERE IdDonHang = ?";
+    // 2. Lấy thông tin đơn hàng để kiểm tra phương thức thanh toán
+    $select_order_info = "SELECT PhuongThucThanhToan, TongCong FROM `donhang` WHERE IdDonHang = ?";
+    $stmt_info = mysqli_prepare($conn, $select_order_info);
+    mysqli_stmt_bind_param($stmt_info, "i", $order_id);
+    mysqli_stmt_execute($stmt_info);
+    $result_info = mysqli_stmt_get_result($stmt_info);
+    $order_info = mysqli_fetch_assoc($result_info);
+    mysqli_stmt_close($stmt_info);
+    
+    $payment_method = $order_info['PhuongThucThanhToan'] ?? '';
+    $current_total = $order_info['TongCong'] ?? 0;
+    
+    // 3. Cập nhật trạng thái và TongCong (nếu là thanh toán trước và đang xác nhận)
+    // Nếu đơn hàng đã thanh toán trước (vnpay) và đang được xác nhận, set TongCong = 0
+    if ($new_status == 'Đã xác nhận' && $payment_method == 'vnpay' && $current_total > 0) {
+        $update_query = "UPDATE `donhang` SET TrangThai = ?, TongCong = 0, NgayCapNhat = NOW() WHERE IdDonHang = ?";
+    } else {
+        $update_query = "UPDATE `donhang` SET TrangThai = ?, NgayCapNhat = NOW() WHERE IdDonHang = ?";
+    }
+    
     $stmt_update = mysqli_prepare($conn, $update_query);
     
     if (!$stmt_update) {
         $success = false;
         $db_error = mysqli_error($conn);
     } else {
+        // Cả hai trường hợp đều bind cùng kiểu: string (TrangThai) và int (IdDonHang)
         mysqli_stmt_bind_param($stmt_update, "si", $new_status, $order_id);
         
         if (!mysqli_stmt_execute($stmt_update)) {
@@ -85,7 +104,7 @@
         mysqli_stmt_close($stmt_update);
     }
 
-    // 3. Hoàn kho/Trừ kho (Chỉ thực hiện Trừ kho khi chuyển từ 'Chờ xử lý' -> 'Đã xác nhận' và Hoàn kho khi chuyển sang 'Đã hủy')
+    // 4. Hoàn kho/Trừ kho (Chỉ thực hiện Trừ kho khi chuyển từ 'Chờ xử lý' -> 'Đã xác nhận' và Hoàn kho khi chuyển sang 'Đã hủy')
     if ($success) {
         // Tùy chỉnh logic trừ/hoàn kho theo yêu cầu của bạn. 
         // Ví dụ: Giả sử chỉ trừ kho khi đơn hàng được đặt (đã xảy ra ở cart_handler), 
@@ -131,7 +150,7 @@
     }
 
 
-    // 4. Kết thúc Transaction
+    // 5. Kết thúc Transaction
     if ($success) {
         mysqli_commit($conn);
         mysqli_autocommit($conn, TRUE);

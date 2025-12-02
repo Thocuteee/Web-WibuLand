@@ -126,8 +126,18 @@
     
     $full_address = "$address_detail, $ward, $district, $city";
     
-    // Tính phí vận chuyển dựa trên địa chỉ giao hàng
-    $shipping_fee = calculate_shipping_fee($city, $district, $ward);
+    // Lấy phí vận chuyển từ form (nếu có và hợp lệ), nếu không thì tính lại
+    $shipping_fee = 0;
+    if (isset($_POST['shipping_fee']) && $_POST['shipping_fee'] !== '' && $_POST['shipping_fee'] >= 0) {
+        $shipping_fee = (int)$_POST['shipping_fee'];
+    }
+    
+    // Nếu không có phí ship từ form hoặc = 0 (có thể do voucher free ship), tính lại
+    // Nhưng nếu = 0 từ form (voucher free ship), giữ nguyên 0
+    if ($shipping_fee <= 0 && (!isset($_POST['shipping_fee']) || $_POST['shipping_fee'] === '')) {
+        // Tính phí vận chuyển dựa trên địa chỉ giao hàng
+        $shipping_fee = calculate_shipping_fee($city, $district, $ward);
+    }
     
     // 2. Xác minh Giỏ hàng và Tổng tiền
     $cart_id = get_or_create_cart_id($conn, $user_id);
@@ -173,8 +183,34 @@
         // Tạo Mã đơn hàng duy nhất (ví dụ: WD2025MMDDHHMMSS)
         $ma_don_hang = 'WD' . date('YmdHis') . $user_id;
         
+        // Tính lại tổng tiền sản phẩm từ giỏ hàng để đảm bảo chính xác
+        $calculated_product_total = 0;
+        foreach ($items_to_order as $item) {
+            $calculated_product_total += $item['item_price'] * $item['SoLuong'];
+        }
+        
+        // Sử dụng giá trị từ form nếu có, nếu không thì tính từ giỏ hàng
+        if ($product_total <= 0) {
+            $product_total = $calculated_product_total;
+        }
+        
+        // Tính lại phí vận chuyển nếu chưa có hoặc cần tính lại
+        if (!isset($shipping_fee) || $shipping_fee <= 0) {
+            $shipping_fee = calculate_shipping_fee($city, $district, $ward);
+        }
+        
         // Tổng tiền sản phẩm, Phí vận chuyển, Giảm giá, Tổng cộng
+        // Đảm bảo discount_amount không vượt quá product_total
+        if ($discount_amount > $product_total) {
+            $discount_amount = $product_total;
+        }
+        
         $TongCongFinal = $product_total + $shipping_fee - $discount_amount;
+        
+        // Đảm bảo TongCongFinal không âm
+        if ($TongCongFinal < 0) {
+            $TongCongFinal = 0;
+        }
         
         // Dòng này cần được kiểm tra kỹ: tổng tiền sản phẩm ($product_total)
         mysqli_stmt_bind_param($stmt_order, "issssssiiiis", 
