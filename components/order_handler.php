@@ -254,8 +254,13 @@
             $_SESSION['pending_vnpay_order_id'] = $order_id;
             $_SESSION['pending_vnpay_order_code'] = $ma_don_hang;
             
+            // Đảm bảo không có output trước JSON
+            while (ob_get_level()) {
+                ob_end_clean();
+            }
+            
             // Trả về JSON để JavaScript xử lý hiển thị popup
-            header('Content-Type: application/json');
+            header('Content-Type: application/json; charset=utf-8');
             echo json_encode([
                 'status' => 'success',
                 'payment_method' => 'vnpay',
@@ -263,7 +268,7 @@
                 'order_code' => $ma_don_hang,
                 'amount' => $TongCongFinal,
                 'message' => 'Đơn hàng đã được tạo. Vui lòng thanh toán để hoàn tất.'
-            ]);
+            ], JSON_UNESCAPED_UNICODE);
             exit();
         }
         
@@ -275,6 +280,20 @@
         // Log lỗi để debug
         $error_message = $db_error ?? 'Unknown error';
         error_log("Order Handler Error: " . $error_message);
+        
+        // Nếu là VNPay và có lỗi, trả về JSON error
+        if ($payment_method == 'vnpay') {
+            while (ob_get_level()) {
+                ob_end_clean();
+            }
+            header('Content-Type: application/json; charset=utf-8');
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Lỗi: Không thể hoàn tất đơn hàng. Vui lòng thử lại hoặc liên hệ hỗ trợ.',
+                'error_detail' => $error_message
+            ], JSON_UNESCAPED_UNICODE);
+            exit();
+        }
         
         // Fallback: Nếu redirect không hoạt động, hiển thị lỗi
         if (headers_sent()) {

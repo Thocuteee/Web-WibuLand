@@ -210,10 +210,10 @@
                                         </div>
                                         <div id="vnpay-qrcode-container" style="margin: 1rem auto; display: inline-block;"></div>
                                         <p style="margin-top: 1.5rem; font-size: 1.3rem; color: #666;">
-                                            <i class="fa-solid fa-info-circle"></i> Quét mã QR bằng ứng dụng ngân hàng để thanh toán
+                                            <i class="fa-solid fa-info-circle"></i> Bước 1: Điền thông tin & chọn Trả trước bằng QR. Bước 2: Nhấn "ĐẶT HÀNG" để tạo mã QR & mã đơn hàng.
                                         </p>
                                         <div style="margin-top: 1rem;">
-                                            <a href="#" id="vnpay-payment-link" target="_blank" style="display: inline-block; padding: 1rem 2rem; background: #1f4788; color: white; text-decoration: none; border-radius: 0.5rem; font-size: 1.4rem; font-weight: 600;">
+                                            <a href="#" id="vnpay-payment-link" data-enabled="false" onclick="return onVNPayLinkClick(event);" style="display: inline-block; padding: 1rem 2rem; background: #ccc; color: #666; text-decoration: none; border-radius: 0.5rem; font-size: 1.4rem; font-weight: 600; cursor: not-allowed;">
                                                 <i class="fa-solid fa-credit-card"></i> Mở trang thanh toán
                                             </a>
                                         </div>
@@ -482,7 +482,7 @@
                             }, 1000);
                         } else if (checkCount >= maxChecks) {
                             clearInterval(checkInterval);
-                            // Không tự động đóng, để người dùng tự kiểm tra
+                            alert('⏰ Đã quá 5 phút nhưng chưa ghi nhận thanh toán VNPay.\n\nNếu bạn đã chuyển khoản, vui lòng kiểm tra lại trong mục Đơn hàng hoặc liên hệ hỗ trợ.\nNếu chưa thanh toán, bạn có thể đóng popup và thử lại.');
                         }
                     })
                     .catch(error => {
@@ -636,6 +636,23 @@
             }
         });
         
+        // Hàm click nút "Mở trang thanh toán"
+        function onVNPayLinkClick(event) {
+            const link = document.getElementById('vnpay-payment-link');
+            if (!link) return false;
+            
+            const enabled = link.getAttribute('data-enabled') === 'true';
+            const href = link.getAttribute('href');
+            
+            if (!enabled || !href || href === '#') {
+                event.preventDefault();
+                alert('Vui lòng điền đầy đủ thông tin và nhấn "ĐẶT HÀNG" để tạo đơn hàng và mã QR trước khi mở trang thanh toán VNPay.');
+                return false;
+            }
+            // Cho phép mở trang thanh toán
+            return true;
+        }
+        
         // Hàm tạo QR code VNPay (tạm thời với thông tin dự kiến)
         function generateVNPayQR() {
             const qrContainer = document.getElementById('vnpay-qrcode-container');
@@ -644,6 +661,16 @@
             // Cập nhật số tiền
             const grandTotal = parseInt(document.querySelector('.grand-total').textContent.replace(/[^\d]/g, '')) || 0;
             document.getElementById('qr-amount').textContent = grandTotal.toLocaleString('vi-VN') + '₫';
+
+            // Reset nút mở trang thanh toán
+            const paymentLink = document.getElementById('vnpay-payment-link');
+            if (paymentLink) {
+                paymentLink.href = '#';
+                paymentLink.setAttribute('data-enabled', 'false');
+                paymentLink.style.background = '#ccc';
+                paymentLink.style.color = '#666';
+                paymentLink.style.cursor = 'not-allowed';
+            }
         }
         
         // Cập nhật QR code với thông tin đơn hàng sau khi tạo đơn
@@ -704,6 +731,10 @@
                         const paymentLink = document.getElementById('vnpay-payment-link');
                         if (paymentLink) {
                             paymentLink.href = data.payment_url;
+                            paymentLink.setAttribute('data-enabled', 'true');
+                            paymentLink.style.background = '#1f4788';
+                            paymentLink.style.color = '#fff';
+                            paymentLink.style.cursor = 'pointer';
                         }
                     } else {
                         console.error('Error from vnpay_qr.php:', data.message);
@@ -820,16 +851,28 @@
                 body: formData
             })
             .then(response => {
+                // Kiểm tra status code
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
                 // Kiểm tra nếu là JSON (VNPay) hay redirect (COD)
                 const contentType = response.headers.get('content-type');
                 if (contentType && contentType.includes('application/json')) {
-                    return response.json();
+                    return response.json().catch(err => {
+                        // Nếu parse JSON thất bại, lấy text để debug
+                        return response.text().then(text => {
+                            console.error('JSON Parse Error. Response text:', text);
+                            throw new Error('Không thể phân tích phản hồi từ server. Vui lòng kiểm tra console để xem chi tiết.');
+                        });
+                    });
                 } else {
                     // COD - redirect bình thường
                     return response.text().then(text => {
                         // Nếu có redirect trong response, follow nó
-                        if (text.includes('Location:')) {
+                        if (text.includes('Location:') || text.trim() === '') {
                             window.location.href = '../thongtinkhachhang/donhang.php';
+                            return { status: 'redirect' };
                         } else {
                             return { status: 'redirect', html: text };
                         }
@@ -837,6 +880,11 @@
                 }
             })
             .then(data => {
+                if (!data) {
+                    // Đã redirect, không cần xử lý thêm
+                    return;
+                }
+                
                 if (data.status === 'success' && data.payment_method === 'vnpay') {
                     // Cập nhật QR code trong form với thông tin đơn hàng thực tế
                     updateQRWithOrderInfo(data.order_id, data.order_code, data.amount);
@@ -847,16 +895,25 @@
                 } else if (data.status === 'redirect') {
                     // COD - redirect đến trang đơn hàng
                     window.location.href = '../thongtinkhachhang/donhang.php';
+                } else if (data.status === 'error') {
+                    // Lỗi từ server
+                    const errorMsg = data.message || 'Không thể xử lý đơn hàng';
+                    console.error('Server Error:', data.error_detail || errorMsg);
+                    alert('Lỗi: ' + errorMsg);
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalText;
                 } else {
-                    // Lỗi
+                    // Lỗi không xác định
+                    console.error('Unknown response:', data);
                     alert('Lỗi: ' + (data.message || 'Không thể xử lý đơn hàng'));
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = originalText;
                 }
             })
             .catch(error => {
-                console.error('Error:', error);
-                alert('Đã xảy ra lỗi khi xử lý đơn hàng. Vui lòng thử lại.');
+                console.error('Fetch Error:', error);
+                console.error('Error details:', error.message);
+                alert('Đã xảy ra lỗi khi xử lý đơn hàng: ' + error.message + '\n\nVui lòng mở Console (F12) để xem chi tiết lỗi.');
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = originalText;
             });

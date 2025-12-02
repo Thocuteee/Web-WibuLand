@@ -105,8 +105,8 @@ function quickAddToCart(event, product_id, category) {
                         const loginUrl = data.data?.login_url || '../login&registration/login.php?redirect=' + encodeURIComponent(window.location.href);
                         window.location.href = loginUrl;
                     }
-                } else {
-                    alert(`Lỗi: ${data.message || 'Không thể thêm vào giỏ hàng'}`);
+            } else {
+                alert(`Lỗi: ${data.message || 'Không thể thêm vào giỏ hàng'}`);
                 }
             }
         } catch (parseError) {

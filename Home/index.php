@@ -126,12 +126,12 @@
                         // Nút Thêm vào giỏ hàng nhanh (Add to Cart Button)
                         // Chỉ hiển thị nếu đã đăng nhập
                         if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
-                            echo '<div class="add-to-cart-quick" style="position: absolute; bottom: 3rem; right: 0.5rem; z-index: 10;">';
-                            // Gọi hàm JS quickAddToCart với ID và Category
-                            echo '<a href="#" onclick="quickAddToCart(event, ' . $row['ID'] . ', \'' . $sanpham . '\')" title="Thêm vào Giỏ hàng">';
-                            echo '<i class="fa-solid fa-cart-plus" style="font-size: 2.3rem; color: black; background-color: var(--yellow-color); padding: 0.5rem; border-radius: 50%;"></i>'; 
-                            echo '</a>';
-                            echo '</div>';
+                        echo '<div class="add-to-cart-quick" style="position: absolute; bottom: 3rem; right: 0.5rem; z-index: 10;">';
+                        // Gọi hàm JS quickAddToCart với ID và Category
+                        echo '<a href="#" onclick="quickAddToCart(event, ' . $row['ID'] . ', \'' . $sanpham . '\')" title="Thêm vào Giỏ hàng">';
+                        echo '<i class="fa-solid fa-cart-plus" style="font-size: 2.3rem; color: black; background-color: var(--yellow-color); padding: 0.5rem; border-radius: 50%;"></i>'; 
+                        echo '</a>';
+                        echo '</div>';
                         } else {
                             // Nếu chưa đăng nhập, hiển thị nút yêu cầu đăng nhập
                             echo '<div class="add-to-cart-quick" style="position: absolute; bottom: 3rem; right: 0.5rem; z-index: 10;">';

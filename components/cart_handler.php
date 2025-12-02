@@ -364,7 +364,7 @@
                     'login_url' => '../login&registration/login.php?redirect=' . urlencode($referring_page)
                 ]); 
             }
-            
+
             // Redirect đến trang đăng nhập với thông báo
             while (ob_get_level()) {
                 ob_end_clean();
