@@ -126,16 +126,14 @@
     
     $full_address = "$address_detail, $ward, $district, $city";
     
-    // Lấy phí vận chuyển từ form (nếu có và hợp lệ), nếu không thì tính lại
+    // Lấy phí vận chuyển từ form (ưu tiên giá trị từ form để hỗ trợ voucher free ship)
     $shipping_fee = 0;
-    if (isset($_POST['shipping_fee']) && $_POST['shipping_fee'] !== '' && $_POST['shipping_fee'] >= 0) {
+    if (isset($_POST['shipping_fee']) && $_POST['shipping_fee'] !== '' && $_POST['shipping_fee'] !== null) {
         $shipping_fee = (int)$_POST['shipping_fee'];
-    }
-    
-    // Nếu không có phí ship từ form hoặc = 0 (có thể do voucher free ship), tính lại
-    // Nhưng nếu = 0 từ form (voucher free ship), giữ nguyên 0
-    if ($shipping_fee <= 0 && (!isset($_POST['shipping_fee']) || $_POST['shipping_fee'] === '')) {
-        // Tính phí vận chuyển dựa trên địa chỉ giao hàng
+        // Nếu shipping_fee = 0 từ form (có thể do voucher free ship), giữ nguyên 0
+        // Không tính lại để tránh ghi đè voucher
+    } else {
+        // Chỉ tính lại nếu không có giá trị từ form
         $shipping_fee = calculate_shipping_fee($city, $district, $ward);
     }
     

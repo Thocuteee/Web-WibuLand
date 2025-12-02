@@ -1,6 +1,78 @@
 <?php
+    // Bắt đầu output buffering để chặn output không mong muốn
+    ob_start();
+    
     session_start();
     include '../components/connect.php';
+    
+    // API endpoint để kiểm tra thanh toán (cho AJAX) - PHẢI XỬ LÝ TRƯỚC KHI INCLUDE HEADER
+    if (isset($_GET['check_payment']) && !empty($_GET['check_payment'])) {
+        // Xóa tất cả output buffer
+        while (ob_get_level()) {
+            ob_end_clean();
+        }
+        
+        // Kiểm tra đăng nhập
+        if (!isset($_SESSION['user_id'])) {
+            header('Content-Type: application/json; charset=utf-8');
+            echo json_encode([
+                'status' => 'error',
+                'paid' => false,
+                'message' => 'Bạn cần đăng nhập'
+            ], JSON_UNESCAPED_UNICODE);
+            exit();
+        }
+        
+        $check_order_id = (int)$_GET['check_payment'];
+        $user_id = $_SESSION['user_id'];
+        
+        $check_query = "SELECT TrangThai, TongCong, PhuongThucThanhToan, MaDonHang FROM donhang WHERE IdDonHang = ? AND IdUser = ?";
+        $stmt_check = mysqli_prepare($conn, $check_query);
+        
+        if (!$stmt_check) {
+            header('Content-Type: application/json; charset=utf-8');
+            echo json_encode([
+                'status' => 'error',
+                'paid' => false,
+                'message' => 'Lỗi kết nối database'
+            ], JSON_UNESCAPED_UNICODE);
+            exit();
+        }
+        
+        mysqli_stmt_bind_param($stmt_check, "ii", $check_order_id, $user_id);
+        mysqli_stmt_execute($stmt_check);
+        $result_check = mysqli_stmt_get_result($stmt_check);
+        $order_check = mysqli_fetch_assoc($result_check);
+        mysqli_stmt_close($stmt_check);
+        
+        // Kiểm tra thanh toán thành công: Trạng thái "Đã xác nhận" VÀ TongCong = 0
+        // (TongCong = 0 nghĩa là đã thanh toán xong, không còn nợ)
+        $is_paid = false;
+        if ($order_check) {
+            $is_paid = ($order_check['TrangThai'] == 'Đã xác nhận') && ($order_check['TongCong'] == 0);
+        }
+        
+        header('Content-Type: application/json; charset=utf-8');
+        if ($is_paid) {
+            echo json_encode([
+                'status' => 'success', 
+                'paid' => true,
+                'message' => 'Thanh toán thành công! Đơn hàng ' . ($order_check['MaDonHang'] ?? '') . ' đã được xác nhận và số tiền đã được cập nhật.',
+                'order_code' => $order_check['MaDonHang'] ?? ''
+            ], JSON_UNESCAPED_UNICODE);
+        } else {
+            echo json_encode([
+                'status' => 'pending', 
+                'paid' => false,
+                'order_status' => $order_check['TrangThai'] ?? 'Chưa xác định',
+                'remaining_amount' => (int)($order_check['TongCong'] ?? 0),
+                'message' => 'Đang chờ thanh toán. Trạng thái: ' . ($order_check['TrangThai'] ?? 'Chưa xác định') . ', Số tiền còn lại: ' . number_format($order_check['TongCong'] ?? 0) . '₫'
+            ], JSON_UNESCAPED_UNICODE);
+        }
+        exit();
+    }
+    
+    // Nếu không phải API call, tiếp tục xử lý bình thường
     include '../components/header.php';
     
     // Kiểm tra đăng nhập
@@ -16,35 +88,6 @@
         unset($_SESSION['vnpay_order_id']);
         
         // Có thể hiển thị thông báo thành công ở đây nếu cần
-    }
-    
-    // API endpoint để kiểm tra thanh toán (cho AJAX)
-    if (isset($_GET['check_payment']) && !empty($_GET['check_payment'])) {
-        $check_order_id = (int)$_GET['check_payment'];
-        $user_id = $_SESSION['user_id'];
-        
-        $check_query = "SELECT TrangThai, TongCong, PhuongThucThanhToan FROM donhang WHERE IdDonHang = ? AND IdUser = ?";
-        $stmt_check = mysqli_prepare($conn, $check_query);
-        mysqli_stmt_bind_param($stmt_check, "ii", $check_order_id, $user_id);
-        mysqli_stmt_execute($stmt_check);
-        $result_check = mysqli_stmt_get_result($stmt_check);
-        $order_check = mysqli_fetch_assoc($result_check);
-        mysqli_stmt_close($stmt_check);
-        
-        header('Content-Type: application/json');
-        // Kiểm tra thanh toán thành công: Trạng thái "Đã xác nhận" VÀ (TongCong = 0 HOẶC phương thức thanh toán là vnpay)
-        $is_paid = false;
-        if ($order_check) {
-            $is_paid = ($order_check['TrangThai'] == 'Đã xác nhận') && 
-                       (($order_check['TongCong'] == 0) || ($order_check['PhuongThucThanhToan'] == 'vnpay'));
-        }
-        
-        if ($is_paid) {
-            echo json_encode(['status' => 'success', 'paid' => true]);
-        } else {
-            echo json_encode(['status' => 'pending', 'paid' => false]);
-        }
-        exit();
     }
     
     $user_id = $_SESSION['user_id'];

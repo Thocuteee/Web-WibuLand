@@ -48,28 +48,55 @@ if ($vnp_ResponseCode == '00' && $vnp_TransactionStatus == '00') {
     
     if ($order) {
         // Kiểm tra số tiền
-        $order_amount = $order['TongCong'] * 100; // VNPay trả về số tiền đã nhân 100
+        // VNPay trả về số tiền đã nhân 100, nên cần so sánh với TongCong * 100
+        $order_amount = (int)$order['TongCong'] * 100;
+        $vnp_amount_int = (int)$vnp_Amount;
         
-        if ($vnp_Amount == $order_amount) {
+        // Log để debug (có thể xóa sau)
+        error_log("VNPay Return - Order ID: {$order['IdDonHang']}, Order Amount: $order_amount, VNPay Amount: $vnp_amount_int");
+        
+        if ($vnp_amount_int == $order_amount || abs($vnp_amount_int - $order_amount) < 100) {
             // Cập nhật trạng thái đơn hàng thành "Đã xác nhận" và set TongCong = 0 (đã thanh toán thành công)
             $update_order = "UPDATE donhang SET TrangThai = 'Đã xác nhận', TongCong = 0, NgayCapNhat = NOW() WHERE IdDonHang = ?";
             $stmt_update = mysqli_prepare($conn, $update_order);
-            mysqli_stmt_bind_param($stmt_update, "i", $order['IdDonHang']);
-            mysqli_stmt_execute($stmt_update);
-            mysqli_stmt_close($stmt_update);
             
-            // Đóng popup nếu đang mở (thông qua session flag)
-            $_SESSION['vnpay_payment_success'] = true;
-            $_SESSION['vnpay_order_id'] = $order['IdDonHang'];
-            
-            $_SESSION['order_message'] = [
-                'type' => 'success', 
-                'text' => '✅ Thanh toán thành công! Đơn hàng ' . $order['MaDonHang'] . ' đã được xác nhận và sẽ được xử lý sớm nhất.'
-            ];
+            if ($stmt_update) {
+                mysqli_stmt_bind_param($stmt_update, "i", $order['IdDonHang']);
+                $update_result = mysqli_stmt_execute($stmt_update);
+                
+                if ($update_result) {
+                    mysqli_stmt_close($stmt_update);
+                    
+                    // Đóng popup nếu đang mở (thông qua session flag)
+                    $_SESSION['vnpay_payment_success'] = true;
+                    $_SESSION['vnpay_order_id'] = $order['IdDonHang'];
+                    
+                    $_SESSION['order_message'] = [
+                        'type' => 'success', 
+                        'text' => '✅ Thanh toán thành công! Đơn hàng ' . $order['MaDonHang'] . ' đã được xác nhận. Số tiền đã được cập nhật.'
+                    ];
+                    
+                    error_log("VNPay Return - Payment confirmed for order {$order['IdDonHang']}, TongCong set to 0");
+                } else {
+                    $update_error = mysqli_error($conn);
+                    error_log("VNPay Return - Update error: " . $update_error);
+                    $_SESSION['order_message'] = [
+                        'type' => 'error', 
+                        'text' => 'Lỗi khi cập nhật đơn hàng. Vui lòng liên hệ hỗ trợ.'
+                    ];
+                }
+            } else {
+                error_log("VNPay Return - Prepare statement error: " . mysqli_error($conn));
+                $_SESSION['order_message'] = [
+                    'type' => 'error', 
+                    'text' => 'Lỗi khi cập nhật đơn hàng. Vui lòng liên hệ hỗ trợ.'
+                ];
+            }
         } else {
+            error_log("VNPay Return - Amount mismatch. Order: $order_amount, VNPay: $vnp_amount_int");
             $_SESSION['order_message'] = [
                 'type' => 'error', 
-                'text' => 'Số tiền thanh toán không khớp với đơn hàng.'
+                'text' => 'Số tiền thanh toán không khớp với đơn hàng. Vui lòng liên hệ hỗ trợ.'
             ];
         }
     } else {

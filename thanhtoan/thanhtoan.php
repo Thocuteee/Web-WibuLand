@@ -416,14 +416,26 @@
                 checkCount++;
                 
                 fetch(`../thongtinkhachhang/donhang.php?check_payment=${orderId}`)
-                    .then(response => response.json())
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('HTTP error: ' + response.status);
+                        }
+                        return response.json();
+                    })
                     .then(data => {
+                        console.log('Payment check response:', data);
+                        
                         if (data.status === 'success' && data.paid === true) {
                             clearInterval(checkInterval);
                             window.paymentCheckInterval = null;
-                            alert('✅ Thanh toán thành công! Đơn hàng đã được xác nhận.');
+                            
+                            // Hiển thị thông báo thành công
+                            const successMsg = data.message || '✅ Thanh toán thành công! Đơn hàng đã được xác nhận và số tiền đã được cập nhật.';
+                            alert(successMsg);
+                            
                             closeVNPayPopup();
-                            // Reload trang sau 1 giây
+                            
+                            // Reload trang sau 1 giây để hiển thị đơn hàng đã cập nhật
                             setTimeout(() => {
                                 window.location.href = '../thongtinkhachhang/donhang.php';
                             }, 1000);
@@ -431,6 +443,11 @@
                             clearInterval(checkInterval);
                             window.paymentCheckInterval = null;
                             alert('⏰ Đã quá 5 phút nhưng chưa ghi nhận thanh toán.\n\nNếu bạn đã chuyển khoản, vui lòng kiểm tra lại trong mục Đơn hàng hoặc liên hệ hỗ trợ.\nNếu chưa thanh toán, bạn có thể đóng popup và thử lại.');
+                        } else {
+                            // Log trạng thái hiện tại để debug
+                            if (data.order_status) {
+                                console.log(`Đơn hàng đang ở trạng thái: ${data.order_status}, Số tiền còn lại: ${data.remaining_amount}₫`);
+                            }
                         }
                     })
                     .catch(error => {
@@ -544,6 +561,17 @@
             }
         }
         
+        // Hàm cập nhật số tiền trong QR section (dùng chung)
+        function updateQRAmount(amount) {
+            const qrSection = document.getElementById('vnpay-qr-section');
+            if (qrSection && qrSection.style.display !== 'none') {
+                const qrAmount = document.getElementById('qr-amount');
+                if (qrAmount) {
+                    qrAmount.textContent = parseInt(amount).toLocaleString('vi-VN') + '₫';
+                }
+            }
+        }
+        
         // Cập nhật tổng tiền
         function updateTotal() {
             const discountAmount = parseInt(document.getElementById('input_discount_amount').value) || 0;
@@ -555,10 +583,7 @@
             document.getElementById('input_total_price_final').value = grandTotal;
             
             // Cập nhật số tiền trong QR section nếu đang hiển thị
-            const qrSection = document.getElementById('vnpay-qr-section');
-            if (qrSection.style.display === 'block') {
-                document.getElementById('qr-amount').textContent = grandTotal.toLocaleString('vi-VN') + '₫';
-            }
+            updateQRAmount(grandTotal);
         }
         
         // Lắng nghe sự kiện thay đổi địa chỉ
@@ -693,8 +718,11 @@
                 document.getElementById('input_discount_amount').value = discountAmount;
                 document.getElementById('input_shipping_fee').value = 0;
                 document.getElementById('input_total_price_final').value = grandTotal;
+                
+            // Cập nhật số tiền trong QR section nếu đang hiển thị
+            updateQRAmount(grandTotal);
 
-                alert('Đã áp dụng voucher miễn phí vận chuyển!');
+                alert('Đã áp dụng voucher miễn phí vận chuyển! Số tiền đã được cập nhật.');
                 return;
             }
 
@@ -713,8 +741,11 @@
             document.getElementById('input_discount_amount').value = discountAmount;
             document.getElementById('input_shipping_fee').value = shippingFee;
             document.getElementById('input_total_price_final').value = grandTotal;
+            
+            // Cập nhật số tiền trong QR section nếu đang hiển thị
+            updateQRAmount(grandTotal);
 
-            alert(`Giảm giá ${discountPercent}% đã được áp dụng!`);
+            alert(`Giảm giá ${discountPercent}% đã được áp dụng! Số tiền đã được cập nhật.`);
         }
         
         // Xử lý submit form với AJAX để hiển thị popup VNPay
