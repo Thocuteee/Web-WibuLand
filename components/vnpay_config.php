@@ -5,10 +5,16 @@
  */
 
 // Cấu hình VNPay
+// LƯU Ý: Cần thay thế các giá trị sau bằng thông tin thực từ VNPay
 define('VNPAY_URL', 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html'); // URL thanh toán VNPay (sandbox)
 define('VNPAY_TMN_CODE', 'YOUR_TMN_CODE'); // Mã TMN từ VNPay (thay bằng mã thực tế)
 define('VNPAY_HASH_SECRET', 'YOUR_HASH_SECRET'); // Secret key từ VNPay (thay bằng key thực tế)
-define('VNPAY_RETURN_URL', 'http://localhost/components/vnpay_return.php'); // URL callback (thay bằng domain thực tế)
+
+// Lấy domain hiện tại để tạo return URL tự động
+$protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https://' : 'http://';
+$host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+$base_path = dirname(dirname($_SERVER['SCRIPT_NAME'] ?? ''));
+define('VNPAY_RETURN_URL', $protocol . $host . $base_path . '/components/vnpay_return.php');
 
 // Hàm tạo URL thanh toán VNPay
 function create_vnpay_url($order_id, $amount, $order_desc, $order_type = 'other') {
@@ -92,4 +98,5 @@ function verify_vnpay_signature($inputData, $vnp_SecureHash) {
     return $secureHash === $vnp_SecureHash;
 }
 ?>
+
 

@@ -561,8 +561,18 @@
 }
 
 .pay-option img[alt="COD"] {
-    /* Đảm bảo hình ảnh COD (cash-on-delivery.png) có màu trắng để khớp với thiết kế */
-    filter: invert(1); 
+    background-color: white; 
+    border-radius: 5px;
+    padding: 0.5rem;
+    filter: none; /* Đảm bảo icon là màu đen gốc */
+}
+
+.pay-option label.selected img[alt="COD"],
+.pay-option input[type="radio"]:checked + img[alt="COD"] {
+    /* Icon gốc (đen) trên nền màu hồng/vàng của label.selected sẽ rất nổi bật */
+    background-color: #fff9e6; /* Giữ nền trắng nhẹ */
+    filter: none;
+    box-shadow: 0 0 0.5rem var(--yellow-color);
 }
 
 /* Thêm box-shadow mạnh hơn cho các input khi hover/focus */
