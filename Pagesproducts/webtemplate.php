@@ -112,7 +112,10 @@ function generateHTMLPagesProducts($sanpham, $name_category) {
                                     echo '<div class="name">' . $row['Name'] . '</div>';
                                     echo '</a>';
 
-                                    if (($row['SoLuongTonKho'] - $row['SoLuongDaBan']) <= 0) {
+                                    // Kiểm tra tồn kho
+                                    $available_stock = (int)$row['SoLuongTonKho'];
+                                    
+                                    if ($available_stock <= 0) {
                                         echo '<div class="sold-out" style ="background: orange">Hết hàng</div>';
                                         
                                     } else {

@@ -197,6 +197,10 @@ if(isset($_GET["category"]) && isset ($_GET["id"])){
                 <i class="fa-solid fa-box"></i> Quản lý Đơn hàng
             </a>
             
+            <a href="inventory.php" class="btn-func" style="background-color: #667eea;">
+                <i class="fa-solid fa-boxes-stacked"></i> Quản lý Tồn kho
+            </a>
+            
             <form method="GET" action="">
                 <select id="categorySelect" onchange="this.form.submit()" name="category">
                     <option value="mohinh" <?php if ($category == "mohinh") echo "selected" ?>>Mô hình</option>

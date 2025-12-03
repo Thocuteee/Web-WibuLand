@@ -356,6 +356,77 @@
             exit();
         }
         
+        // Kiểm tra tồn kho
+        $check_stock_query = "SELECT SoLuongTonKho FROM `$category` WHERE ID = ?";
+        $stmt_stock = mysqli_prepare($conn, $check_stock_query);
+        
+        if ($stmt_stock) {
+            mysqli_stmt_bind_param($stmt_stock, "i", $product_id);
+            mysqli_stmt_execute($stmt_stock);
+            $result_stock = mysqli_stmt_get_result($stmt_stock);
+            
+            if ($row_stock = mysqli_fetch_assoc($result_stock)) {
+                $available_stock = (int)$row_stock['SoLuongTonKho'];
+                
+                // Kiểm tra số lượng đã có trong giỏ hàng
+                $current_cart_quantity = 0;
+                if ($user_id && $cart_id !== false && $cart_id !== null) {
+                    $check_cart_query = "SELECT SoLuong FROM `giohang_chitiet` WHERE IdGioHang = ? AND IdSanPham = ? AND LoaiSanPham = ?";
+                    $stmt_cart_check = mysqli_prepare($conn, $check_cart_query);
+                    if ($stmt_cart_check) {
+                        mysqli_stmt_bind_param($stmt_cart_check, "iis", $cart_id, $product_id, $category);
+                        mysqli_stmt_execute($stmt_cart_check);
+                        $result_cart = mysqli_stmt_get_result($stmt_cart_check);
+                        if ($row_cart = mysqli_fetch_assoc($result_cart)) {
+                            $current_cart_quantity = (int)$row_cart['SoLuong'];
+                        }
+                        mysqli_stmt_close($stmt_cart_check);
+                    }
+                }
+                
+                $total_requested = $current_cart_quantity + $quantity;
+                
+                if ($available_stock <= 0) {
+                    mysqli_stmt_close($stmt_stock);
+                    if ($is_ajax_request) { 
+                        send_json_response('error', 'Sản phẩm đã hết hàng.'); 
+                    }
+                    while (ob_get_level()) {
+                        ob_end_clean();
+                    }
+                    $_SESSION['cart_message'] = ['type' => 'error', 'text' => 'Sản phẩm đã hết hàng.'];
+                    header("Location: $referring_page");
+                    exit();
+                }
+                
+                if ($total_requested > $available_stock) {
+                    mysqli_stmt_close($stmt_stock);
+                    $error_msg = "Không đủ hàng! Còn lại: {$available_stock}, trong giỏ: {$current_cart_quantity}";
+                    if ($is_ajax_request) { 
+                        send_json_response('error', $error_msg); 
+                    }
+                    while (ob_get_level()) {
+                        ob_end_clean();
+                    }
+                    $_SESSION['cart_message'] = ['type' => 'error', 'text' => $error_msg];
+                    header("Location: $referring_page");
+                    exit();
+                }
+            } else {
+                mysqli_stmt_close($stmt_stock);
+                if ($is_ajax_request) { 
+                    send_json_response('error', 'Không tìm thấy thông tin tồn kho.'); 
+                }
+                while (ob_get_level()) {
+                    ob_end_clean();
+                }
+                header("Location: $referring_page");
+                exit();
+            }
+            
+            mysqli_stmt_close($stmt_stock);
+        }
+        
         // BẮT BUỘC ĐĂNG NHẬP TRƯỚC KHI THÊM VÀO GIỎ HÀNG
         if (!$user_id) {
             if ($is_ajax_request) { 

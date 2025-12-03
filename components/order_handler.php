@@ -230,7 +230,46 @@
         mysqli_stmt_close($stmt_order);
     }
 
-    // 5. INSERT vào bảng donhang_chitiet
+    // 5. Kiểm tra tồn kho trước khi tạo đơn hàng
+    if ($success) {
+        foreach ($items_to_order as $item) {
+            $check_stock_query = "SELECT SoLuongTonKho FROM `{$item['LoaiSanPham']}` WHERE ID = ?";
+            $stmt_stock = mysqli_prepare($conn, $check_stock_query);
+            
+            if (!$stmt_stock) {
+                $success = false;
+                $db_error = "Lỗi kiểm tra tồn kho: " . mysqli_error($conn);
+                error_log("Stock check prepare error: " . mysqli_error($conn));
+                break;
+            }
+            
+            mysqli_stmt_bind_param($stmt_stock, "i", $item['IdSanPham']);
+            mysqli_stmt_execute($stmt_stock);
+            $result_stock = mysqli_stmt_get_result($stmt_stock);
+            
+            if ($row_stock = mysqli_fetch_assoc($result_stock)) {
+                $available_stock = (int)$row_stock['SoLuongTonKho'];
+                
+                if ($available_stock < $item['SoLuong']) {
+                    $success = false;
+                    $db_error = "Sản phẩm '{$item['TenSanPham']}' không đủ hàng. Còn lại: {$available_stock}, yêu cầu: {$item['SoLuong']}";
+                    error_log("Insufficient stock for product: {$item['TenSanPham']}");
+                    mysqli_stmt_close($stmt_stock);
+                    break;
+                }
+            } else {
+                $success = false;
+                $db_error = "Không tìm thấy sản phẩm trong kho: {$item['TenSanPham']}";
+                error_log("Product not found: {$item['TenSanPham']}");
+                mysqli_stmt_close($stmt_stock);
+                break;
+            }
+            
+            mysqli_stmt_close($stmt_stock);
+        }
+    }
+
+    // 6. INSERT vào bảng donhang_chitiet
     if ($success) {
         $insert_detail_query = "INSERT INTO `donhang_chitiet` 
             (IdDonHang, LoaiSanPham, IdSanPham, TenSanPham, SoLuong, Gia, ThanhTien)
@@ -264,8 +303,44 @@
             mysqli_stmt_close($stmt_detail);
         }
     }
+    
+    // 7. Trừ tồn kho và cộng số lượng đã bán
+    if ($success) {
+        foreach ($items_to_order as $item) {
+            // Trừ tồn kho và cộng số lượng đã bán
+            $update_stock_query = "UPDATE `{$item['LoaiSanPham']}` 
+                                  SET SoLuongTonKho = SoLuongTonKho - ?, 
+                                      SoLuongDaBan = SoLuongDaBan + ? 
+                                  WHERE ID = ?";
+            
+            $stmt_update_stock = mysqli_prepare($conn, $update_stock_query);
+            
+            if (!$stmt_update_stock) {
+                $success = false;
+                $db_error = "Lỗi cập nhật tồn kho: " . mysqli_error($conn);
+                error_log("Stock update prepare error: " . mysqli_error($conn));
+                break;
+            }
+            
+            mysqli_stmt_bind_param($stmt_update_stock, "iii", 
+                $item['SoLuong'], 
+                $item['SoLuong'], 
+                $item['IdSanPham']
+            );
+            
+            if (!mysqli_stmt_execute($stmt_update_stock)) {
+                $success = false;
+                $db_error = "Lỗi cập nhật tồn kho cho sản phẩm: {$item['TenSanPham']}";
+                error_log("Stock update execution error: " . mysqli_error($conn));
+                mysqli_stmt_close($stmt_update_stock);
+                break;
+            }
+            
+            mysqli_stmt_close($stmt_update_stock);
+        }
+    }
 
-    // 6. Xóa giỏ hàng (giohang_chitiet) và commit/rollback
+    // 8. Xóa giỏ hàng (giohang_chitiet) và commit/rollback
     if ($success) {
         $delete_cart_query = "DELETE FROM `giohang_chitiet` WHERE IdGioHang = ?";
         $stmt_delete = mysqli_prepare($conn, $delete_cart_query);

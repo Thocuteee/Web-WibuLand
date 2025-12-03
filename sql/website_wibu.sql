@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: 127.0.0.1
--- Thời gian đã tạo: Th10 16, 2025 lúc 04:31 PM
+-- Thời gian đã tạo: Th12 03, 2025 lúc 07:18 AM
 -- Phiên bản máy phục vụ: 10.4.32-MariaDB
 -- Phiên bản PHP: 8.2.12
 
@@ -49,20 +49,21 @@ CREATE TABLE `cosplay` (
   `SoLuongDaBan` int(11) NOT NULL DEFAULT 0,
   `Sale` int(11) NOT NULL,
   `TheLoai` int(11) NOT NULL,
-  `ID` int(11) NOT NULL
+  `ID` int(11) NOT NULL,
+  `NgayTao` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Đang đổ dữ liệu cho bảng `cosplay`
 --
 
-INSERT INTO `cosplay` (`Name`, `Img1`, `Img2`, `Gia`, `SoLuongTonKho`, `SoLuongDaBan`, `Sale`, `TheLoai`, `ID`) VALUES
-('Bộ đồ cosplay Shinobu', '_imgProduct/cosplay/1763303928_shinobu.webp', NULL, 150000, 10, 1, 15, 3, 15),
-('Bộ Trang Phục Cosplay Nhân Vật Anime Yuuki Asuna Trong Sword Art Online Dành Cho Nữ', '_imgProduct/cosplay/1763303986_asuna.jpg', NULL, 600000, 20, 10, 5, 3, 16),
-('Bộ đồ Cosplay Anya', '_imgProduct/cosplay/1763303698_anya.jpg', NULL, 400000, 10, 5, 10, 3, 17),
-('Đồ cosplay Shinobu ', '_imgProduct/cosplay/1763303777_shinobuu.jpg', NULL, 200000, 2, 1, 0, 3, 18),
-('Mua Maid Hầu Gái Ram/Rem, Cosplay Hầu Gái, Nhân Vật Hoạt Hình Giảm Giá - Yeep', '_imgProduct/cosplay/1763303866_rem.jpg', NULL, 600000, 40, 3, 25, 3, 19),
-('Mantian Pure White Symphony Riêng Yuki Nữ sinh Đồng phục học sinh Trang phục Cosplay', '_imgProduct/cosplay/1763304024_yukii.avif', NULL, 12000000, 3, 2, 5, 3, 20);
+INSERT INTO `cosplay` (`Name`, `Img1`, `Img2`, `Gia`, `SoLuongTonKho`, `SoLuongDaBan`, `Sale`, `TheLoai`, `ID`, `NgayTao`) VALUES
+('Bộ đồ cosplay Shinobu', '_imgProduct/cosplay/1763303928_shinobu.webp', NULL, 150000, 10, 1, 15, 3, 15, '2025-12-03 11:38:13'),
+('Bộ Trang Phục Cosplay Nhân Vật Anime Yuuki Asuna Trong Sword Art Online Dành Cho Nữ', '_imgProduct/cosplay/1763303986_asuna.jpg', NULL, 600000, 20, 10, 5, 3, 16, '2025-12-03 11:38:13'),
+('Bộ đồ Cosplay Anya', '_imgProduct/cosplay/1763303698_anya.jpg', NULL, 400000, 10, 5, 10, 3, 17, '2025-12-03 11:38:13'),
+('Đồ cosplay Shinobu ', '_imgProduct/cosplay/1763303777_shinobuu.jpg', NULL, 200000, 2, 1, 0, 3, 18, '2025-12-03 11:38:13'),
+('Mua Maid Hầu Gái Ram/Rem, Cosplay Hầu Gái, Nhân Vật Hoạt Hình Giảm Giá - Yeep', '_imgProduct/cosplay/1763303866_rem.jpg', NULL, 600000, 40, 3, 25, 3, 19, '2025-12-03 11:38:13'),
+('Mantian Pure White Symphony Riêng Yuki Nữ sinh Đồng phục học sinh Trang phục Cosplay', '_imgProduct/cosplay/1763304024_yukii.avif', NULL, 12000000, 3, 2, 5, 3, 20, '2025-12-03 11:38:13');
 
 -- --------------------------------------------------------
 
@@ -90,6 +91,35 @@ CREATE TABLE `donhang` (
   `NgayCapNhat` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Đang đổ dữ liệu cho bảng `donhang`
+--
+
+INSERT INTO `donhang` (`IdDonHang`, `IdUser`, `MaDonHang`, `TenNguoiNhan`, `SDTNguoiNhan`, `DiaChiGiaoHang`, `TinhThanh`, `QuocGia`, `PhuongThucThanhToan`, `TongTien`, `PhiVanChuyen`, `GiamGia`, `TongCong`, `TrangThai`, `GhiChu`, `NgayTao`, `NgayCapNhat`) VALUES
+(1, 1, 'WD202512010356121', 'Chềnh Hưng Thọ', '0902846205', 'hcm, Châu Đức, Láng Lớn, Bà Rịa - Vũng Tàu', 'Bà Rịa - Vũng Tàu', 'Việt Nam', 'vietcombank', 9000000, 50000, 0, 9050000, 'Đã hủy', '', '2025-12-01 09:56:12', '2025-12-01 10:10:38'),
+(2, 1, 'WD202512010421501', 'Chềnh Hưng Thọ', '0902846205', 'Tổ 1, Châu Đức, Láng Lớn, Bà Rịa - Vũng Tàu', 'Bà Rịa - Vũng Tàu', 'Việt Nam', 'cod', 1500000, 50000, 0, 1550000, 'Đã hủy', '', '2025-12-01 10:21:50', '2025-12-01 10:22:39'),
+(3, 1, 'WD202512010423161', 'Chềnh Hưng Thọ', '0902846205', 'Tổ 1, Châu Đức, Láng Lớn, Bà Rịa - Vũng Tàu', 'Bà Rịa - Vũng Tàu', 'Việt Nam', 'cod', 85500, 50000, 0, 135500, 'Đã giao hàng', '', '2025-12-01 10:23:16', '2025-12-01 10:23:49'),
+(4, 1, 'WD202512010805211', 'Chềnh Hưng Thọ', '0902846205', 'Tổ 1, Châu Đức, Láng Lớn, Bà Rịa - Vũng Tàu', 'Bà Rịa - Vũng Tàu', 'Việt Nam', 'cod', 25000000, 50000, 2500000, 22550000, 'Chờ xử lý', '', '2025-12-01 14:05:21', '2025-12-01 14:05:21'),
+(5, 1, 'WD202512020819571', 'Chềnh Hưng Thọ', '0902846205', 'hcm, Châu Đức, Láng Lớn, Bà Rịa - Vũng Tàu', 'Bà Rịa - Vũng Tàu', 'Việt Nam', 'vnpay', 750, 50000, 0, 50750, 'Chờ xử lý', '', '2025-12-02 14:19:57', '2025-12-02 14:19:57'),
+(6, 1, 'WD202512020837551', 'Chềnh Hưng Thọ', '0902846205', 'Tổ 1, Châu Đức, Láng Lớn, Bà Rịa - Vũng Tàu', 'Bà Rịa - Vũng Tàu', 'Việt Nam', 'vnpay', 750, 50000, 225, 50525, 'Chờ xử lý', '', '2025-12-02 14:37:55', '2025-12-02 14:37:55'),
+(7, 1, 'WD202512020859211', 'Chềnh Hưng Thọ', '0902846205', 'Tổ 1, Châu Đức, Láng Lớn, Bà Rịa - Vũng Tàu', 'Bà Rịa - Vũng Tàu', 'Việt Nam', 'vnpay', 750, 50000, 675, 50075, 'Chờ xử lý', 'k j', '2025-12-02 14:59:21', '2025-12-02 14:59:21'),
+(8, 1, 'WD202512020939351', 'Chềnh Hưng Thọ', '0902846205', 'Tổ 1, Châu Đức, Láng Lớn, Bà Rịa - Vũng Tàu', 'Bà Rịa - Vũng Tàu', 'Việt Nam', 'vnpay', 1500, 50000, 0, 51500, 'Chờ xử lý', '', '2025-12-02 15:39:35', '2025-12-02 15:39:35'),
+(9, 1, 'WD202512021000171', 'Chềnh Hưng Thọ', '0902846205', 'hcm, Châu Đức, Láng Lớn, Bà Rịa - Vũng Tàu', 'Bà Rịa - Vũng Tàu', 'Việt Nam', 'vnpay', 750, 50000, 0, 50750, 'Chờ xử lý', '', '2025-12-02 16:00:17', '2025-12-02 16:00:17'),
+(10, 1, 'WD202512021014511', 'Chềnh Hưng Thọ', '0902846205', 'Tổ 1, Châu Đức, Láng Lớn, Bà Rịa - Vũng Tàu', 'Bà Rịa - Vũng Tàu', 'Việt Nam', 'vnpay', 750, 50000, 0, 50750, 'Chờ xử lý', '', '2025-12-02 16:14:51', '2025-12-02 16:14:51'),
+(11, 1, 'WD202512021016361', 'Chềnh Hưng Thọ', '0902846205', 'hcm, Châu Đức, Láng Lớn, Bà Rịa - Vũng Tàu', 'Bà Rịa - Vũng Tàu', 'Việt Nam', 'vnpay', 750, 50000, 0, 50750, 'Chờ xử lý', '', '2025-12-02 16:16:36', '2025-12-02 16:16:36'),
+(12, 1, 'WD202512021020171', 'Chềnh Hưng Thọ', '0902846205', 'hcm, Châu Đức, Láng Lớn, Bà Rịa - Vũng Tàu', 'Bà Rịa - Vũng Tàu', 'Việt Nam', 'vnpay', 750, 50000, 0, 50750, 'Chờ xử lý', '', '2025-12-02 16:20:17', '2025-12-02 16:20:17'),
+(13, 1, 'WD202512021022141', 'Chềnh Hưng Thọ', '0902846205', 'hcm, Châu Đức, Láng Lớn, Bà Rịa - Vũng Tàu', 'Bà Rịa - Vũng Tàu', 'Việt Nam', 'vnpay', 750, 50000, 0, 50750, 'Đã hủy', '', '2025-12-02 16:22:14', '2025-12-02 16:25:34'),
+(14, 1, 'WD202512021027001', 'Chềnh Hưng Thọ', '0902846205', 'hcm, Châu Đức, Láng Lớn, Bà Rịa - Vũng Tàu', 'Bà Rịa - Vũng Tàu', 'Việt Nam', 'vnpay', 750, 50000, 0, 50750, 'Chờ xử lý', '', '2025-12-02 16:27:00', '2025-12-02 16:27:00'),
+(15, 1, 'WD202512021033311', 'Chềnh Hưng Thọ', '0902846205', 'hcm, Châu Đức, Láng Lớn, Bà Rịa - Vũng Tàu', 'Bà Rịa - Vũng Tàu', 'Việt Nam', 'vnpay', 750, 50000, 0, 50750, 'Chờ xử lý', '', '2025-12-02 16:33:31', '2025-12-02 16:33:31'),
+(16, 1, 'WD202512021046591', 'Chềnh Hưng Thọ', '0902846205', 'hcm, Châu Đức, Láng Lớn, Bà Rịa - Vũng Tàu', 'Bà Rịa - Vũng Tàu', 'Việt Nam', 'vnpay', 1500, 50000, 0, 51500, 'Chờ xử lý', '', '2025-12-02 16:46:59', '2025-12-02 16:46:59'),
+(17, 1, 'WD202512021048501', 'Chềnh Hưng Thọ', '0902846205', 'hcm, Châu Đức, Láng Lớn, Bà Rịa - Vũng Tàu', 'Bà Rịa - Vũng Tàu', 'Việt Nam', 'vnpay', 2000, 50000, 0, 52000, 'Chờ xử lý', '', '2025-12-02 16:48:50', '2025-12-02 16:48:50'),
+(18, 1, 'WD202512021049431', 'Chềnh Hưng Thọ', '0902846205', 'hcm, Châu Đức, Láng Lớn, Bà Rịa - Vũng Tàu', 'Bà Rịa - Vũng Tàu', 'Việt Nam', 'vnpay', 2000, 50000, 0, 52000, 'Đã hủy', '', '2025-12-02 16:49:43', '2025-12-02 16:50:42'),
+(19, 1, 'WD202512021055151', 'Chềnh Hưng Thọ', '0902846205', 'hcm, Châu Đức, Láng Lớn, Bà Rịa - Vũng Tàu', 'Bà Rịa - Vũng Tàu', 'Việt Nam', 'vnpay', 2000, 50000, 0, 52000, 'Chờ xử lý', '', '2025-12-02 16:55:15', '2025-12-02 16:55:15'),
+(20, 1, 'WD202512021100001', 'Chềnh Hưng Thọ', '0902846205', 'hcm, Châu Đức, Láng Lớn, Bà Rịa - Vũng Tàu', 'Bà Rịa - Vũng Tàu', 'Việt Nam', 'vnpay', 2000, 50000, 0, 52000, 'Chờ xử lý', '', '2025-12-02 17:00:00', '2025-12-02 17:00:00'),
+(21, 1, 'WD202512021105391', 'Chềnh Hưng Thọ', '0902846205', 'hcm, Châu Đức, Láng Lớn, Bà Rịa - Vũng Tàu', 'Bà Rịa - Vũng Tàu', 'Việt Nam', 'vnpay', 2000, 50000, 0, 52000, 'Chờ xử lý', '', '2025-12-02 17:05:39', '2025-12-02 17:05:39'),
+(22, 1, 'WD202512021108321', 'Chềnh Hưng Thọ', '0902846205', 'hcm, Châu Đức, Láng Lớn, Bà Rịa - Vũng Tàu', 'Bà Rịa - Vũng Tàu', 'Việt Nam', 'vnpay', 2000, 50000, 0, 52000, 'Chờ xử lý', '', '2025-12-02 17:08:32', '2025-12-02 17:08:32'),
+(23, 1, 'WD202512030613591', 'Chềnh Hưng Thọ', '0902846205', 'hcm, Châu Đức, Láng Lớn, Bà Rịa - Vũng Tàu', 'Bà Rịa - Vũng Tàu', 'Việt Nam', 'cod', 26500000, 50000, 0, 26550000, 'Chờ xử lý', '', '2025-12-03 12:13:59', '2025-12-03 12:13:59');
+
 -- --------------------------------------------------------
 
 --
@@ -106,6 +136,37 @@ CREATE TABLE `donhang_chitiet` (
   `Gia` int(11) NOT NULL,
   `ThanhTien` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Đang đổ dữ liệu cho bảng `donhang_chitiet`
+--
+
+INSERT INTO `donhang_chitiet` (`IdDonHangChiTiet`, `IdDonHang`, `LoaiSanPham`, `IdSanPham`, `TenSanPham`, `SoLuong`, `Gia`, `ThanhTien`) VALUES
+(1, 1, 'mohinh', 9, 'Mô hình Arya', 1, 7500000, 7500000),
+(2, 1, 'mohinh', 13, 'Mô hình Anime Figure Uchiha Madara Kimono Trắng', 1, 1500000, 1500000),
+(3, 2, 'mohinh', 13, 'Mô hình Anime Figure Uchiha Madara Kimono Trắng', 1, 1500000, 1500000),
+(4, 3, 'mohinh', 11, 'Set 6 Nhân Vật One Piece phong cách Chibi dễ thương No.1', 1, 85500, 85500),
+(5, 4, 'mohinh', 14, 'Mô hình Changli - Wuthering Wave', 1, 25000000, 25000000),
+(6, 5, 'mohinh', 9, 'Mô hình Arya', 1, 750, 750),
+(7, 6, 'mohinh', 9, 'Mô hình Arya', 1, 750, 750),
+(8, 7, 'mohinh', 9, 'Mô hình Arya', 1, 750, 750),
+(9, 8, 'mohinh', 9, 'Mô hình Arya', 2, 750, 1500),
+(10, 9, 'mohinh', 9, 'Mô hình Arya', 1, 750, 750),
+(11, 10, 'mohinh', 9, 'Mô hình Arya', 1, 750, 750),
+(12, 11, 'mohinh', 9, 'Mô hình Arya', 1, 750, 750),
+(13, 12, 'mohinh', 9, 'Mô hình Arya', 1, 750, 750),
+(14, 13, 'mohinh', 9, 'Mô hình Arya', 1, 750, 750),
+(15, 14, 'mohinh', 9, 'Mô hình Arya', 1, 750, 750),
+(16, 15, 'mohinh', 9, 'Mô hình Arya', 1, 750, 750),
+(17, 16, 'mohinh', 9, 'Mô hình Arya', 1, 1500, 1500),
+(18, 17, 'mohinh', 9, 'Mô hình Arya', 1, 2000, 2000),
+(19, 18, 'mohinh', 9, 'Mô hình Arya', 1, 2000, 2000),
+(20, 19, 'mohinh', 9, 'Mô hình Arya', 1, 2000, 2000),
+(21, 20, 'mohinh', 9, 'Mô hình Arya', 1, 2000, 2000),
+(22, 21, 'mohinh', 9, 'Mô hình Arya', 1, 2000, 2000),
+(23, 22, 'mohinh', 9, 'Mô hình Arya', 1, 2000, 2000),
+(24, 23, 'mohinh', 13, 'Mô hình Anime Figure Uchiha Madara Kimono Trắng', 1, 1500000, 1500000),
+(25, 23, 'mohinh', 14, 'Mô hình Changli - Wuthering Wave', 1, 25000000, 25000000);
 
 -- --------------------------------------------------------
 
@@ -125,6 +186,9 @@ CREATE TABLE `expuser` (
 --
 
 INSERT INTO `expuser` (`IdUser`, `exp`, `max_exp`, `lv_user`) VALUES
+(12, 0, 100, 0),
+(1, 0, 100, 0),
+(14, 0, 100, 0),
 (12, 0, 100, 0),
 (1, 0, 100, 0),
 (14, 0, 100, 0);
@@ -147,7 +211,7 @@ CREATE TABLE `giohang` (
 --
 
 INSERT INTO `giohang` (`IDGioHang`, `TongGiaTien`, `TongSoLuong`, `IdUser`) VALUES
-(0, 25081000, 2, 1);
+(0, 25000000, 1, 1);
 
 -- --------------------------------------------------------
 
@@ -170,8 +234,7 @@ CREATE TABLE `giohang_chitiet` (
 --
 
 INSERT INTO `giohang_chitiet` (`IdGioHangChiTiet`, `IdGioHang`, `LoaiSanPham`, `IdSanPham`, `SoLuong`, `Gia`, `IdTheLoai`) VALUES
-(23, 0, 'mohinh', 14, 1, 25000000, 1),
-(24, 0, 'mohinh', 12, 1, 81000, 1);
+(28, 0, 'mohinh', 14, 1, 25000000, 1);
 
 -- --------------------------------------------------------
 
@@ -188,20 +251,21 @@ CREATE TABLE `magma` (
   `SoLuongDaBan` int(11) NOT NULL,
   `Sale` int(11) NOT NULL,
   `TheLoai` int(11) NOT NULL,
-  `ID` int(11) NOT NULL
+  `ID` int(11) NOT NULL,
+  `NgayTao` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Đang đổ dữ liệu cho bảng `magma`
 --
 
-INSERT INTO `magma` (`Name`, `Img1`, `Img2`, `Gia`, `SoLuongTonKho`, `SoLuongDaBan`, `Sale`, `TheLoai`, `ID`) VALUES
-('Dược Sư tự sự', '_imgProduct/magma/1763141113_maomao.jpg', '', 20000, 233, 20, 10, 2, 8),
-('Naruto', '_imgProduct/magma/1763141151_âruto.jpg', '', 34000, 200, 20, 10, 2, 9),
-('Arya Vol 4', '_imgProduct/magma/1763194988_arya 4.jpg', '', 135000, 120, 56, 0, 2, 10),
-('Học viện Anh hùng - Tập 1', '_imgProduct/magma/1763303514_deku.jpg', '', 40000, 1200, 350, 0, 2, 11),
-('Thanh gươm diệt quỷ Tập 15', '_imgProduct/magma/1763304108_demon.jpg', '', 36000, 2100, 660, 0, 2, 12),
-('Chú thuật hồi chiến - Chapter 19', '_imgProduct/magma/1763303641_jjk.jpg', '', 40000, 300, 910, 0, 2, 13);
+INSERT INTO `magma` (`Name`, `Img1`, `Img2`, `Gia`, `SoLuongTonKho`, `SoLuongDaBan`, `Sale`, `TheLoai`, `ID`, `NgayTao`) VALUES
+('Dược Sư tự sự', '_imgProduct/magma/1763141113_maomao.jpg', '', 20000, 233, 20, 10, 2, 8, '2025-12-03 11:38:13'),
+('Naruto', '_imgProduct/magma/1763141151_âruto.jpg', '', 34000, 200, 20, 10, 2, 9, '2025-12-03 11:38:13'),
+('Arya Vol 4', '_imgProduct/magma/1763194988_arya 4.jpg', '', 135000, 120, 56, 0, 2, 10, '2025-12-03 11:38:13'),
+('Học viện Anh hùng - Tập 1', '_imgProduct/magma/1763303514_deku.jpg', '', 40000, 1200, 350, 0, 2, 11, '2025-12-03 11:38:13'),
+('Thanh gươm diệt quỷ Tập 15', '_imgProduct/magma/1763304108_demon.jpg', '', 36000, 2100, 660, 0, 2, 12, '2025-12-03 11:38:13'),
+('Chú thuật hồi chiến - Chapter 19', '_imgProduct/magma/1763303641_jjk.jpg', '', 40000, 300, 910, 0, 2, 13, '2025-12-03 11:38:13');
 
 -- --------------------------------------------------------
 
@@ -218,22 +282,23 @@ CREATE TABLE `mohinh` (
   `SoLuongDaBan` int(11) NOT NULL DEFAULT 0,
   `Sale` int(11) NOT NULL,
   `TheLoai` int(11) NOT NULL,
-  `ID` int(11) NOT NULL
+  `ID` int(11) NOT NULL,
+  `NgayTao` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Đang đổ dữ liệu cho bảng `mohinh`
 --
 
-INSERT INTO `mohinh` (`Name`, `Img1`, `Img2`, `Gia`, `SoLuongTonKho`, `SoLuongDaBan`, `Sale`, `TheLoai`, `ID`) VALUES
-('Mô Hình Roronoa Zoro - Asura Cửu Kiếm (Có LED)', '_imgProduct/mohinh/Screenshot 2024-11-17 215458.png', '', 1800000, 50, 15, 15, 1, 7),
-('Luffy ', '_imgProduct/mohinh/1763141312_luffy_figure.jpg', '', 550000, 5, 3, 20, 1, 8),
-('Mô hình Arya', '_imgProduct/mohinh/1763194923_arya firuge.jpg', '', 15000000, 10, 0, 50, 1, 9),
-('Mô hình One Piece Nhân vật Monkey D Luffy Gear 5 Trạng Thái Thức Tỉnh Nika thần Mặt Trời', '_imgProduct/mohinh/1763303193_lufffy.jpg', '', 500000, 10, 3, 0, 1, 10),
-('Set 6 Nhân Vật One Piece phong cách Chibi dễ thương No.1', '_imgProduct/mohinh/1763303232_chibi.jpg', '', 90000, 20, 10, 5, 1, 11),
-('Mô hình Anime Kimetsu No Yaiba Trọn bộ 6 Nhân Vật Chibi', '_imgProduct/mohinh/1763303282_kamado.jpg', '', 90000, 505, 20, 10, 1, 12),
-('Mô hình Anime Figure Uchiha Madara Kimono Trắng', '_imgProduct/mohinh/1763303340_madara.jpg', '', 1500000, 5, 2, 0, 1, 13),
-('Mô hình Changli - Wuthering Wave', '_imgProduct/mohinh/1763303450_changli.jpg', '', 25000000, 4, 0, 0, 1, 14);
+INSERT INTO `mohinh` (`Name`, `Img1`, `Img2`, `Gia`, `SoLuongTonKho`, `SoLuongDaBan`, `Sale`, `TheLoai`, `ID`, `NgayTao`) VALUES
+('Mô Hình Roronoa Zoro - Asura Cửu Kiếm (Có LED)', '_imgProduct/mohinh/Screenshot 2024-11-17 215458.png', '', 1900000, 52, 15, 15, 1, 7, '2025-12-03 11:38:13'),
+('Luffy ', '_imgProduct/mohinh/1763141312_luffy_figure.jpg', '', 550000, 5, 3, 20, 1, 8, '2025-12-03 11:38:13'),
+('Mô hình Arya', '_imgProduct/mohinh/1763194923_arya firuge.jpg', '', 2000, 13, 0, 0, 1, 9, '2025-12-03 11:38:13'),
+('Mô hình One Piece Nhân vật Monkey D Luffy Gear 5 Trạng Thái Thức Tỉnh Nika thần Mặt Trời', '_imgProduct/mohinh/1763303193_lufffy.jpg', '', 500000, 10, 3, 0, 1, 10, '2025-12-03 11:38:13'),
+('Set 6 Nhân Vật One Piece phong cách Chibi dễ thương No.1', '_imgProduct/mohinh/1763303232_chibi.jpg', '', 90000, 20, 10, 5, 1, 11, '2025-12-03 11:38:13'),
+('Mô hình Anime Kimetsu No Yaiba Trọn bộ 6 Nhân Vật Chibi', '_imgProduct/mohinh/1763303282_kamado.jpg', '', 90000, 505, 20, 10, 1, 12, '2025-12-03 11:38:13'),
+('Mô hình Anime Figure Uchiha Madara Kimono Trắng', '_imgProduct/mohinh/1763303340_madara.jpg', '', 1500000, 6, 1, 0, 1, 13, '2025-12-03 11:38:13'),
+('Mô hình Changli - Wuthering Wave', '_imgProduct/mohinh/1763303450_changli.jpg', '', 25000000, 3, 1, 0, 1, 14, '2025-12-03 11:38:13');
 
 -- --------------------------------------------------------
 
@@ -347,7 +412,6 @@ CREATE TABLE `yeuthich` (
 --
 
 INSERT INTO `yeuthich` (`ID`, `IdUser`, `IDSanPham`, `LoaiSanPham`) VALUES
-(13, 1, 8, 'mohinh'),
 (12, 1, 9, 'mohinh'),
 (16, 1, 11, 'mohinh'),
 (17, 1, 12, 'mohinh'),
@@ -463,19 +527,19 @@ ALTER TABLE `cosplay`
 -- AUTO_INCREMENT cho bảng `donhang`
 --
 ALTER TABLE `donhang`
-  MODIFY `IdDonHang` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `IdDonHang` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- AUTO_INCREMENT cho bảng `donhang_chitiet`
 --
 ALTER TABLE `donhang_chitiet`
-  MODIFY `IdDonHangChiTiet` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `IdDonHangChiTiet` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
 
 --
 -- AUTO_INCREMENT cho bảng `giohang_chitiet`
 --
 ALTER TABLE `giohang_chitiet`
-  MODIFY `IdGioHangChiTiet` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+  MODIFY `IdGioHangChiTiet` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
 
 --
 -- AUTO_INCREMENT cho bảng `magma`
@@ -517,7 +581,7 @@ ALTER TABLE `voucher`
 -- AUTO_INCREMENT cho bảng `yeuthich`
 --
 ALTER TABLE `yeuthich`
-  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- Các ràng buộc cho các bảng đã đổ

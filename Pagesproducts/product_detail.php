@@ -134,16 +134,23 @@ if ($product && isset($product['TheLoai'])) {
                         </div>
 
                         <div class="stock-info">
+                            <?php 
+                            $available_stock = (int)$product['SoLuongTonKho'];
+                            $sold_quantity = (int)$product['SoLuongDaBan'];
+                            ?>
                             <p>Tình trạng: 
-                                <?php if ($product['SoLuongTonKho'] > $product['SoLuongDaBan']): ?>
-                                    <span class="in-stock">Còn hàng (<?php echo $product['SoLuongTonKho'] - $product['SoLuongDaBan']; ?> sản phẩm)</span>
+                                <?php if ($available_stock > 0): ?>
+                                    <span class="in-stock">Còn hàng (<?php echo $available_stock; ?> sản phẩm)</span>
                                 <?php else: ?>
                                     <span class="out-of-stock">Hết hàng</span>
                                 <?php endif; ?>
                             </p>
+                            <p style="margin-top: 5px; font-size: 14px; color: #666;">
+                                Đã bán: <?php echo $sold_quantity; ?> sản phẩm
+                            </p>
                         </div>
 
-                        <?php if ($product['SoLuongTonKho'] > $product['SoLuongDaBan']): ?>
+                        <?php if ($available_stock > 0): ?>
                             <?php 
                             // Kiểm tra đăng nhập
                             $is_logged_in = isset($_SESSION['user_id']) && !empty($_SESSION['user_id']);
