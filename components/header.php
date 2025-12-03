@@ -145,10 +145,13 @@ function get_or_create_cart_id($conn, $user_id) {
         <div class='logo'>
             <img src="/Home/img/logo_1.png" alt=""  onclick = 'window.location.href="/Home/index.php"'>
         </div>
-        <form action="" class="search-bar">
-            <input type="text" placeholder="Bạn đang tìm gì...?">
-            <i class="fa-solid fa-magnifying-glass"></i>
-        </form>
+        <div class="search-container">
+            <form action="" class="search-bar" onsubmit="return false;">
+                <input type="text" id="search-input" placeholder="Bạn đang tìm gì...?" autocomplete="off">
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </form>
+            <div id="search-results" class="search-results-dropdown"></div>
+        </div>
         <div class="exp-bar">
             <span class ="exp">  
                 EXP:
@@ -429,4 +432,85 @@ function get_or_create_cart_id($conn, $user_id) {
             window.history.replaceState({}, document.title, newUrl);
         }
     });
+
+    // === SEARCH AUTOCOMPLETE ===
+    const searchInput = document.getElementById('search-input');
+    const searchResults = document.getElementById('search-results');
+    let searchTimeout;
+
+    if (searchInput && searchResults) {
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            const query = this.value.trim();
+            
+            if (query.length < 2) {
+                searchResults.innerHTML = '';
+                searchResults.classList.remove('show');
+                return;
+            }
+            
+            searchResults.innerHTML = '<div class="search-loading"><i class="fa-solid fa-spinner fa-spin"></i> Đang tìm kiếm...</div>';
+            searchResults.classList.add('show');
+            
+            searchTimeout = setTimeout(() => {
+                fetch(`/components/search_handler.php?q=${encodeURIComponent(query)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success' && data.results.length > 0) {
+                            let html = '';
+                            data.results.forEach(item => {
+                                let priceHtml = `<div class="search-result-price">${item.price}₫`;
+                                if (item.original_price) {
+                                    priceHtml += ` <span class="original-price">${item.original_price}₫</span>`;
+                                }
+                                if (item.sale > 0) {
+                                    priceHtml += ` <span class="sale-badge">-${item.sale}%</span>`;
+                                }
+                                priceHtml += '</div>';
+                                
+                                let stockHtml = '';
+                                if (item.stock > 0) {
+                                    stockHtml = `<div class="search-result-stock">Còn hàng: ${item.stock}</div>`;
+                                } else {
+                                    stockHtml = '<div class="search-result-stock out-of-stock">Hết hàng</div>';
+                                }
+                                
+                                html += `
+                                    <a href="${item.url}" class="search-result-item">
+                                        <img src="/admin/${item.image}" alt="${item.name}">
+                                        <div class="search-result-info">
+                                            <div class="search-result-name">${item.name}</div>
+                                            <div class="search-result-category">${item.category_name}</div>
+                                            ${priceHtml}
+                                            ${stockHtml}
+                                        </div>
+                                    </a>
+                                `;
+                            });
+                            searchResults.innerHTML = html;
+                        } else {
+                            searchResults.innerHTML = '<div class="search-no-results"><i class="fa-solid fa-magnifying-glass"></i> Không tìm thấy sản phẩm nào</div>';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Search error:', error);
+                        searchResults.innerHTML = '<div class="search-no-results">Có lỗi xảy ra. Vui lòng thử lại.</div>';
+                    });
+            }, 300);
+        });
+        
+        // Đóng dropdown khi click bên ngoài
+        document.addEventListener('click', function(e) {
+            if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+                searchResults.classList.remove('show');
+            }
+        });
+        
+        // Hiện lại dropdown khi focus vào input (nếu có kết quả)
+        searchInput.addEventListener('focus', function() {
+            if (this.value.trim().length >= 2 && searchResults.innerHTML !== '') {
+                searchResults.classList.add('show');
+            }
+        });
+    }
     </script>
