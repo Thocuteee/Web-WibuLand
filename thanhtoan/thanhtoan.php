@@ -182,18 +182,28 @@
                                 </div>
                     
                                 <div class="pay-method">
-                                    <h3>Phương thức thanh toán *</h3>
+                                    <h3><i class="fa-solid fa-credit-card"></i> Phương thức thanh toán *</h3>
                                     <div class="pay-option">
-                                        <label for="cod"> 
+                                        <label for="cod" class="payment-label"> 
                                             <input type="radio" name="payment" value="cod" id="cod_radio" checked required>
-                                            <img src="/Home/img/cash-on-delivery.png" alt="COD" style="filter: invert(1); width: 60px; height: auto;">
-                                            <span>Thanh toán khi nhận hàng</span>
+                                            <div class="payment-icon-wrapper">
+                                                <i class="fa-solid fa-truck-fast payment-icon" style="color: #4CAF50;"></i>
+                                            </div>
+                                            <div class="payment-text">
+                                                <span class="payment-title">Thanh toán khi nhận hàng</span>
+                                                <span class="payment-desc">COD - Trả tiền mặt</span>
+                                            </div>
                                         </label>
                                         
-                                        <label for="vnpay"> 
+                                        <label for="vnpay" class="payment-label"> 
                                             <input type="radio" name="payment" value="vnpay" id="vnpay_radio" required>
-                                            <img src="https://vnpay.vn/wp-content/uploads/2020/07/logo-vnpay.png" alt="VNPay" style="width: 80px; height: auto;">
-                                            <span>Trả trước bằng QR</span>
+                                            <div class="payment-icon-wrapper">
+                                                <i class="fa-solid fa-qrcode payment-icon" style="color: #1f4788;"></i>
+                                            </div>
+                                            <div class="payment-text">
+                                                <span class="payment-title">Trả trước bằng QR</span>
+                                                <span class="payment-desc">VNPay / Chuyển khoản ngân hàng</span>
+                                            </div>
                                         </label>
                                     </div>
                                     
