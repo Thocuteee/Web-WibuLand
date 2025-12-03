@@ -730,27 +730,34 @@ main .home-content .content {
     color: red;
 }
 
+.contact-3 {
+    position: relative;
+    padding-top: 3rem;
+}
+
 .contact-3 h3 {
     color: black;
     text-align: left;
-    margin-top: -22rem;
-    margin-left: 37rem;
+    margin-left: 3rem;
     font-size: 2rem;
 }
 
 .card {
     width: 35rem;
+    max-width: 90%;
     height: 15rem;
     border-radius: 1rem;
     padding: 1rem;
     box-shadow: 0 0.4rem 0.8rem rgba(0, 0, 0, 0.1);
     text-align: center;
-    margin-top: -18rem;
-    margin-left: 28rem;
+    margin: 3rem auto 5rem;
     padding-top: 7rem;
     background-image: url(/Home/img/sky.png);
     z-index: 1;
     background-size: cover;
+    position: relative;
+    display: block;
+    clear: both;
 }
 
 .card img {

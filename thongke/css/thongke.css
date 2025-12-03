@@ -1,0 +1,482 @@
+/* ==================== TRANG THỐNG KÊ DOANH THU ==================== */
+
+/* Override background */
+body {
+    background: linear-gradient(135deg, #5a5a5a 0%, #7a7a7a 50%, #5a5a5a 100%) !important;
+}
+
+/* Fix overlay và z-index issues */
+.home-content {
+    position: relative;
+    z-index: 10;
+    padding-bottom: 20rem;
+    min-height: 100vh;
+}
+
+.content {
+    position: relative;
+    z-index: 10;
+    padding-bottom: 3rem;
+}
+
+main {
+    position: relative;
+    z-index: 10;
+}
+
+/* Ẩn Facebook card overlay để không đè lên content */
+.contact-3,
+.card {
+    display: none !important;
+}
+
+/* Đảm bảo content không bị đè bởi các element khác */
+.content > * {
+    position: relative;
+    z-index: 10;
+}
+
+#footer-1,
+#footer-2 {
+    position: relative;
+    z-index: 1;
+    margin-top: 10rem;
+}
+
+/* ==================== HEADER SECTION ==================== */
+.stats-page-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 2rem;
+    text-align: center;
+    margin: 1.5rem auto 2rem;
+    border-radius: 1.2rem;
+    box-shadow: 0 0.5rem 2rem rgba(102, 126, 234, 0.3);
+    max-width: 95%;
+    position: relative;
+    z-index: 10;
+}
+
+.stats-page-header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.stats-page-header p {
+    font-size: 1.3rem;
+}
+
+/* ==================== STAT CARDS GRID ==================== */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+    position: relative;
+    z-index: 10;
+}
+
+@media (max-width: 1200px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.stat-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 1.5rem;
+    border-radius: 1.2rem;
+    color: white;
+    text-align: center;
+    transition: all 0.3s;
+    box-shadow: 0 0.3rem 1rem rgba(0,0,0,0.15);
+    position: relative;
+    overflow: hidden;
+    z-index: 10;
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
+    animation: shimmer 4s infinite;
+}
+
+@keyframes shimmer {
+    0%, 100% { transform: translate(0, 0); }
+    50% { transform: translate(15%, 15%); }
+}
+
+.stat-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 1.5rem 4rem rgba(0,0,0,0.25);
+}
+
+.stat-card.red {
+    background: linear-gradient(135deg, #d42426 0%, #b71c1c 100%);
+}
+
+.stat-card.green {
+    background: linear-gradient(135deg, #165b33 0%, #0d3d1f 100%);
+}
+
+.stat-card.gold {
+    background: linear-gradient(135deg, #ffd700 0%, #ffb300 100%);
+    color: #333;
+}
+
+.stat-card.blue {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.stat-icon {
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+    position: relative;
+    z-index: 1;
+}
+
+.stat-value {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin: 0.5rem 0;
+    position: relative;
+    z-index: 1;
+}
+
+.stat-label {
+    font-size: 1.2rem;
+    opacity: 0.95;
+    font-weight: 600;
+    position: relative;
+    z-index: 1;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* ==================== CATEGORY REVENUE SECTION ==================== */
+.category-revenue {
+    background: white;
+    padding: 2rem;
+    border-radius: 1.2rem;
+    margin-bottom: 15rem;
+    box-shadow: 0 0.3rem 1.5rem rgba(0,0,0,0.1);
+    position: relative;
+    z-index: 10;
+}
+
+.category-revenue h2 {
+    color: #333;
+    margin-bottom: 1.5rem;
+    font-size: 2rem;
+    text-align: center;
+    border-bottom: 2px solid #667eea;
+    padding-bottom: 1rem;
+}
+
+.category-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+}
+
+@media (max-width: 1024px) {
+    .category-cards {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .category-cards {
+        grid-template-columns: 1fr;
+    }
+}
+
+.category-card {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    padding: 1.5rem;
+    border-radius: 1rem;
+    border: 2px solid #e0e0e0;
+    transition: all 0.3s;
+}
+
+.category-card:hover {
+    transform: translateY(-5px);
+    border-color: #667eea;
+    box-shadow: 0 1rem 2rem rgba(102, 126, 234, 0.2);
+}
+
+.category-card.mohinh {
+    border-color: #764ba2;
+}
+
+.category-card.mohinh:hover {
+    border-color: #667eea;
+    box-shadow: 0 1rem 2rem rgba(118, 75, 162, 0.3);
+}
+
+.category-card.magma {
+    border-color: #f5576c;
+}
+
+.category-card.magma:hover {
+    border-color: #f093fb;
+    box-shadow: 0 1rem 2rem rgba(240, 147, 251, 0.3);
+}
+
+.category-card.cosplay {
+    border-color: #00f2fe;
+}
+
+.category-card.cosplay:hover {
+    border-color: #4facfe;
+    box-shadow: 0 1rem 2rem rgba(79, 172, 254, 0.3);
+}
+
+.category-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.8rem;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.category-icon {
+    font-size: 2.5rem;
+}
+
+.category-name {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #333;
+}
+
+/* Layout ngang cho stats mini */
+.stats-inline {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.stat-mini {
+    text-align: center;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 0.8rem;
+    transition: all 0.3s;
+}
+
+.stat-mini:hover {
+    background: #e9ecef;
+    transform: scale(1.05);
+}
+
+.stat-mini i {
+    font-size: 2rem;
+    color: #667eea;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.stat-mini div {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #333;
+    margin: 0.3rem 0;
+}
+
+.stat-mini small {
+    font-size: 1.1rem;
+    color: #666;
+    display: block;
+}
+
+
+.revenue-highlight {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 1.5rem;
+    border-radius: 0.8rem;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.revenue-highlight .amount {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin: 0.3rem 0;
+}
+
+/* ==================== BEST SELLERS SECTION ==================== */
+.best-sellers {
+    background: white;
+    padding: 3rem;
+    border-radius: 1.5rem;
+    box-shadow: 0 0.5rem 2rem rgba(0,0,0,0.15);
+    margin-bottom: 5rem;
+    position: relative;
+    z-index: 10;
+}
+
+.best-sellers h2 {
+    color: #333;
+    margin-bottom: 2rem;
+    font-size: 2.5rem;
+    text-align: center;
+    border-bottom: 3px solid #d42426;
+    padding-bottom: 1.5rem;
+}
+
+.best-sellers-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.seller-item {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    border-radius: 1rem;
+    border: 2px solid #e0e0e0;
+    transition: all 0.3s;
+}
+
+.seller-item:hover {
+    transform: translateX(10px);
+    border-color: #667eea;
+    box-shadow: 0 0.5rem 1.5rem rgba(102, 126, 234, 0.2);
+}
+
+.seller-rank {
+    font-size: 3rem;
+    font-weight: bold;
+    color: #667eea;
+    min-width: 60px;
+    text-align: center;
+}
+
+.seller-rank.top-1 {
+    color: #ffd700;
+    font-size: 4rem;
+}
+
+.seller-rank.top-2 {
+    color: #c0c0c0;
+}
+
+.seller-rank.top-3 {
+    color: #cd7f32;
+}
+
+.seller-image {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 1rem;
+    border: 2px solid #e0e0e0;
+}
+
+.seller-info {
+    flex: 1;
+}
+
+.seller-name {
+    font-size: 1.6rem;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 0.5rem;
+}
+
+.seller-category {
+    font-size: 1.2rem;
+    color: #666;
+    background: #f0f0f0;
+    padding: 0.3rem 0.8rem;
+    border-radius: 0.5rem;
+    display: inline-block;
+    margin-bottom: 0.5rem;
+}
+
+.seller-stats {
+    display: flex;
+    gap: 2rem;
+    margin-top: 0.8rem;
+}
+
+.seller-stats .stat {
+    font-size: 1.3rem;
+}
+
+.seller-stats .stat strong {
+    color: #667eea;
+    font-size: 1.5rem;
+}
+
+.seller-revenue {
+    text-align: right;
+}
+
+.seller-revenue .amount {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #d42426;
+}
+
+.seller-revenue .label {
+    font-size: 1.2rem;
+    color: #666;
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 768px) {
+    .stats-page-header h1 {
+        font-size: 2.5rem;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+    }
+
+    .stat-card {
+        padding: 1.5rem;
+    }
+
+    .stat-icon {
+        font-size: 3rem;
+    }
+
+    .stat-value {
+        font-size: 2.5rem;
+    }
+
+    .category-cards {
+        grid-template-columns: 1fr;
+    }
+
+    .seller-item {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .seller-revenue {
+        text-align: center;
+    }
+}
+

@@ -38,6 +38,7 @@ foreach ($categories as $table => $cat_name) {
         }
     }
 }
+
 ?>
 
 <!DOCTYPE html>
@@ -144,6 +145,7 @@ foreach ($categories as $table => $cat_name) {
             background: #d42426;
             color: white;
         }
+
     </style>
     <title>🎁 Flash Sale - Tất Cả Sản Phẩm Giảm Giá | Wibu Dreamland</title>
 </head>
@@ -248,4 +250,5 @@ foreach ($categories as $table => $cat_name) {
     <script src="../components/js/wishlist.js"></script>
 </body>
 </html>
+
 

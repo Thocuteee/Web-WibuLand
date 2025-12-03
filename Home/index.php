@@ -515,6 +515,104 @@
                 
 
 
+                <?php
+                // Lấy Top 10 sản phẩm bán chạy
+                $best_sellers = [];
+                $categories_for_top = ['mohinh' => 'Mô hình', 'magma' => 'Manga', 'cosplay' => 'Cosplay'];
+                
+                foreach ($categories_for_top as $table => $cat_name) {
+                    $best_query = "SELECT *, '$table' as category, '$cat_name' as category_name 
+                                   FROM `$table` 
+                                   WHERE SoLuongDaBan > 0
+                                   ORDER BY SoLuongDaBan DESC 
+                                   LIMIT 5";
+                    
+                    $best_result = mysqli_query($conn, $best_query);
+                    if ($best_result) {
+                        while ($product = mysqli_fetch_assoc($best_result)) {
+                            $product['revenue'] = $product['SoLuongDaBan'] * $product['Gia'];
+                            $best_sellers[] = $product;
+                        }
+                    }
+                }
+                
+                usort($best_sellers, function($a, $b) {
+                    return $b['SoLuongDaBan'] - $a['SoLuongDaBan'];
+                });
+                $best_sellers = array_slice($best_sellers, 0, 10);
+                ?>
+
+                <!-- Top 10 Bán Chạy -->
+                <?php if (count($best_sellers) > 0): ?>
+                <div class="section" style="background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%); padding: 3rem; border-radius: 1.5rem; margin-bottom: 3rem; box-shadow: 0 0.5rem 2rem rgba(0,0,0,0.15);">
+                    <h2 style="text-align: center; color: #d42426; font-size: 2.5rem; margin-bottom: 2rem; border-bottom: 3px solid #ffd700; padding-bottom: 1.5rem;">
+                        <i class="fa-solid fa-trophy"></i> Top 10 Sản Phẩm Bán Chạy Nhất
+                    </h2>
+                    
+                    <div class="product-list">
+                        <?php foreach (array_slice($best_sellers, 0, 10) as $index => $row): 
+                            $rank = $index + 1;
+                            $detail_url = "/Pagesproducts/product_detail.php?id=" . $row['ID'] . "&category=" . $row['category'];
+                            
+                            $wishlist_key = $row['category'] . '_' . $row['ID'];
+                            $is_in_wishlist = isset($user_wishlist[$wishlist_key]);
+                            $heart_class = $is_in_wishlist ? 'fa-solid fa-heart' : 'fa-regular fa-heart';
+                            
+                            $available_stock = (int)$row['SoLuongTonKho'];
+                        ?>
+                        
+                        <div class="product" style="position: relative;">
+                            <!-- Rank Badge -->
+                            <div style="position: absolute; top: 10px; left: 10px; background: linear-gradient(135deg, #ffd700 0%, #ffb300 100%); color: #333; font-weight: bold; font-size: 1.6rem; padding: 0.5rem 1rem; border-radius: 1rem; z-index: 5; box-shadow: 0 3px 10px rgba(255,215,0,0.4);">
+                                <?php if ($rank == 1): ?>
+                                    🥇 #<?php echo $rank; ?>
+                                <?php elseif ($rank == 2): ?>
+                                    🥈 #<?php echo $rank; ?>
+                                <?php elseif ($rank == 3): ?>
+                                    🥉 #<?php echo $rank; ?>
+                                <?php else: ?>
+                                    #<?php echo $rank; ?>
+                                <?php endif; ?>
+                            </div>
+
+                            <a href="<?php echo $detail_url; ?>">
+                                <img src="/admin/<?php echo $row['Img1']; ?>" alt="<?php echo htmlspecialchars($row['Name']); ?>">
+                            </a>
+                            
+                            <a href="<?php echo $detail_url; ?>">
+                                <div class="name"><?php echo htmlspecialchars($row['Name']); ?></div>
+                            </a>
+                            
+                            <?php if ($available_stock > 0): ?>
+                                <?php if ($row['Sale'] > 0): ?>
+                                    <div class="discount">-<?php echo $row['Sale']; ?>%</div>
+                                <?php endif; ?>
+                                
+                                <div class="category-badge" style="position: absolute; top: 50px; left: 10px; background: #667eea; color: white; padding: 5px 10px; border-radius: 5px; font-size: 1.1rem;">
+                                    <?php echo $row['category_name']; ?>
+                                </div>
+                                
+                                <div class="price"><?php echo number_format($row['Gia']); ?>₫</div>
+                                
+                                <div class="sold-info" style="font-size: 1.3rem; color: #d42426; font-weight: bold; margin-top: 5px;">
+                                    🔥 Đã bán: <?php echo number_format($row['SoLuongDaBan']); ?>
+                                </div>
+                                
+                                <div class="heart-icon">
+                                    <a href="#" onclick="toggleWishlist(event, <?php echo $row['ID']; ?>, '<?php echo $row['category']; ?>', <?php echo $is_in_wishlist ? 'true' : 'false'; ?>)">
+                                        <i id="wishlist_<?php echo $wishlist_key; ?>" class="<?php echo $heart_class; ?>" style="color: #f70202;"></i>
+                                    </a>
+                                </div>
+                            <?php else: ?>
+                                <div class="sold-out" style="background: orange">Hết hàng</div>
+                            <?php endif; ?>
+                        </div>
+                        
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+                <?php endif; ?>
+
                 <div class="container">
                     <?php
                         // === GỌI HÀM HIỂN THỊ SẢN PHẨM ===
@@ -530,7 +628,9 @@
             </div>
         </div>
     </main>
-                            
+    
+    <!-- Spacer để đẩy footer xuống -->
+    <div style="height: 20rem;"></div>
 
     <?php include "../components/footer.php"?>
     

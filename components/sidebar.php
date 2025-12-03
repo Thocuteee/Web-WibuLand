@@ -70,6 +70,15 @@
                         <span class = "tooltip">Trang phục Cosplay</span>
                     </li>
                     
+                    <!-- Thống kê -->
+                    <li class="nav-list-item">
+                        <a href="/thongke/thongke.php" class ="nav-link">
+                            <img src="https://img.icons8.com/ios-filled/50/graph.png" alt="statistics"/>
+                            <span>Thống kê</span>
+                        </a>
+                        <span class = "tooltip">Thống kê</span>
+                    </li>
+                    
                     <!-- Quản lý (Chỉ hiển thị cho Admin) -->
                     <?php if ($is_admin): ?>
                     <li class="nav-list-item">
